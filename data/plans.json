@@ -1,0 +1,172 @@
+{
+  "plans": [
+    {
+      "id": "plan-1",
+      "familyId": "family-a",
+      "title": "Elderly Companionship & Grief Support",
+      "focusArea": "companionship",
+      "status": "active",
+      "startDate": "2025-12-15",
+      "targetEndDate": "2026-06-15",
+      "objectives": [
+        {
+          "id": "obj-1",
+          "description": "Reduce grandmother's reported loneliness score by 50%",
+          "successIndicator": "Monthly check-in surveys showing improved mood",
+          "status": "in_progress"
+        },
+        {
+          "id": "obj-2",
+          "description": "Establish regular weekly visit schedule",
+          "successIndicator": "4+ consistent visits per month",
+          "status": "achieved"
+        }
+      ],
+      "activities": [
+        {
+          "id": "act-1",
+          "title": "Weekly Companionship Visits",
+          "description": "Team members visit for 1-2 hours each week for conversation and activities",
+          "frequency": "weekly",
+          "status": "planned"
+        },
+        {
+          "id": "act-2",
+          "title": "Monthly Group Outings",
+          "description": "Organized trips to parks, temples, or community events suitable for elderly",
+          "frequency": "monthly",
+          "status": "planned"
+        }
+      ],
+      "ethicsDescription": "All interactions respect the grandmother's autonomy and grief process. Visits are scheduled at her convenience. Team members are trained in respectful communication around loss and aging.",
+      "createdAt": "2025-12-10T08:00:00Z",
+      "updatedAt": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "plan-2",
+      "familyId": "family-b",
+      "title": "Academic Mentorship & Emotional Support",
+      "focusArea": "mental_health",
+      "status": "active",
+      "startDate": "2026-01-10",
+      "targetEndDate": "2026-08-01",
+      "objectives": [
+        {
+          "id": "obj-3",
+          "description": "Improve student's exam preparation confidence",
+          "successIndicator": "Self-reported confidence increase in monthly check-ins",
+          "status": "in_progress"
+        },
+        {
+          "id": "obj-4",
+          "description": "Connect family with university guidance resources",
+          "successIndicator": "Completed at least one counseling session",
+          "status": "pending"
+        }
+      ],
+      "activities": [
+        {
+          "id": "act-3",
+          "title": "Weekly Study Mentorship",
+          "description": "Volunteer students help with exam subjects and study strategies",
+          "frequency": "weekly",
+          "status": "planned"
+        },
+        {
+          "id": "act-4",
+          "title": "Parent Support Circle",
+          "description": "Monthly meeting with other parents to share experiences and resources",
+          "frequency": "monthly",
+          "status": "planned"
+        }
+      ],
+      "ethicsDescription": "Mentorship focuses on empowerment rather than doing work for the student. All advice respects the student's own aspirations. Family privacy is maintained in all discussions.",
+      "createdAt": "2026-01-05T10:00:00Z",
+      "updatedAt": "2026-03-15T14:00:00Z"
+    },
+    {
+      "id": "plan-3",
+      "familyId": "family-c",
+      "title": "Elderly Care & Caregiver Support",
+      "focusArea": "companionship",
+      "status": "active",
+      "startDate": "2026-02-15",
+      "targetEndDate": "2026-08-15",
+      "objectives": [
+        {
+          "id": "obj-5",
+          "description": "Reduce caregiver reported stress levels",
+          "successIndicator": "Monthly stress assessment surveys",
+          "status": "in_progress"
+        },
+        {
+          "id": "obj-6",
+          "description": "Connect family with healthcare assistance programs",
+          "successIndicator": "At least one assistance program referral completed",
+          "status": "achieved"
+        }
+      ],
+      "activities": [
+        {
+          "id": "act-5",
+          "title": "Weekly Companionship Visits",
+          "description": "Provide respite care and social interaction for elderly",
+          "frequency": "weekly",
+          "status": "planned"
+        },
+        {
+          "id": "act-6",
+          "title": "Healthcare Navigation Support",
+          "description": "Help family understand and access available healthcare resources",
+          "frequency": "as needed",
+          "status": "planned"
+        }
+      ],
+      "ethicsDescription": "All care recommendations respect the family's values and decisions. We provide support without judgment, respecting cultural traditions around elder care.",
+      "createdAt": "2026-02-15T09:00:00Z",
+      "updatedAt": "2026-03-01T11:00:00Z"
+    },
+    {
+      "id": "plan-4",
+      "familyId": "family-d",
+      "title": "Social Integration Support",
+      "focusArea": "social_integration",
+      "status": "active",
+      "startDate": "2026-02-01",
+      "targetEndDate": "2026-07-31",
+      "objectives": [
+        {
+          "id": "obj-7",
+          "description": "Children report having at least 2 new school friends",
+          "successIndicator": "Self-reported social connections survey",
+          "status": "in_progress"
+        },
+        {
+          "id": "obj-8",
+          "description": "Family participates in at least 2 community events",
+          "successIndicator": "Event attendance records",
+          "status": "achieved"
+        }
+      ],
+      "activities": [
+        {
+          "id": "act-7",
+          "title": "Group Activity Sessions",
+          "description": "Monthly organized activities mixing our families with community members",
+          "frequency": "monthly",
+          "status": "planned"
+        },
+        {
+          "id": "act-8",
+          "title": "School Connection Support",
+          "description": "Help parents understand and navigate the school system",
+          "frequency": "as needed",
+          "status": "planned"
+        }
+      ],
+      "ethicsDescription": "Integration activities respect the family's pace and comfort level. We do not pressure children to conform but rather help them find their place authentically. Cultural traditions are honored and celebrated.",
+      "createdAt": "2026-01-20T08:30:00Z",
+      "updatedAt": "2026-03-10T11:00:00Z"
+    }
+  ]
+}

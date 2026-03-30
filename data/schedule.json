@@ -1,0 +1,86 @@
+{
+  "events": [
+    {
+      "id": "event-1",
+      "title": "Spring Park Visit - Kaiyan Family",
+      "type": "field_trip",
+      "date": "2026-04-05",
+      "time": "10:00",
+      "duration": "3 hours",
+      "location": "Yanqi Park, Changshu",
+      "description": "A gentle spring outing for the Kaiyan family. Planned activities include a picnic by the lake, feeding ducks, and a short nature walk suitable for all ages.",
+      "familiesInvolved": ["family-a"],
+      "isPublic": false,
+      "createdAt": "2026-03-20T10:00:00Z",
+      "updatedAt": "2026-03-20T10:00:00Z"
+    },
+    {
+      "id": "event-2",
+      "title": "Community Health Workshop",
+      "type": "event",
+      "date": "2026-04-12",
+      "time": "14:00",
+      "duration": "2 hours",
+      "location": "Changshu Community Center",
+      "description": "A public workshop on elderly care and mental health awareness. Open to all families we support. Guest speaker from the local health bureau.",
+      "maxParticipants": 30,
+      "isPublic": true,
+      "createdAt": "2026-03-15T08:00:00Z",
+      "updatedAt": "2026-03-15T08:00:00Z"
+    },
+    {
+      "id": "event-3",
+      "title": "Weekly Companionship Visit - Shuyuan Family",
+      "type": "visit",
+      "date": "2026-04-08",
+      "time": "15:30",
+      "duration": "1.5 hours",
+      "location": "Shuyuan Family Residence",
+      "description": "Regular companionship visit to help with daily tasks and provide social interaction for the elderly members.",
+      "familiesInvolved": ["family-c"],
+      "isPublic": false,
+      "createdAt": "2026-03-25T12:00:00Z",
+      "updatedAt": "2026-03-25T12:00:00Z"
+    },
+    {
+      "id": "event-4",
+      "title": "Youth Mentorship Program Kickoff",
+      "type": "event",
+      "date": "2026-04-20",
+      "time": "10:00",
+      "duration": "4 hours",
+      "location": "UWC Changshu China Campus",
+      "description": "Launch event for our new mentorship program. Student volunteers meet the children they'll be mentoring throughout the semester.",
+      "isPublic": false,
+      "createdAt": "2026-03-10T09:00:00Z",
+      "updatedAt": "2026-03-10T09:00:00Z"
+    },
+    {
+      "id": "event-5",
+      "title": "Weekend Field Trip - Rural Village Visit",
+      "type": "field_trip",
+      "date": "2026-04-26",
+      "time": "09:00",
+      "duration": "6 hours",
+      "location": "Chengxiang Village, Changshu",
+      "description": "An educational field trip to a traditional village. Families will learn about local culture, visit a community garden, and enjoy a home-cooked meal with local families.",
+      "familiesInvolved": ["family-a", "family-b", "family-d"],
+      "isPublic": false,
+      "createdAt": "2026-03-18T11:00:00Z",
+      "updatedAt": "2026-03-18T11:00:00Z"
+    },
+    {
+      "id": "event-6",
+      "title": "Monthly Team Meeting",
+      "type": "meeting",
+      "date": "2026-04-30",
+      "time": "18:00",
+      "duration": "1.5 hours",
+      "location": "UWC Changshu China Campus",
+      "description": "Regular monthly meeting to review ongoing support plans, discuss family updates, and plan upcoming activities.",
+      "isPublic": false,
+      "createdAt": "2026-03-28T09:00:00Z",
+      "updatedAt": "2026-03-28T09:00:00Z"
+    }
+  ]
+}

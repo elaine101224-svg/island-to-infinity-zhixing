@@ -1,0 +1,133 @@
+{
+  "families": [
+    {
+      "id": "family-a",
+      "pseudonym": "Kaiyan Family",
+      "location": "Changshu Urban Area",
+      "familyComposition": {
+        "adults": 2,
+        "children": 2,
+        "elderly": 1
+      },
+      "background": "A warm family of six living in a modest apartment. The grandparents care for the children while parents work long hours in local factories.",
+      "currentSituation": "The elderly grandmother has been feeling isolated since grandfather passed last year. The two school-age children are thriving in their studies but show signs of emotional withdrawal.",
+      "keyChallenges": [
+        "Elderly grandmother experiencing loneliness and grief",
+        "Parents have limited time for quality family moments",
+        "Children need more emotional support and mentorship"
+      ],
+      "highlights": [
+        {
+          "date": "2025-12-15",
+          "title": "First Group Visit",
+          "description": "Our team visited for the first time. The grandmother shared stories of her garden, and the children showed us their school artwork."
+        },
+        {
+          "date": "2026-02-20",
+          "title": "Community Temple Visit",
+          "description": "We accompanied the grandmother to the local temple for the Lantern Festival. She lit incense and seemed at peace."
+        }
+      ],
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
+          "caption": "Visiting the temple together",
+          "consentGiven": true
+        }
+      ],
+      "consentGiven": true,
+      "createdAt": "2025-12-10T08:00:00Z",
+      "updatedAt": "2026-02-20T14:30:00Z"
+    },
+    {
+      "id": "family-b",
+      "pseudonym": "Weiming Family",
+      "location": "Changshu Suburban Area",
+      "familyComposition": {
+        "adults": 1,
+        "children": 3,
+        "elderly": 0
+      },
+      "background": "A single-mother household with three children. The mother works as a delivery driver to support her family's education needs.",
+      "currentSituation": "The oldest child is preparing for university entrance exams and feels pressured. The younger children are adjusting to a new school. The mother worries about providing enough emotional support while working long hours.",
+      "keyChallenges": [
+        "Academic pressure on eldest child",
+        "Limited maternal presence due to work demands",
+        "Younger children adjusting to new environment"
+      ],
+      "highlights": [
+        {
+          "date": "2026-01-10",
+          "title": "Study Mentorship Session",
+          "description": "Volunteers helped the eldest child with exam preparation. She opened up about her fears and aspirations."
+        }
+      ],
+      "photos": [],
+      "consentGiven": false,
+      "createdAt": "2026-01-05T10:00:00Z",
+      "updatedAt": "2026-01-10T16:00:00Z"
+    },
+    {
+      "id": "family-c",
+      "pseudonym": "Shuyuan Family",
+      "location": "Changshu Rural Area",
+      "familyComposition": {
+        "adults": 2,
+        "children": 1,
+        "elderly": 2
+      },
+      "background": "An inter-generational family living in a traditional house near the countryside. Both elderly require regular medical attention.",
+      "currentSituation": "The family struggles with healthcare costs for the elderly. The single child in the family feels torn between caring for grandparents and pursuing her own career opportunities.",
+      "keyChallenges": [
+        "Elderly medical care expenses",
+        "Caregiver burden on adult children",
+        "Young adult's career vs. family obligations"
+      ],
+      "highlights": [
+        {
+          "date": "2026-03-01",
+          "title": "Healthcare Support Referral",
+          "description": "Connected the family with a local healthcare assistance program. The grandparents were grateful for the resources."
+        }
+      ],
+      "photos": [],
+      "consentGiven": false,
+      "createdAt": "2026-02-15T09:00:00Z",
+      "updatedAt": "2026-03-01T11:00:00Z"
+    },
+    {
+      "id": "family-d",
+      "pseudonym": "Yuxuan Family",
+      "location": "Changshu Urban Area",
+      "familyComposition": {
+        "adults": 2,
+        "children": 2,
+        "elderly": 0
+      },
+      "background": "A recently relocated family from a rural county. Both parents work in retail and are building their life in the city.",
+      "currentSituation": "The family is adjusting to urban life but struggles with social connections. The children have settled into school but face challenges making friends. The parents feel overwhelmed by the competitive educational environment.",
+      "keyChallenges": [
+        "Social isolation in new community",
+        "Children struggling to integrate at school",
+        "Parents unfamiliar with urban educational resources"
+      ],
+      "highlights": [
+        {
+          "date": "2026-02-14",
+          "title": "Group Activity Day",
+          "description": "Took the children to a community center where they participated in a calligraphy workshop with local kids."
+        }
+      ],
+      "photos": [
+        {
+          "url": "https://images.unsplash.com/photo-1513467535987-fd81bc7d4f6a?w=400",
+          "caption": "Children enjoying calligraphy workshop",
+          "consentGiven": true
+        }
+      ],
+      "consentGiven": true,
+      "createdAt": "2026-01-20T08:30:00Z",
+      "updatedAt": "2026-02-14T15:00:00Z"
+    }
+  ]
+}
