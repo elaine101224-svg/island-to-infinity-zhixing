@@ -27,7 +27,7 @@ export default function AdminSidebar() {
       <div className="p-6 border-b border-gray-800">
         <Link href="/admin" className="flex items-center gap-3">
           <div className="bg-rose-500/20 p-2 rounded-lg">
-            <Heart className="h-6 w-6 text-rose-400" />
+            <span className="text-2xl">🏝️♾️</span>
           </div>
           <div>
             <span className="font-semibold text-lg">Admin</span>

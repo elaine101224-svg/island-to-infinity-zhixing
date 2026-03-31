@@ -58,7 +58,7 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-gray-400" />
-          <span>{event.time} ({event.duration})</span>
+          <span>{event.startTime} - {event.endTime}</span>
         </div>
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-gray-400" />

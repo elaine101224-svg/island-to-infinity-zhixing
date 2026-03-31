@@ -39,8 +39,8 @@ export interface ScheduleEvent {
   title: string;
   type: EventType;
   date: string;
-  time: string;
-  duration: string;
+  startTime: string;
+  endTime: string;
   location: string;
   description: string;
   familiesInvolved?: string[];

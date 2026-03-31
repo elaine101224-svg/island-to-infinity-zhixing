@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -9,7 +8,7 @@ export default function Footer() {
           {/* Mission */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Heart className="h-5 w-5 text-rose-500" />
+              <span className="text-2xl">🏝️</span>
               <span className="font-semibold text-gray-800">Island to Infinity Zhixing</span>
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">

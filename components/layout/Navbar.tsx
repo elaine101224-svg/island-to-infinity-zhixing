@@ -21,7 +21,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2">
-              <Heart className="h-8 w-8 text-rose-500" />
+              <span className="text-3xl">🏝️</span>
               <span className="font-semibold text-lg text-gray-800 hidden sm:block">
                 Island to Infinity Zhixing
               </span>

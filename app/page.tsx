@@ -76,7 +76,7 @@ export default function Home() {
           <div className="bg-gradient-to-r from-purple-50 to-rose-50 rounded-2xl p-8 text-center">
             <div className="flex justify-center mb-4">
               <div className="bg-white p-3 rounded-full shadow-sm">
-                <Heart className="h-8 w-8 text-rose-500" />
+                <span className="text-3xl">🏝️</span>
               </div>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">

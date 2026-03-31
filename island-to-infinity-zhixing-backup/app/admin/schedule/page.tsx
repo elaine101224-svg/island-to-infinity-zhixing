@@ -69,7 +69,7 @@ export default async function AdminSchedulePage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{format(new Date(event.date), 'MMM d, yyyy')}</div>
-                  <div className="text-xs text-gray-500">{event.time} ({event.duration})</div>
+                  <div className="text-xs text-gray-500">{event.startTime} - {event.endTime}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${eventTypeColors[event.type]}`}>

@@ -1,12 +1,10 @@
-import { Heart } from 'lucide-react';
-
 export default function HeroSection() {
   return (
     <section className="bg-gradient-to-b from-rose-50 to-white py-16 sm:py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="flex justify-center mb-6">
           <div className="bg-rose-100 p-4 rounded-full">
-            <Heart className="h-12 w-12 text-rose-500" />
+            <span className="text-6xl">🏝️</span>
           </div>
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
