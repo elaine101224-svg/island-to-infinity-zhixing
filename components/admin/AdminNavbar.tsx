@@ -1,73 +1,75 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, LogOut, Users, Calendar, FileText } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import {
+  Heart,
+  Users,
+  Calendar,
+  FileText,
+  LayoutDashboard,
+  X,
+} from 'lucide-react';
 
-const adminLinks = [
-  { href: '/admin', label: 'Dashboard', icon: Heart },
+const navItems = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/families', label: 'Families', icon: Users },
   { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
   { href: '/admin/plans', label: 'Plans', icon: FileText },
 ];
 
-export default function AdminNavbar() {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/admin/logout', { method: 'POST' });
-      router.push('/admin/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
+export default function AdminSidebar() {
+  const pathname = usePathname();
 
   return (
-    <nav className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-8">
-            <Link href="/admin" className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-rose-400" />
-              <span className="font-semibold">Admin Dashboard</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-6">
-              {adminLinks.slice(1).map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-gray-300 hover:text-white transition-colors text-sm flex items-center gap-2"
-                >
-                  <link.icon className="h-4 w-4" />
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+    <aside className="w-64 bg-gray-900 text-white flex flex-col min-h-screen">
+      {/* Logo */}
+      <div className="p-6 border-b border-gray-800">
+        <Link href="/admin" className="flex items-center gap-3">
+          <div className="bg-rose-500/20 p-2 rounded-lg">
+            <Heart className="h-6 w-6 text-rose-400" />
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-gray-300 hover:text-white transition-colors text-sm flex items-center gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
-        </div>
+          <div>
+            <span className="font-semibold text-lg">Admin</span>
+            <p className="text-xs text-gray-400">Island to Infinity</p>
+          </div>
+        </Link>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-gray-800 px-4 py-2 flex gap-4 overflow-x-auto">
-        {adminLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="text-gray-300 hover:text-white transition-colors text-sm whitespace-nowrap flex items-center gap-1"
-          >
-            <link.icon className="h-3 w-3" />
-            {link.label}
-          </Link>
-        ))}
+      {/* Navigation */}
+      <nav className="flex-1 p-4">
+        <ul className="space-y-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-rose-500 text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* Exit Admin */}
+      <div className="p-4 border-t border-gray-800">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+        >
+          <X className="h-5 w-5" />
+          <span className="font-medium">Exit Admin</span>
+        </Link>
       </div>
-    </nav>
+    </aside>
   );
 }
