@@ -130,7 +130,12 @@ export default function AdminPlansPage() {
       });
 
       if (res.ok) {
-        fetchData();
+        const savedData = await res.json();
+        if (editingPlan) {
+          setPlans((prev) => prev.map((p) => (p.id === savedData.id ? savedData : p)));
+        } else {
+          setPlans((prev) => [...prev, savedData]);
+        }
         handleCloseModal();
       } else {
         console.error("Failed to save plan");
@@ -148,7 +153,7 @@ export default function AdminPlansPage() {
     try {
       const res = await fetch(`/api/admin/plans/${id}`, { method: "DELETE" });
       if (res.ok) {
-        fetchData();
+        setPlans((prev) => prev.filter((p) => p.id !== id));
       }
     } catch (error) {
       console.error("Error deleting plan:", error);

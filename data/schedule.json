@@ -9,7 +9,9 @@
       "endTime": "13:00",
       "location": "Yanqi Park, Changshu",
       "description": "A gentle spring outing for the Kaiyan family. Planned activities include a picnic by the lake, feeding ducks, and a short nature walk suitable for all ages.",
-      "familiesInvolved": ["family-a"],
+      "familiesInvolved": [
+        "family-a"
+      ],
       "isPublic": false,
       "createdAt": "2026-03-20T10:00:00Z",
       "updatedAt": "2026-03-20T10:00:00Z"
@@ -37,7 +39,9 @@
       "endTime": "17:00",
       "location": "Shuyuan Family Residence",
       "description": "Regular companionship visit to help with daily tasks and provide social interaction for the elderly members.",
-      "familiesInvolved": ["family-c"],
+      "familiesInvolved": [
+        "family-c"
+      ],
       "isPublic": false,
       "createdAt": "2026-03-25T12:00:00Z",
       "updatedAt": "2026-03-25T12:00:00Z"
@@ -64,7 +68,11 @@
       "endTime": "15:00",
       "location": "Chengxiang Village, Changshu",
       "description": "An educational field trip to a traditional village. Families will learn about local culture, visit a community garden, and enjoy a home-cooked meal with local families.",
-      "familiesInvolved": ["family-a", "family-b", "family-d"],
+      "familiesInvolved": [
+        "family-a",
+        "family-b",
+        "family-d"
+      ],
       "isPublic": false,
       "createdAt": "2026-03-18T11:00:00Z",
       "updatedAt": "2026-03-18T11:00:00Z"

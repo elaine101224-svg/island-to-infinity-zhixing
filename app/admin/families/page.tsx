@@ -4,6 +4,18 @@ import { useState, useEffect } from "react";
 import { Users, MapPin, Check, X, Plus, Pencil, Trash2, ArrowRight, X as XIcon } from "lucide-react";
 import type { Family } from "@/types";
 
+interface PhotoFormData {
+  url: string;
+  caption: string;
+  consentGiven: boolean;
+}
+
+interface HighlightFormData {
+  date: string;
+  title: string;
+  description: string;
+}
+
 interface FamilyFormData {
   pseudonym: string;
   location: string;
@@ -11,6 +23,8 @@ interface FamilyFormData {
   background: string;
   currentSituation: string;
   keyChallenges: string[];
+  highlights: HighlightFormData[];
+  photos: PhotoFormData[];
   consentGiven: boolean;
 }
 
@@ -21,6 +35,8 @@ const emptyForm: FamilyFormData = {
   background: "",
   currentSituation: "",
   keyChallenges: [],
+  highlights: [],
+  photos: [],
   consentGiven: false,
 };
 
@@ -32,6 +48,9 @@ export default function AdminFamiliesPage() {
   const [formData, setFormData] = useState<FamilyFormData>(emptyForm);
   const [newChallenge, setNewChallenge] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [newHighlight, setNewHighlight] = useState<HighlightFormData>({ date: "", title: "", description: "" });
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [photoCaption, setPhotoCaption] = useState("");
 
   useEffect(() => {
     fetchFamilies();
@@ -61,6 +80,8 @@ export default function AdminFamiliesPage() {
         background: family.background,
         currentSituation: family.currentSituation,
         keyChallenges: [...family.keyChallenges],
+        highlights: family.highlights.map(h => ({ ...h })),
+        photos: family.photos.map(p => ({ ...p })),
         consentGiven: family.consentGiven,
       });
     } else {
@@ -76,6 +97,9 @@ export default function AdminFamiliesPage() {
     setEditingFamily(null);
     setFormData(emptyForm);
     setNewChallenge("");
+    setNewHighlight({ date: "", title: "", description: "" });
+    setPhotoUrl("");
+    setPhotoCaption("");
   };
 
   const handleAddChallenge = () => {
@@ -95,6 +119,52 @@ export default function AdminFamiliesPage() {
     }));
   };
 
+  const handleAddHighlight = () => {
+    if (newHighlight.title.trim() && newHighlight.date) {
+      setFormData((prev) => ({
+        ...prev,
+        highlights: [...prev.highlights, { ...newHighlight }],
+      }));
+      setNewHighlight({ date: "", title: "", description: "" });
+    }
+  };
+
+  const handleRemoveHighlight = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      highlights: prev.highlights.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddPhoto = () => {
+    if (photoUrl) {
+      setFormData((prev) => ({
+        ...prev,
+        photos: [...prev.photos, { url: photoUrl, caption: photoCaption, consentGiven: formData.consentGiven }],
+      }));
+      setPhotoUrl("");
+      setPhotoCaption("");
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -110,7 +180,12 @@ export default function AdminFamiliesPage() {
       });
 
       if (res.ok) {
-        fetchFamilies();
+        const savedData = await res.json();
+        if (editingFamily) {
+          setFamilies((prev) => prev.map((f) => (f.id === savedData.id ? savedData : f)));
+        } else {
+          setFamilies((prev) => [...prev, savedData]);
+        }
         handleCloseModal();
       } else {
         console.error("Failed to save family");
@@ -128,7 +203,7 @@ export default function AdminFamiliesPage() {
     try {
       const res = await fetch(`/api/admin/families/${id}`, { method: "DELETE" });
       if (res.ok) {
-        fetchFamilies();
+        setFamilies((prev) => prev.filter((f) => f.id !== id));
       }
     } catch (error) {
       console.error("Error deleting family:", error);
@@ -420,6 +495,106 @@ export default function AdminFamiliesPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Highlights Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Highlights
+                </label>
+                <div className="space-y-2 mb-2">
+                  {formData.highlights.map((highlight, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start justify-between px-3 py-2 bg-gray-50 rounded-lg text-sm"
+                    >
+                      <div>
+                        <span className="font-medium">{highlight.title}</span>
+                        <span className="text-gray-500 ml-2">({highlight.date})</span>
+                        <p className="text-gray-600 mt-1">{highlight.description}</p>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveHighlight(index)}
+                        className="text-gray-400 hover:text-red-500 ml-2"
+                      >
+                        <XIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <input
+                    type="date"
+                    value={newHighlight.date}
+                    onChange={(e) => setNewHighlight((prev) => ({ ...prev, date: e.target.value }))}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                  />
+                  <input
+                    type="text"
+                    value={newHighlight.title}
+                    onChange={(e) => setNewHighlight((prev) => ({ ...prev, title: e.target.value }))}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    placeholder="Highlight title"
+                  />
+                  <input
+                    type="text"
+                    value={newHighlight.description}
+                    onChange={(e) => setNewHighlight((prev) => ({ ...prev, description: e.target.value }))}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    placeholder="Description"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddHighlight}
+                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+                >
+                  Add Highlight
+                </button>
+              </div>
+
+              {/* Photos Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Photos
+                </label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {formData.photos.map((photo, index) => (
+                    <div key={index} className="relative bg-gray-50 rounded-lg p-2">
+                      <img src={photo.url} alt={photo.caption} className="w-full h-24 object-cover rounded-lg" />
+                      <p className="text-xs text-gray-600 mt-1 truncate">{photo.caption}</p>
+                      <button
+                        onClick={() => handleRemovePhoto(index)}
+                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:text-red-500"
+                      >
+                        <XIcon className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoFileChange}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                  />
+                  <input
+                    type="text"
+                    value={photoCaption}
+                    onChange={(e) => setPhotoCaption(e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    placeholder="Caption"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddPhoto}
+                  disabled={!photoUrl}
+                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add Photo
+                </button>
               </div>
 
               <div className="flex items-center gap-2">
