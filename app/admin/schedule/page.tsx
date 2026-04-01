@@ -307,28 +307,28 @@ export default function AdminSchedulePage() {
           <div className="flex-1">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand-200">
               {/* Calendar Header */}
-              <div className="bg-gradient-to-r from-ocean-500 to-coral-500 px-6 py-4 flex items-center justify-between">
+              <div className="bg-sand-100 px-6 py-4 flex items-center justify-between border-b border-sand-200">
                 <button
                   onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+                  className="p-2 hover:bg-sand-200 rounded-lg transition-colors text-sand-700"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <div className="text-center">
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-bold text-sand-800">
                     {format(currentMonth, "MMMM yyyy")}
                   </h2>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentMonth(new Date())}
-                    className="px-3 py-1 text-sm text-white hover:bg-white/20 rounded-lg transition-colors"
+                    className="px-3 py-1 text-sm text-sand-700 hover:bg-sand-200 rounded-lg transition-colors font-medium"
                   >
                     Today
                   </button>
                   <button
                     onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-                    className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+                    className="p-2 hover:bg-sand-200 rounded-lg transition-colors text-sand-700"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -372,8 +372,8 @@ export default function AdminSchedulePage() {
           {/* Event List Side Panel */}
           <div className="w-80 flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand-200 sticky top-24">
-              <div className="bg-gradient-to-r from-ocean-500 to-coral-500 px-4 py-3">
-                <h3 className="text-white font-semibold text-sm">
+              <div className="bg-sand-100 px-4 py-3 border-b border-sand-200">
+                <h3 className="text-sand-800 font-semibold text-sm">
                   {selectedDate
                     ? format(selectedDate, "EEEE, MMM d")
                     : "Events"}
@@ -436,7 +436,7 @@ export default function AdminSchedulePage() {
       {showModal && (
         <div className="fixed inset-0 bg-sand-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-sand-200">
-            {/* Modal Header - Dark theme */}
+            {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-sand-200 bg-sand-100">
               <h2 className="text-lg font-bold text-sand-800">
                 {editingEvent ? "✏️ Edit Event" : "➕ Add Event"}
