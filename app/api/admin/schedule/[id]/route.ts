@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { ScheduleData } from '@/types';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -11,17 +7,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'schedule.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: ScheduleData = JSON.parse(data);
 
-    const event = jsonData.events.find((e) => e.id === id);
+    const { data, error } = await supabase
+      .from('schedule')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!event) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    return NextResponse.json(event);
+    return NextResponse.json(data.data);
   } catch (error) {
     console.error('Error reading event:', error);
     return NextResponse.json({ error: 'Failed to read event' }, { status: 500 });
@@ -36,26 +33,20 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const filePath = path.join(dataDir, 'schedule.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: ScheduleData = JSON.parse(data);
-
-    const eventIndex = jsonData.events.findIndex((e) => e.id === id);
-
-    if (eventIndex === -1) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
-    }
-
-    jsonData.events[eventIndex] = {
-      ...jsonData.events[eventIndex],
+    const updatedEvent = {
       ...body,
       id,
       updatedAt: new Date().toISOString(),
     };
 
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    const { error } = await supabase
+      .from('schedule')
+      .update({ data: updatedEvent })
+      .eq('id', id);
 
-    return NextResponse.json(jsonData.events[eventIndex]);
+    if (error) throw error;
+
+    return NextResponse.json(updatedEvent);
   } catch (error) {
     console.error('Error updating event:', error);
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
@@ -68,19 +59,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'schedule.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: ScheduleData = JSON.parse(data);
 
-    const eventIndex = jsonData.events.findIndex((e) => e.id === id);
+    const { error } = await supabase
+      .from('schedule')
+      .delete()
+      .eq('id', id);
 
-    if (eventIndex === -1) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
-    }
-
-    jsonData.events.splice(eventIndex, 1);
-
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {

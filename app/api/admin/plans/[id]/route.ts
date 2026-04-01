@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { SupportPlan, PlansData } from '@/types';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -11,17 +7,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'plans.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: PlansData = JSON.parse(data);
 
-    const plan = jsonData.plans.find((p) => p.id === id);
+    const { data, error } = await supabase
+      .from('plans')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!plan) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
     }
 
-    return NextResponse.json(plan);
+    return NextResponse.json(data.data);
   } catch (error) {
     console.error('Error reading plan:', error);
     return NextResponse.json({ error: 'Failed to read plan' }, { status: 500 });
@@ -36,26 +33,20 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const filePath = path.join(dataDir, 'plans.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: PlansData = JSON.parse(data);
-
-    const planIndex = jsonData.plans.findIndex((p) => p.id === id);
-
-    if (planIndex === -1) {
-      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
-    }
-
-    jsonData.plans[planIndex] = {
-      ...jsonData.plans[planIndex],
+    const updatedPlan = {
       ...body,
       id,
       updatedAt: new Date().toISOString(),
     };
 
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    const { error } = await supabase
+      .from('plans')
+      .update({ data: updatedPlan })
+      .eq('id', id);
 
-    return NextResponse.json(jsonData.plans[planIndex]);
+    if (error) throw error;
+
+    return NextResponse.json(updatedPlan);
   } catch (error) {
     console.error('Error updating plan:', error);
     return NextResponse.json({ error: 'Failed to update plan' }, { status: 500 });
@@ -68,19 +59,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'plans.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: PlansData = JSON.parse(data);
 
-    const planIndex = jsonData.plans.findIndex((p) => p.id === id);
+    const { error } = await supabase
+      .from('plans')
+      .delete()
+      .eq('id', id);
 
-    if (planIndex === -1) {
-      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
-    }
-
-    jsonData.plans.splice(planIndex, 1);
-
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {

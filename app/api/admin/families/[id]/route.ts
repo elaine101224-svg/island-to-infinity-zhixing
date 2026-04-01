@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { Family, FamiliesData } from '@/types';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -11,17 +7,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'families.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: FamiliesData = JSON.parse(data);
 
-    const family = jsonData.families.find((f) => f.id === id);
+    const { data, error } = await supabase
+      .from('families')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!family) {
+    if (error || !data) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
-    return NextResponse.json(family);
+    return NextResponse.json(data.data);
   } catch (error) {
     console.error('Error reading family:', error);
     return NextResponse.json({ error: 'Failed to read family' }, { status: 500 });
@@ -36,26 +33,20 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const filePath = path.join(dataDir, 'families.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: FamiliesData = JSON.parse(data);
-
-    const familyIndex = jsonData.families.findIndex((f) => f.id === id);
-
-    if (familyIndex === -1) {
-      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
-    }
-
-    jsonData.families[familyIndex] = {
-      ...jsonData.families[familyIndex],
+    const updatedFamily = {
       ...body,
       id,
       updatedAt: new Date().toISOString(),
     };
 
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    const { error } = await supabase
+      .from('families')
+      .update({ data: updatedFamily })
+      .eq('id', id);
 
-    return NextResponse.json(jsonData.families[familyIndex]);
+    if (error) throw error;
+
+    return NextResponse.json(updatedFamily);
   } catch (error) {
     console.error('Error updating family:', error);
     return NextResponse.json({ error: 'Failed to update family' }, { status: 500 });
@@ -68,19 +59,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const filePath = path.join(dataDir, 'families.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: FamiliesData = JSON.parse(data);
 
-    const familyIndex = jsonData.families.findIndex((f) => f.id === id);
+    const { error } = await supabase
+      .from('families')
+      .delete()
+      .eq('id', id);
 
-    if (familyIndex === -1) {
-      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
-    }
-
-    jsonData.families.splice(familyIndex, 1);
-
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {

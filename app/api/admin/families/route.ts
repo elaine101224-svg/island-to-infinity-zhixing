@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { Family, FamiliesData } from '@/types';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
-    const filePath = path.join(dataDir, 'families.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: FamiliesData = JSON.parse(data);
+    const { data, error } = await supabase
+      .from('families')
+      .select('*');
 
-    return NextResponse.json(jsonData.families);
+    if (error) throw error;
+
+    // Extract 'data' field from each row
+    const families = data.map((row: { id: string; data: unknown }) => row.data);
+
+    return NextResponse.json(families);
   } catch (error) {
     console.error('Error reading families:', error);
     return NextResponse.json({ error: 'Failed to read families' }, { status: 500 });
@@ -22,29 +23,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Generate new ID
-    const newFamily: Family = {
+    const newFamily = {
       id: `family-${Date.now()}`,
-      pseudonym: body.pseudonym || 'New Family',
-      location: body.location || 'Unknown',
-      familyComposition: body.familyComposition || { adults: 0, children: 0, elderly: 0 },
-      background: body.background || '',
-      currentSituation: body.currentSituation || '',
-      keyChallenges: body.keyChallenges || [],
-      highlights: body.highlights || [],
-      photos: body.photos || [],
-      consentGiven: body.consentGiven || false,
+      ...body,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    const filePath = path.join(dataDir, 'families.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: FamiliesData = JSON.parse(data);
+    const { error } = await supabase
+      .from('families')
+      .insert({ id: newFamily.id, data: newFamily });
 
-    jsonData.families.push(newFamily);
-
-    await fs.writeFile(filePath, JSON.stringify(jsonData, null, 2));
+    if (error) throw error;
 
     return NextResponse.json(newFamily, { status: 201 });
   } catch (error) {

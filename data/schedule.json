@@ -89,6 +89,20 @@
       "isPublic": false,
       "createdAt": "2026-03-28T09:00:00Z",
       "updatedAt": "2026-03-28T09:00:00Z"
+    },
+    {
+      "id": "event-1775054661835",
+      "title": "Discussion with Xuehua",
+      "type": "event",
+      "date": "2026-04-09",
+      "startTime": "10:00",
+      "endTime": "11:00",
+      "location": "TBD",
+      "description": "",
+      "familiesInvolved": [],
+      "isPublic": false,
+      "createdAt": "2026-04-01T14:44:21.835Z",
+      "updatedAt": "2026-04-01T14:44:21.835Z"
     }
   ]
 }
