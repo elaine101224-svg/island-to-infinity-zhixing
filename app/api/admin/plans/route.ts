@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { validateSession } from '@/lib/auth';
 import type { SupportPlan, PlansData } from '@/types';
 
 const dataDir = path.join(process.cwd(), 'data');
 
 export async function GET() {
   try {
-    const isLoggedIn = await validateSession();
-    if (!isLoggedIn) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const filePath = path.join(dataDir, 'plans.json');
     const data = await fs.readFile(filePath, 'utf-8');
     const jsonData: PlansData = JSON.parse(data);
@@ -26,11 +20,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const isLoggedIn = await validateSession();
-    if (!isLoggedIn) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
 
     const newPlan: SupportPlan = {

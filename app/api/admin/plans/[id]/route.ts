@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { validateSession } from '@/lib/auth';
-import type { PlansData } from '@/types';
+import type { SupportPlan, PlansData } from '@/types';
 
 const dataDir = path.join(process.cwd(), 'data');
 
@@ -11,11 +10,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const isLoggedIn = await validateSession();
-    if (!isLoggedIn) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
     const filePath = path.join(dataDir, 'plans.json');
     const data = await fs.readFile(filePath, 'utf-8');
@@ -39,11 +33,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const isLoggedIn = await validateSession();
-    if (!isLoggedIn) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
     const body = await request.json();
 
@@ -78,11 +67,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const isLoggedIn = await validateSession();
-    if (!isLoggedIn) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
     const filePath = path.join(dataDir, 'plans.json');
     const data = await fs.readFile(filePath, 'utf-8');
