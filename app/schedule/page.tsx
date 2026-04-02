@@ -47,7 +47,7 @@ export default function SchedulePage() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const res = await fetch("/api/schedule");
+      const res = await fetch("/api/admin/schedule");
       if (res.ok) {
         const data = await res.json();
         setEvents(data);
