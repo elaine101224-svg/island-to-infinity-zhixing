@@ -1,20 +1,34 @@
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { ScheduleEvent, ScheduleData } from '@/types';
-
-const dataDir = path.join(process.cwd(), 'data');
+import { supabase } from '@/lib/supabase';
+import type { ScheduleEvent } from '@/types';
 
 export async function GET() {
   try {
-    const filePath = path.join(dataDir, 'schedule.json');
-    const data = await fs.readFile(filePath, 'utf-8');
-    const jsonData: ScheduleData = JSON.parse(data);
+    const { data, error } = await supabase
+      .from('schedule')
+      .select('*');
 
-    // Return only public events
-    const publicEvents = jsonData.events.filter((event: ScheduleEvent) => event.isPublic);
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-    return NextResponse.json(publicEvents);
+    if (!data || !Array.isArray(data)) {
+      return NextResponse.json([]);
+    }
+
+    const events: ScheduleEvent[] = [];
+
+    for (const row of data) {
+      if (row && typeof row === 'object' && 'data' in row) {
+        const event = row.data as ScheduleEvent;
+        if (event && typeof event === 'object' && event.isPublic === true) {
+          events.push(event);
+        }
+      }
+    }
+
+    return NextResponse.json(events);
   } catch (error) {
     console.error('Error reading schedule:', error);
     return NextResponse.json({ error: 'Failed to read schedule' }, { status: 500 });

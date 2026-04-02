@@ -8,13 +8,21 @@ export async function GET(
   try {
     const { id } = await params;
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
     const { data, error } = await supabase
       .from('plans')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
+    }
+
+    if (!data || !data.data) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
     }
 
@@ -33,6 +41,14 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    if (!body) {
+      return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
+    }
+
     const updatedPlan = {
       ...body,
       id,
@@ -44,7 +60,10 @@ export async function PUT(
       .update({ data: updatedPlan })
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json(updatedPlan);
   } catch (error) {
@@ -60,12 +79,19 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
     const { error } = await supabase
       .from('plans')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -7,9 +7,18 @@ export async function GET() {
       .from('schedule')
       .select('*');
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-    const events = data.map((row: { id: string; data: unknown }) => row.data);
+    if (!data || !Array.isArray(data)) {
+      return NextResponse.json([]);
+    }
+
+    const events = data
+      .filter((row): row is { id: string; data: unknown } => row && typeof row === 'object' && 'data' in row)
+      .map((row) => row.data);
 
     return NextResponse.json(events);
   } catch (error) {
@@ -22,6 +31,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    if (!body) {
+      return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
+    }
+
     const newEvent = {
       id: `event-${Date.now()}`,
       ...body,
@@ -33,7 +46,10 @@ export async function POST(request: NextRequest) {
       .from('schedule')
       .insert({ id: newEvent.id, data: newEvent });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json(newEvent, { status: 201 });
   } catch (error) {

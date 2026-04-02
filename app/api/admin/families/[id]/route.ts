@@ -8,13 +8,22 @@ export async function GET(
   try {
     const { id } = await params;
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
     const { data, error } = await supabase
       .from('families')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: 'Family not found' }, { status: 404 });
+    }
+
+    if (!data || !data.data) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
@@ -33,6 +42,14 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    if (!body) {
+      return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
+    }
+
     const updatedFamily = {
       ...body,
       id,
@@ -44,7 +61,10 @@ export async function PUT(
       .update({ data: updatedFamily })
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json(updatedFamily);
   } catch (error) {
@@ -60,12 +80,19 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
     const { error } = await supabase
       .from('families')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
