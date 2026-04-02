@@ -2,6 +2,8 @@ import { getFamilies, getPlans, getScheduleEvents } from '@/lib/data';
 import { Users, Calendar, FileText, Heart } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboardPage() {
   const families = await getFamilies();
   const plans = await getPlans();

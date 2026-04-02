@@ -3,6 +3,8 @@ import PlanCard from '@/components/plans/PlanCard';
 import { Brain, HandHeart, Users, Target, Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PlansPage() {
   const plans = await getPlans();
   const families = await getFamilies();

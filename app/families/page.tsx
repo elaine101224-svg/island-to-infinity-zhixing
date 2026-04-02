@@ -2,6 +2,8 @@ import { getFamilies } from '@/lib/data';
 import FamilyCard from '@/components/families/FamilyCard';
 import { Users, Shield } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function FamiliesPage() {
   const families = await getFamilies();
 
