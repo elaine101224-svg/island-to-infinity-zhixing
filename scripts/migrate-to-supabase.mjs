@@ -3,14 +3,14 @@ import { readFileSync } from 'fs';
 const supabaseUrl = 'https://jbukbnmgkmjyfesaqqjq.supabase.co';
 const supabaseKey = 'sb_publishable_RPzJKQTZrXUxYXHFxJLXPQ_n2xttLRB';
 
-async function supabaseInsert(table, id, data) {
+async function supabaseUpsert(table, id, data) {
   const response = await fetch(`${supabaseUrl}/rest/v1/${table}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'apikey': supabaseKey,
       'Authorization': `Bearer ${supabaseKey}`,
-      'Prefer': 'return=minimal'
+      'Prefer': 'resolution=merge-duplicates'
     },
     body: JSON.stringify({ id, data })
   });
@@ -32,19 +32,19 @@ async function migrate() {
 
   console.log(`Migrating ${families.length} families...`);
   for (const family of families) {
-    const success = await supabaseInsert('families', family.id, family);
+    const success = await supabaseUpsert('families', family.id, family);
     console.log(success ? `✓ ${family.id}` : `✗ ${family.id}`);
   }
 
   console.log(`\nMigrating ${plans.length} plans...`);
   for (const plan of plans) {
-    const success = await supabaseInsert('plans', plan.id, plan);
+    const success = await supabaseUpsert('plans', plan.id, plan);
     console.log(success ? `✓ ${plan.id}` : `✗ ${plan.id}`);
   }
 
   console.log(`\nMigrating ${events.length} events...`);
   for (const event of events) {
-    const success = await supabaseInsert('schedule', event.id, event);
+    const success = await supabaseUpsert('schedule', event.id, event);
     console.log(success ? `✓ ${event.id}` : `✗ ${event.id}`);
   }
 
