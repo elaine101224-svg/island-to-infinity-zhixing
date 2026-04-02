@@ -223,7 +223,7 @@ export default function AdminFamiliesPage() {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors text-sm flex items-center gap-2"
+          className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors text-sm flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Family
@@ -256,8 +256,8 @@ export default function AdminFamiliesPage() {
               <tr key={family.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className="bg-rose-100 p-2 rounded-lg">
-                      <Users className="h-4 w-4 text-rose-600" />
+                    <div className="bg-primary-100 p-2 rounded-lg">
+                      <Users className="h-4 w-4 text-primary-600" />
                     </div>
                     <span className="font-medium text-gray-900">{family.pseudonym}</span>
                   </div>
@@ -303,7 +303,7 @@ export default function AdminFamiliesPage() {
                     </button>
                     <a
                       href={`/families/${family.id}`}
-                      className="text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                      className="text-primary-500 hover:text-primary-600 flex items-center gap-1"
                     >
                       View <ArrowRight className="h-3 w-3" />
                     </a>
@@ -342,7 +342,7 @@ export default function AdminFamiliesPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, pseudonym: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   placeholder="e.g., Kaiyan Family"
                 />
               </div>
@@ -357,7 +357,7 @@ export default function AdminFamiliesPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, location: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   placeholder="e.g., Changshu Urban Area"
                 />
               </div>
@@ -380,7 +380,7 @@ export default function AdminFamiliesPage() {
                         },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   />
                 </div>
                 <div>
@@ -400,7 +400,7 @@ export default function AdminFamiliesPage() {
                         },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   />
                 </div>
                 <div>
@@ -420,7 +420,7 @@ export default function AdminFamiliesPage() {
                         },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   />
                 </div>
               </div>
@@ -435,7 +435,7 @@ export default function AdminFamiliesPage() {
                     setFormData((prev) => ({ ...prev, background: e.target.value }))
                   }
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   placeholder="Family background information..."
                 />
               </div>
@@ -453,7 +453,7 @@ export default function AdminFamiliesPage() {
                     }))
                   }
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                   placeholder="Current family situation..."
                 />
               </div>
@@ -468,13 +468,13 @@ export default function AdminFamiliesPage() {
                     value={newChallenge}
                     onChange={(e) => setNewChallenge(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddChallenge())}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                     placeholder="Add a challenge..."
                   />
                   <button
                     type="button"
                     onClick={handleAddChallenge}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                    className="px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200"
                   >
                     Add
                   </button>
@@ -488,7 +488,7 @@ export default function AdminFamiliesPage() {
                       <span>{challenge}</span>
                       <button
                         onClick={() => handleRemoveChallenge(index)}
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-gray-400 hover:text-primary-500"
                       >
                         <XIcon className="h-4 w-4" />
                       </button>
@@ -506,16 +506,16 @@ export default function AdminFamiliesPage() {
                   {formData.highlights.map((highlight, index) => (
                     <div
                       key={index}
-                      className="flex items-start justify-between px-3 py-2 bg-gray-50 rounded-lg text-sm"
+                      className="flex items-start justify-between px-3 py-2 bg-accent-50 rounded-lg text-sm"
                     >
                       <div>
-                        <span className="font-medium">{highlight.title}</span>
-                        <span className="text-gray-500 ml-2">({highlight.date})</span>
-                        <p className="text-gray-600 mt-1">{highlight.description}</p>
+                        <span className="font-medium text-primary-700">{highlight.title}</span>
+                        <span className="text-accent-500 ml-2">({highlight.date})</span>
+                        <p className="text-accent-700 mt-1">{highlight.description}</p>
                       </div>
                       <button
                         onClick={() => handleRemoveHighlight(index)}
-                        className="text-gray-400 hover:text-red-500 ml-2"
+                        className="text-gray-400 hover:text-primary-500 ml-2"
                       >
                         <XIcon className="h-4 w-4" />
                       </button>
@@ -527,27 +527,27 @@ export default function AdminFamiliesPage() {
                     type="date"
                     value={newHighlight.date}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, date: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
                   />
                   <input
                     type="text"
                     value={newHighlight.title}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, title: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
                     placeholder="Highlight title"
                   />
                   <input
                     type="text"
                     value={newHighlight.description}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, description: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
                     placeholder="Description"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleAddHighlight}
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm"
+                  className="w-full px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200 text-sm"
                 >
                   Add Highlight
                 </button>
@@ -560,12 +560,12 @@ export default function AdminFamiliesPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative bg-gray-50 rounded-lg p-2">
+                    <div key={index} className="relative bg-accent-50 rounded-lg p-2">
                       <img src={photo.url} alt={photo.caption} className="w-full h-24 object-cover rounded-lg" />
-                      <p className="text-xs text-gray-600 mt-1 truncate">{photo.caption}</p>
+                      <p className="text-xs text-accent-700 mt-1 truncate">{photo.caption}</p>
                       <button
                         onClick={() => handleRemovePhoto(index)}
-                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:text-red-500"
+                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:text-primary-500"
                       >
                         <XIcon className="h-3 w-3" />
                       </button>
@@ -577,13 +577,13 @@ export default function AdminFamiliesPage() {
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoFileChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
                   />
                   <input
                     type="text"
                     value={photoCaption}
                     onChange={(e) => setPhotoCaption(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
                     placeholder="Caption"
                   />
                 </div>
@@ -591,7 +591,7 @@ export default function AdminFamiliesPage() {
                   type="button"
                   onClick={handleAddPhoto}
                   disabled={!photoUrl}
-                  className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add Photo
                 </button>
@@ -605,7 +605,7 @@ export default function AdminFamiliesPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, consentGiven: e.target.checked }))
                   }
-                  className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500"
+                  className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
                 />
                 <label htmlFor="consentGiven" className="text-sm text-gray-700">
                   Photo consent given
@@ -623,7 +623,7 @@ export default function AdminFamiliesPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving || !formData.pseudonym}
-                className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
