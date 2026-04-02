@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Plus, Pencil, Trash2, ArrowRight, X as XIcon } from "lucide-react";
+import {
+  FileText,
+  Plus,
+  Pencil,
+  Trash2,
+  X as XIcon,
+} from "lucide-react";
 import type { SupportPlan, Family, FocusArea, PlanStatus } from "@/types";
 
 const focusAreaLabels: Record<FocusArea, string> = {
@@ -57,6 +63,8 @@ export default function AdminPlansPage() {
   const [formData, setFormData] = useState<PlanFormData>(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
 
+  const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || "";
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -64,15 +72,11 @@ export default function AdminPlansPage() {
   const fetchData = async () => {
     try {
       const [plansRes, familiesRes] = await Promise.all([
-        fetch("/api/admin/plans"),
-        fetch("/api/admin/families"),
+        fetch(`${API_BASE}/api/admin/plans`),
+        fetch(`${API_BASE}/api/admin/families`),
       ]);
-      if (plansRes.ok) {
-        setPlans(await plansRes.json());
-      }
-      if (familiesRes.ok) {
-        setFamilies(await familiesRes.json());
-      }
+      if (plansRes.ok) setPlans(await plansRes.json());
+      if (familiesRes.ok) setFamilies(await familiesRes.json());
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -108,20 +112,17 @@ export default function AdminPlansPage() {
   };
 
   const handleSave = async () => {
+    if (!formData.familyId || !formData.title) return;
     setIsSaving(true);
     try {
       const url = editingPlan
-        ? `/api/admin/plans/${editingPlan.id}`
-        : "/api/admin/plans";
+        ? `${API_BASE}/api/admin/plans/${editingPlan.id}`
+        : `${API_BASE}/api/admin/plans`;
       const method = editingPlan ? "PUT" : "POST";
 
       const body = editingPlan
         ? { ...formData }
-        : {
-            ...formData,
-            objectives: [],
-            activities: [],
-          };
+        : { ...formData, objectives: [], activities: [] };
 
       const res = await fetch(url, {
         method,
@@ -132,7 +133,9 @@ export default function AdminPlansPage() {
       if (res.ok) {
         const savedData = await res.json();
         if (editingPlan) {
-          setPlans((prev) => prev.map((p) => (p.id === savedData.id ? savedData : p)));
+          setPlans((prev) =>
+            prev.map((p) => (p.id === savedData.id ? savedData : p))
+          );
         } else {
           setPlans((prev) => [...prev, savedData]);
         }
@@ -149,9 +152,10 @@ export default function AdminPlansPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this plan?")) return;
-
     try {
-      const res = await fetch(`/api/admin/plans/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/api/admin/plans/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         setPlans((prev) => prev.filter((p) => p.id !== id));
       }
@@ -161,15 +165,21 @@ export default function AdminPlansPage() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64 text-yellow-900 font-semibold">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-yellow-50">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support Plans</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage family support plans</p>
+          <h1 className="text-2xl font-bold text-yellow-900">Support Plans</h1>
+          <p className="text-yellow-800 text-sm mt-1">
+            Manage family support plans
+          </p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -180,51 +190,52 @@ export default function AdminPlansPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      {/* Plans Table */}
+      <div className="bg-yellow-100 rounded-xl shadow-md overflow-hidden">
+        <table className="min-w-full divide-y divide-yellow-300">
+          <thead className="bg-yellow-200">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Plan
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Family
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Focus Area
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Progress
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-800 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-yellow-300">
             {plans.map((plan) => {
-              const achievedObjectives = plan.objectives.filter(
+              const achievedObjectives = plan.objectives?.filter(
                 (o) => o.status === "achieved"
-              ).length;
-              const totalObjectives = plan.objectives.length;
+              ).length || 0;
+              const totalObjectives = plan.objectives?.length || 0;
 
               return (
-                <tr key={plan.id} className="hover:bg-gray-50">
+                <tr key={plan.id} className="hover:bg-yellow-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="bg-blue-100 p-2 rounded-lg">
                         <FileText className="h-4 w-4 text-blue-600" />
                       </div>
-                      <span className="font-medium text-gray-900">{plan.title}</span>
+                      <span className="font-medium text-yellow-900">{plan.title}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 text-sm text-yellow-800">
                     {familyMap.get(plan.familyId) || "Unknown"}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
                         focusAreaColors[plan.focusArea]
@@ -233,7 +244,7 @@ export default function AdminPlansPage() {
                       {focusAreaLabels[plan.focusArea]}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
                         statusColors[plan.status]
@@ -242,9 +253,9 @@ export default function AdminPlansPage() {
                       {statusLabels[plan.status]}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-24 h-2 bg-yellow-200 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-rose-500 rounded-full"
                           style={{
@@ -255,28 +266,24 @@ export default function AdminPlansPage() {
                           }}
                         />
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-yellow-800">
                         {achievedObjectives}/{totalObjectives}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => handleOpenModal(plan)}
-                        className="text-blue-500 hover:text-blue-600 flex items-center gap-1"
-                      >
-                        <Pencil className="h-4 w-4" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(plan.id)}
-                        className="text-red-500 hover:text-red-600 flex items-center gap-1"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </button>
-                    </div>
+                  <td className="px-6 py-4 text-sm flex gap-2">
+                    <button
+                      onClick={() => handleOpenModal(plan)}
+                      className="text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                    >
+                      <Pencil className="h-4 w-4" /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(plan.id)}
+                      className="text-red-500 hover:text-red-600 flex items-center gap-1"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
                   </td>
                 </tr>
               );
@@ -288,22 +295,23 @@ export default function AdminPlansPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold">
+          <div className="bg-yellow-50 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-yellow-200">
+              <h2 className="text-xl font-semibold text-yellow-900">
                 {editingPlan ? "Edit Plan" : "Add Plan"}
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-yellow-800 hover:text-yellow-900"
               >
                 <XIcon className="h-6 w-6" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
+              {/* Family */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-yellow-900 mb-1">
                   Family
                 </label>
                 <select
@@ -311,7 +319,7 @@ export default function AdminPlansPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, familyId: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 >
                   <option value="">Select a family</option>
                   {families.map((family) => (
@@ -322,8 +330,9 @@ export default function AdminPlansPage() {
                 </select>
               </div>
 
+              {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-yellow-900 mb-1">
                   Title
                 </label>
                 <input
@@ -332,14 +341,15 @@ export default function AdminPlansPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   placeholder="e.g., Elderly Companionship Support"
                 />
               </div>
 
+              {/* Focus + Status */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-yellow-900 mb-1">
                     Focus Area
                   </label>
                   <select
@@ -350,16 +360,15 @@ export default function AdminPlansPage() {
                         focusArea: e.target.value as FocusArea,
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   >
                     <option value="mental_health">Mental Health</option>
                     <option value="companionship">Companionship</option>
                     <option value="social_integration">Social Integration</option>
                   </select>
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-yellow-900 mb-1">
                     Status
                   </label>
                   <select
@@ -370,7 +379,7 @@ export default function AdminPlansPage() {
                         status: e.target.value as PlanStatus,
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   >
                     <option value="active">Active</option>
                     <option value="completed">Completed</option>
@@ -379,9 +388,10 @@ export default function AdminPlansPage() {
                 </div>
               </div>
 
+              {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-yellow-900 mb-1">
                     Start Date
                   </label>
                   <input
@@ -390,12 +400,11 @@ export default function AdminPlansPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, startDate: e.target.value }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-yellow-900 mb-1">
                     Target End Date
                   </label>
                   <input
@@ -404,34 +413,33 @@ export default function AdminPlansPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, targetEndDate: e.target.value }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   />
                 </div>
               </div>
 
+              {/* Ethics */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-yellow-900 mb-1">
                   Ethics Description
                 </label>
                 <textarea
                   value={formData.ethicsDescription}
                   onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      ethicsDescription: e.target.value,
-                    }))
+                    setFormData((prev) => ({ ...prev, ethicsDescription: e.target.value }))
                   }
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full px-4 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   placeholder="Describe the ethical considerations for this plan..."
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+            {/* Modal Actions */}
+            <div className="flex justify-end gap-3 p-6 border-t border-yellow-200 bg-yellow-100">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-yellow-900 bg-yellow-50 border border-yellow-300 rounded-lg hover:bg-yellow-100"
               >
                 Cancel
               </button>
