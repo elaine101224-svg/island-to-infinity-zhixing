@@ -19,15 +19,14 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
-    if (!data || !data.data) {
+    if (!data) {
       return NextResponse.json({ error: 'Family not found' }, { status: 404 });
     }
 
-    return NextResponse.json(data.data);
+    return NextResponse.json(data.data ?? data);
   } catch (error) {
     console.error('Error reading family:', error);
     return NextResponse.json({ error: 'Failed to read family' }, { status: 500 });

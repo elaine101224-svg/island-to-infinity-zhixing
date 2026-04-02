@@ -22,11 +22,11 @@ export async function GET(
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    if (!data || !data.data) {
+    if (!data) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 });
     }
 
-    return NextResponse.json(data.data);
+    return NextResponse.json(data.data ?? data);
   } catch (error) {
     console.error('Error reading event:', error);
     return NextResponse.json({ error: 'Failed to read event' }, { status: 500 });

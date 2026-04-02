@@ -16,9 +16,7 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const families = data
-      .filter((row): row is { id: string; data: unknown } => row && typeof row === 'object' && 'data' in row)
-      .map((row) => row.data);
+    const families = data.map((row) => (row.data ?? row));
 
     return NextResponse.json(families);
   } catch (error) {

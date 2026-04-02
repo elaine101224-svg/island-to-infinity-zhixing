@@ -17,16 +17,12 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const events: ScheduleEvent[] = [];
-
-    for (const row of data) {
-      if (row && typeof row === 'object' && 'data' in row) {
-        const event = row.data as ScheduleEvent;
-        if (event && typeof event === 'object' && event.isPublic === true) {
-          events.push(event);
-        }
-      }
-    }
+    const events = data
+      .map((row) => (row.data ?? row))
+      .filter((event): event is ScheduleEvent => {
+        return event != null && typeof event === 'object' && 'isPublic' in event;
+      })
+      .filter((event) => event.isPublic);
 
     return NextResponse.json(events);
   } catch (error) {
