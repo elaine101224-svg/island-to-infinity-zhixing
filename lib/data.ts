@@ -1,85 +1,52 @@
 import type { Family, ScheduleEvent, SupportPlan } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || '';
+const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 async function fetchAPI<T>(endpoint: string): Promise<T[]> {
   try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      cache: 'no-store',
-    });
-    if (!res.ok) {
-      console.error(`Error fetching ${endpoint}: ${res.status} ${res.statusText}`);
-      return [];
-    }
+    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
+    if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error(`Exception fetching ${endpoint}:`, error);
+  } catch {
     return [];
   }
 }
 
 async function fetchAPIOne<T>(endpoint: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      cache: 'no-store',
-    });
-    if (!res.ok) {
-      console.error(`Error fetching ${endpoint}: ${res.status} ${res.statusText}`);
-      return null;
-    }
+    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
+    if (!res.ok) return null;
     const data = await res.json();
     return data || null;
-  } catch (error) {
-    console.error(`Exception fetching ${endpoint}:`, error);
+  } catch {
     return null;
   }
 }
 
 export async function getFamilies(): Promise<Family[]> {
-  const families = await fetchAPI<Family>('/api/admin/families');
-  return families.filter(Boolean);
+  return (await fetchAPI<Family>('/api/admin/families')).filter(Boolean);
 }
 
 export async function getFamilyById(id: string): Promise<Family | null> {
   if (!id) return null;
-  const family = await fetchAPIOne<Family>(`/api/admin/families/${id}`);
-  return family;
-}
-
-export async function getScheduleEvents(): Promise<ScheduleEvent[]> {
-  const events = await fetchAPI<ScheduleEvent>('/api/admin/schedule');
-  return events.filter(Boolean);
-}
-
-export async function getPublicEvents(): Promise<ScheduleEvent[]> {
-  try {
-    const events = await getScheduleEvents();
-    return events.filter(e => e && e.isPublic);
-  } catch (error) {
-    console.error('Error filtering public events:', error);
-    return [];
-  }
+  return await fetchAPIOne<Family>(`/api/admin/families/${id}`);
 }
 
 export async function getPlans(): Promise<SupportPlan[]> {
-  const plans = await fetchAPI<SupportPlan>('/api/admin/plans');
-  return plans.filter(Boolean);
+  return (await fetchAPI<SupportPlan>('/api/admin/plans')).filter(Boolean);
 }
 
 export async function getPlanById(id: string): Promise<SupportPlan | null> {
   if (!id) return null;
-  const plan = await fetchAPIOne<SupportPlan>(`/api/admin/plans/${id}`);
-  return plan;
+  return await fetchAPIOne<SupportPlan>(`/api/admin/plans/${id}`);
 }
 
-export async function getPlansByFamilyId(familyId: string): Promise<SupportPlan[]> {
-  try {
-    if (!familyId) return [];
-    const plans = await getPlans();
-    return plans.filter(p => p && p.familyId === familyId);
-  } catch (error) {
-    console.error('Error filtering plans by family:', error);
-    return [];
-  }
+export async function getScheduleEvents(): Promise<ScheduleEvent[]> {
+  return (await fetchAPI<ScheduleEvent>('/api/admin/schedule')).filter(Boolean);
+}
+
+export async function getPublicEvents(): Promise<ScheduleEvent[]> {
+  const events = await getScheduleEvents();
+  return events.filter(e => e && e.isPublic);
 }
