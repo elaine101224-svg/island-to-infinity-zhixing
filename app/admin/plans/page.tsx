@@ -294,8 +294,122 @@ export default function AdminPlansPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-sand-50 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* ...modal content stays the same with sand/neutral classes */}
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-lg">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {editingPlan ? "Edit Plan" : "Create Plan"}
+              </h2>
+              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="p-6 space-y-4">
+              {/* Family */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Family</label>
+                <select
+                  value={formData.familyId}
+                  onChange={(e) => setFormData({ ...formData, familyId: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">Select a family</option>
+                  {families.map((f) => (
+                    <option key={f.id} value={f.id}>{f.pseudonym}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+
+              {/* Focus Area */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Focus Area</label>
+                <select
+                  value={formData.focusArea}
+                  onChange={(e) => setFormData({ ...formData, focusArea: e.target.value as any })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  {Object.entries(focusAreaLabels).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  {Object.entries(statusLabels).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Target End Date</label>
+                  <input
+                    type="date"
+                    value={formData.targetEndDate}
+                    onChange={(e) => setFormData({ ...formData, targetEndDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Ethics */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ethics Description</label>
+                <textarea
+                  value={formData.ethicsDescription}
+                  onChange={(e) => setFormData({ ...formData, ethicsDescription: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+              <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !formData.familyId || !formData.title}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg border border-indigo-600 hover:bg-indigo-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
         </div>
       )}

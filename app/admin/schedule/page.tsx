@@ -564,7 +564,7 @@ export default function AdminSchedulePage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !formData.title || !formData.date}
-                  className="px-4 py-1.5 bg-gradient-to-r from-ocean-500 to-coral-500 text-white rounded-lg hover:from-ocean-600 hover:to-coral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+                  className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg border border-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
                 >
                   {isSaving ? "🌊" : "💾 Save"}
                 </button>

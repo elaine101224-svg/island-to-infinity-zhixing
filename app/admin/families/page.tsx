@@ -223,7 +223,7 @@ export default function AdminFamiliesPage() {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors text-sm flex items-center gap-2"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm transition-colors text-sm flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Family
@@ -616,14 +616,14 @@ export default function AdminFamiliesPage() {
             <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving || !formData.pseudonym}
-                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg border border-indigo-600 hover:bg-indigo-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
