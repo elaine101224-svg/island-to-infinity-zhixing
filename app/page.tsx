@@ -3,10 +3,12 @@ import { ArrowRight, Calendar, Users, Brain, HandHeart, Heart } from 'lucide-rea
 import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
 import FocusAreasSection from '@/components/home/FocusAreasSection';
+import ZhixingTimelineTop from '@/components/home/ZhixingTimelineTop';
 
 export default function Home() {
   return (
     <>
+      <ZhixingTimelineTop />
       <HeroSection />
       <AboutSection />
       <FocusAreasSection />
