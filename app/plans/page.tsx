@@ -1,11 +1,12 @@
-import { getPlans } from '@/lib/data';
 import { FileText } from 'lucide-react';
 import type { SupportPlan } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PlansPage() {
-  const plans = await getPlans();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const res = await fetch(`${baseUrl}/api/admin/plans`);
+  const plans: SupportPlan[] = await res.json();
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
