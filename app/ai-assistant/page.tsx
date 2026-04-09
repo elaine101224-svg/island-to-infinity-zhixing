@@ -84,10 +84,10 @@ export default function AIAssistantPage() {
             <Heart className="h-8 w-8 text-rose-500" />
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+        <h1 className="text-3xl font-serif font-bold text-slate-900 mb-3 tracking-wide">
           AI Compassionate Assistant
         </h1>
-        <p className="text-gray-600 max-w-xl mx-auto">
+        <p className="text-slate-500 max-w-xl mx-auto">
           Get warm, ethical guidance on supporting families and individuals in your community.
           This tool provides communication advice, emotional support strategies, and activity suggestions.
         </p>
@@ -96,7 +96,7 @@ export default function AIAssistantPage() {
       {/* Disclaimer */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3">
         <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-        <div className="text-sm text-amber-800">
+        <div className="text-sm text-slate-700">
           <strong>Important:</strong> This is not professional counseling or medical advice.
           If you or someone you know is in crisis, please seek help from a qualified professional.
           This tool offers general emotional support and communication guidance.
@@ -116,11 +116,11 @@ export default function AIAssistantPage() {
                 className={`max-w-[80%] rounded-xl px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-rose-500 text-white'
-                    : 'bg-white border border-gray-200 text-gray-800'
+                    : 'bg-white border border-slate-200 text-slate-800'
                 }`}
               >
                 {message.role === 'assistant' && index > 0 && (
-                  <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
                     <Sparkles className="h-3 w-3" />
                     <span>AI Assistant</span>
                   </div>
@@ -135,7 +135,7 @@ export default function AIAssistantPage() {
           {isLoading && (
             <div className="flex justify-start">
               <div className="bg-white border border-gray-200 rounded-xl px-4 py-3">
-                <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex items-center gap-2 text-slate-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">Thinking...</span>
                 </div>
@@ -154,7 +154,7 @@ export default function AIAssistantPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Describe a situation you're facing..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-800"
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-slate-800"
               disabled={isLoading}
             />
             <button
@@ -171,7 +171,7 @@ export default function AIAssistantPage() {
 
       {/* Example Prompts */}
       <div className="mt-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Example situations you could ask about:</h3>
+        <h3 className="text-sm font-medium text-slate-700 mb-3">Example situations you could ask about:</h3>
         <div className="flex flex-wrap gap-2">
           {[
             "An elderly person in my neighborhood seems lonely",
@@ -182,7 +182,7 @@ export default function AIAssistantPage() {
             <button
               key={example}
               onClick={() => setInput(example)}
-              className="text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors text-left"
+              className="text-sm bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full hover:bg-slate-200 transition-colors text-left"
             >
               {example}
             </button>

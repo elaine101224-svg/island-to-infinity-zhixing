@@ -30,7 +30,7 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       {/* Back Link */}
       <Link
         href="/families"
-        className="inline-flex items-center gap-2 text-gray-600 hover:text-rose-500 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-rose-500 mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Families</span>
@@ -38,17 +38,17 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-serif font-bold text-slate-900 mb-2 tracking-wide">
           {family.pseudonym}
         </h1>
 
-        <div className="flex items-center gap-4 text-gray-600 mb-4">
+        <div className="flex items-center gap-4 text-slate-600 mb-4">
           <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 text-gray-400" />
+            <MapPin className="h-4 w-4 text-slate-400" />
             <span>{family.location}</span>
           </div>
           <div className="flex items-center gap-1">
-            <UsersIcon className="h-4 w-4 text-gray-400" />
+            <UsersIcon className="h-4 w-4 text-slate-400" />
             <span>{totalMembers} family members</span>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
         {/* Family Composition */}
         <div className="flex flex-wrap gap-3 mb-4">
           {family.familyComposition.adults > 0 && (
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm">
               {family.familyComposition.adults} adult{family.familyComposition.adults > 1 ? 's' : ''}
             </span>
           )}
@@ -74,22 +74,22 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
         {/* Background */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Background</h2>
-          <p className="text-gray-600 leading-relaxed">{family.background}</p>
+          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-2 tracking-wide">Background</h2>
+          <p className="text-slate-600 leading-relaxed">{family.background}</p>
         </div>
 
         {/* Current Situation */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Current Situation</h2>
-          <p className="text-gray-600 leading-relaxed">{family.currentSituation}</p>
+          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-2 tracking-wide">Current Situation</h2>
+          <p className="text-slate-600 leading-relaxed">{family.currentSituation}</p>
         </div>
 
         {/* Key Challenges */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Key Challenges</h2>
+          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-3 tracking-wide">Key Challenges</h2>
           <ul className="space-y-2">
             {family.keyChallenges.map((challenge, index) => (
-              <li key={index} className="flex items-start gap-2 text-gray-600">
+              <li key={index} className="flex items-start gap-2 text-slate-600">
                 <span className="text-rose-400 mt-1">•</span>
                 <span>{challenge}</span>
               </li>
@@ -99,8 +99,8 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       </div>
 
       {/* Interaction Highlights */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+        <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
           Interaction Highlights
         </h2>
         <div className="space-y-6">
@@ -110,13 +110,13 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
               className="border-l-4 border-rose-300 pl-4 pb-4 last:pb-0"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-500">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <span className="text-sm text-slate-500">
                   {format(new Date(highlight.date), 'MMMM d, yyyy')}
                 </span>
               </div>
-              <h3 className="font-medium text-gray-900 mb-1">{highlight.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h3 className="font-medium text-slate-900 mb-1">{highlight.title}</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
                 {highlight.description}
               </p>
             </div>
@@ -126,11 +126,11 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
       {/* Photo Gallery */}
       {family.consentGiven && family.photos.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+          <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
             Photo Gallery
           </h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-slate-500 mb-4">
             These photos are shared with explicit consent from the family.
           </p>
           <PhotoGallery photos={family.photos} familyPseudonym={family.pseudonym} />
@@ -139,8 +139,8 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
       {/* Related Plans */}
       {plans.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-6">
+          <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
             Support Plans
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       )}
 
       {/* Privacy Reminder */}
-      <div className="mt-6 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-600">
+      <div className="mt-6 p-4 bg-slate-100 rounded-lg text-center text-sm text-slate-600">
         <p>
           All information about this family is anonymized and shared with their consent.
           We are committed to protecting their privacy and dignity.

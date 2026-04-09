@@ -9,17 +9,17 @@ export default async function FamiliesPage() {
   const families = await getFamilies();
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-yellow-50">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-10">
         <div className="flex justify-center mb-4">
           <div className="bg-yellow-200 p-3 rounded-full shadow-md">
             <Users className="h-8 w-8 text-yellow-700" />
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-yellow-900 mb-3">
+        <h1 className="text-3xl font-serif font-bold text-slate-900 mb-3 tracking-wide">
           Families We Support
         </h1>
-        <p className="text-yellow-800 max-w-2xl mx-auto">
+        <p className="text-slate-500 max-w-2xl mx-auto">
           Every family is unique, with their own story, strengths, and challenges.
           We walk alongside them with respect, compassion, and commitment to their wellbeing.
         </p>
@@ -45,29 +45,29 @@ export default async function FamiliesPage() {
       </div>
 
       {/* Support Philosophy */}
-      <div className="mt-12 bg-yellow-50 rounded-xl p-8">
-        <h2 className="text-xl font-semibold text-yellow-900 mb-4 text-center">
+      <div className="mt-12 bg-slate-50 rounded-xl p-8">
+        <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 text-center tracking-wide">
           Our Approach
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div>
             <div className="text-3xl mb-2">🤝</div>
-            <h3 className="font-medium text-yellow-900 mb-1">With Respect</h3>
-            <p className="text-sm text-yellow-800">
+            <h3 className="font-serif font-medium text-slate-900 mb-1 tracking-wide">With Respect</h3>
+            <p className="text-sm text-slate-500">
               We treat every family with dignity and honor their autonomy in all decisions.
             </p>
           </div>
           <div>
             <div className="text-3xl mb-2">🏖️</div>
-            <h3 className="font-medium text-yellow-900 mb-1">With Heart</h3>
-            <p className="text-sm text-yellow-800">
+            <h3 className="font-serif font-medium text-slate-900 mb-1 tracking-wide">With Heart</h3>
+            <p className="text-sm text-slate-500">
               Our support comes from genuine care and a desire to build lasting human connections.
             </p>
           </div>
           <div>
             <div className="text-3xl mb-2">🌱</div>
-            <h3 className="font-medium text-yellow-900 mb-1">For Growth</h3>
-            <p className="text-sm text-yellow-800">
+            <h3 className="font-serif font-medium text-slate-900 mb-1 tracking-wide">For Growth</h3>
+            <p className="text-sm text-slate-500">
               We focus on empowerment, helping families build resilience and independence.
             </p>
           </div>

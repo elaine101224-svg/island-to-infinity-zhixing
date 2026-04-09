@@ -47,33 +47,33 @@ export default function EventCard({ event }: EventCardProps) {
         )}
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-900 mb-3">
+      <h3 className="text-lg font-serif font-semibold text-slate-900 mb-3 tracking-wide">
         {event.title}
       </h3>
 
       <div className="space-y-2 text-sm text-slate-600">
         <div className="flex items-center gap-2.5">
-          <Calendar className="h-4 w-4 text-slate-400" />
+          <Calendar className="h-4 w-4 text-rose-400" />
           <span>{format(eventDate, 'EEEE, MMMM d, yyyy')}</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <Clock className="h-4 w-4 text-slate-400" />
+          <Clock className="h-4 w-4 text-rose-400" />
           <span>{event.startTime} - {event.endTime}</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <MapPin className="h-4 w-4 text-slate-400" />
+          <MapPin className="h-4 w-4 text-rose-400" />
           <span>{event.location}</span>
         </div>
         {event.maxParticipants && (
           <div className="flex items-center gap-2.5">
-            <Users className="h-4 w-4 text-slate-400" />
+            <Users className="h-4 w-4 text-rose-400" />
             <span>Max {event.maxParticipants} participants</span>
           </div>
         )}
       </div>
 
       {event.description && (
-        <p className="mt-4 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-4">
+        <p className="mt-4 text-slate-500 text-sm leading-relaxed border-t border-slate-100 pt-4">
           {event.description}
         </p>
       )}

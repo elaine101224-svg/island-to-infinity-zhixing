@@ -21,7 +21,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="bg-gradient-to-br from-rose-400 to-rose-500 p-2 rounded-xl shadow-sm shadow-rose-200 group-hover:shadow-md group-hover:shadow-rose-300 transition-all">
+              <div className="bg-gradient-to-br from-rose-100 to-rose-50 p-2 rounded-xl shadow-sm shadow-rose-200 group-hover:shadow-md group-hover:shadow-rose-300 transition-all">
                 <span className="text-xl">🏝️</span>
               </div>
               <span className="font-semibold text-lg text-slate-800 hidden sm:block">

@@ -56,7 +56,7 @@ export default function PlanCard({ plan, familyPseudonym }: PlanCardProps) {
           </span>
         </div>
 
-        <h3 className="font-semibold text-slate-900 mb-1.5 line-clamp-1">
+        <h3 className="font-serif font-semibold text-slate-900 mb-1.5 line-clamp-1 tracking-wide">
           {plan.title}
         </h3>
 
