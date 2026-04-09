@@ -3,16 +3,27 @@ export default function AboutSection() {
     <section className="py-16 sm:py-20 bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <p className="text-sm text-rose-500 font-medium text-center mb-2">
-          Our Approach
+          Our Club
         </p>
 
         <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-6 text-center tracking-tight">
-          What is Zhixing?
+          Island to Infinity
         </h2>
 
         <p className="text-slate-600 text-lg text-center max-w-3xl mx-auto mb-12">
-          Zhixing is a year-long initiative where students build meaningful relationships
-          with families through weekly visits, shared experiences, and structured support.
+          Island to Infinity is the ZhiXing club at our school, dedicated to reducing isolation among underprivileged families in Changshu. 
+          Each family is considered an “island” with infinite possibilities. We empower families affected by catastrophic health events (CHE) 
+          by providing holistic support addressing economic, social, and academic needs for both children and adults.
+        </p>
+
+        <p className="text-slate-600 text-lg text-center max-w-3xl mx-auto mb-12">
+          Our members are paired with a family to facilitate weekly activities and home visits, while services are tailored to children’s interests 
+          and the family’s holistic needs. We work closely with the Changshu Women’s Federation and organize field trips and CSC events to broaden 
+          the participants’ perspectives beyond their immediate environment.
+        </p>
+
+        <p className="text-slate-600 text-lg text-center max-w-3xl mx-auto mb-12">
+          Island to Infinity addresses these needs because government agencies have limited capacity to support these families directly.
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -47,8 +58,7 @@ export default function AboutSection() {
 
         <div className="mt-12 text-center">
           <p className="text-slate-500 text-sm max-w-2xl mx-auto">
-            Through consistent engagement and shared experiences, Zhixing fosters
-            meaningful human connection while creating lasting impact in the community.
+            Through consistent engagement and shared experiences, Island to Infinity fosters meaningful human connection while creating lasting impact in the community.
           </p>
         </div>
       </div>
