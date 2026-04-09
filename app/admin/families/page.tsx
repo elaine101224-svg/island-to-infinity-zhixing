@@ -211,99 +211,92 @@ export default function AdminFamiliesPage() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Families</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage family profiles</p>
+          <h1 className="text-2.5xl font-bold text-slate-900 tracking-tight">Families</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage family profiles</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-sm transition-colors text-sm flex items-center gap-2"
+          className="bg-rose-500 text-white px-4 py-2.5 rounded-xl hover:bg-rose-600 transition-colors text-sm font-medium flex items-center gap-2 shadow-sm shadow-rose-200"
         >
           <Plus className="h-4 w-4" />
           Add Family
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Pseudonym
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Composition
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Photos
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Pseudonym</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Location</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Composition</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Photos</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {families.map((family) => (
-              <tr key={family.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={family.id} className="hover:bg-slate-50/70 transition-colors">
+                <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="bg-primary-100 p-2 rounded-lg">
-                      <Users className="h-4 w-4 text-primary-600" />
+                    <div className="bg-rose-50 p-2 rounded-lg">
+                      <Users className="h-4 w-4 text-rose-500" />
                     </div>
-                    <span className="font-medium text-gray-900">{family.pseudonym}</span>
+                    <span className="font-medium text-slate-900">{family.pseudonym}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-1 text-gray-500 text-sm">
-                    <MapPin className="h-4 w-4" />
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-1.5 text-slate-600 text-sm">
+                    <MapPin className="h-4 w-4 text-slate-400" />
                     {family.location}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {family.familyComposition.adults}A / {family.familyComposition.children}C /{" "}
-                  {family.familyComposition.elderly}E
+                <td className="px-5 py-4 text-sm text-slate-600">
+                  {family.familyComposition.adults}A / {family.familyComposition.children}C / {family.familyComposition.elderly}E
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-5 py-4">
                   {family.consentGiven ? (
-                    <span className="flex items-center gap-1 text-green-600 text-sm">
-                      <Check className="h-4 w-4" />
+                    <span className="inline-flex items-center gap-1 text-emerald-600 text-sm bg-emerald-50 px-2.5 py-1 rounded-full">
+                      <Check className="h-3.5 w-3.5" />
                       {family.photos.length} photos
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-gray-400 text-sm">
-                      <X className="h-4 w-4" />
+                    <span className="inline-flex items-center gap-1 text-slate-400 text-sm">
+                      <X className="h-3.5 w-3.5" />
                       No photos
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <div className="flex items-center gap-3">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-4 text-sm">
                     <button
                       onClick={() => handleOpenModal(family)}
-                      className="text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                      className="text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-3.5 w-3.5" />
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(family.id)}
-                      className="text-red-500 hover:text-red-600 flex items-center gap-1"
+                      className="text-red-500 hover:text-red-600 font-medium flex items-center gap-1"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                       Delete
                     </button>
                     <a
                       href={`/families/${family.id}`}
-                      className="text-primary-500 hover:text-primary-600 flex items-center gap-1"
+                      className="text-rose-500 hover:text-rose-600 font-medium flex items-center gap-1"
                     >
                       View <ArrowRight className="h-3 w-3" />
                     </a>
@@ -317,56 +310,50 @@ export default function AdminFamiliesPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 sticky top-0 bg-white rounded-t-2xl">
+              <h2 className="text-lg font-semibold text-slate-900">
                 {editingFamily ? "Edit Family" : "Add Family"}
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                <XIcon className="h-6 w-6" />
+                <XIcon className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-5 space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Pseudonym
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Pseudonym</label>
                 <input
                   type="text"
                   value={formData.pseudonym}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, pseudonym: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   placeholder="e.g., Kaiyan Family"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Location</label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, location: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   placeholder="e.g., Changshu Urban Area"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Adults
-                  </label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Adults</label>
                   <input
                     type="number"
                     min="0"
@@ -374,19 +361,14 @@ export default function AdminFamiliesPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        familyComposition: {
-                          ...prev.familyComposition,
-                          adults: parseInt(e.target.value) || 0,
-                        },
+                        familyComposition: { ...prev.familyComposition, adults: parseInt(e.target.value) || 0 },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Children
-                  </label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Children</label>
                   <input
                     type="number"
                     min="0"
@@ -394,19 +376,14 @@ export default function AdminFamiliesPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        familyComposition: {
-                          ...prev.familyComposition,
-                          children: parseInt(e.target.value) || 0,
-                        },
+                        familyComposition: { ...prev.familyComposition, children: parseInt(e.target.value) || 0 },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Elderly
-                  </label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Elderly</label>
                   <input
                     type="number"
                     min="0"
@@ -414,81 +391,69 @@ export default function AdminFamiliesPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        familyComposition: {
-                          ...prev.familyComposition,
-                          elderly: parseInt(e.target.value) || 0,
-                        },
+                        familyComposition: { ...prev.familyComposition, elderly: parseInt(e.target.value) || 0 },
                       }))
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Background
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Background</label>
                 <textarea
                   value={formData.background}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, background: e.target.value }))
                   }
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   placeholder="Family background information..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Current Situation
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Current Situation</label>
                 <textarea
                   value={formData.currentSituation}
                   onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      currentSituation: e.target.value,
-                    }))
+                    setFormData((prev) => ({ ...prev, currentSituation: e.target.value }))
                   }
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                  className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   placeholder="Current family situation..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Key Challenges
-                </label>
-                <div className="flex gap-2 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Key Challenges</label>
+                <div className="flex gap-2 mb-3">
                   <input
                     type="text"
                     value={newChallenge}
                     onChange={(e) => setNewChallenge(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddChallenge())}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    className="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                     placeholder="Add a challenge..."
                   />
                   <button
                     type="button"
                     onClick={handleAddChallenge}
-                    className="px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200"
+                    className="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 font-medium text-sm transition-colors"
                   >
                     Add
                   </button>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {formData.keyChallenges.map((challenge, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg text-sm"
+                      className="flex items-center justify-between px-4 py-2.5 bg-slate-50 rounded-xl text-sm"
                     >
-                      <span>{challenge}</span>
+                      <span className="text-slate-700">{challenge}</span>
                       <button
                         onClick={() => handleRemoveChallenge(index)}
-                        className="text-gray-400 hover:text-primary-500"
+                        className="text-slate-400 hover:text-red-500 transition-colors"
                       >
                         <XIcon className="h-4 w-4" />
                       </button>
@@ -499,55 +464,53 @@ export default function AdminFamiliesPage() {
 
               {/* Highlights Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Highlights
-                </label>
-                <div className="space-y-2 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Highlights</label>
+                <div className="space-y-2 mb-3">
                   {formData.highlights.map((highlight, index) => (
                     <div
                       key={index}
-                      className="flex items-start justify-between px-3 py-2 bg-accent-50 rounded-lg text-sm"
+                      className="flex items-start justify-between px-4 py-3 bg-violet-50 rounded-xl text-sm"
                     >
                       <div>
-                        <span className="font-medium text-primary-700">{highlight.title}</span>
-                        <span className="text-accent-500 ml-2">({highlight.date})</span>
-                        <p className="text-accent-700 mt-1">{highlight.description}</p>
+                        <span className="font-medium text-violet-700">{highlight.title}</span>
+                        <span className="text-violet-500 ml-2 text-xs">({highlight.date})</span>
+                        <p className="text-violet-600 mt-1">{highlight.description}</p>
                       </div>
                       <button
                         onClick={() => handleRemoveHighlight(index)}
-                        className="text-gray-400 hover:text-primary-500 ml-2"
+                        className="text-violet-400 hover:text-violet-600 ml-2 transition-colors"
                       >
                         <XIcon className="h-4 w-4" />
                       </button>
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-3 gap-2 mb-2">
+                <div className="grid grid-cols-3 gap-2 mb-3">
                   <input
                     type="date"
                     value={newHighlight.date}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, date: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                    className="px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                   />
                   <input
                     type="text"
                     value={newHighlight.title}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, title: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
-                    placeholder="Highlight title"
+                    className="px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
+                    placeholder="Title"
                   />
                   <input
                     type="text"
                     value={newHighlight.description}
                     onChange={(e) => setNewHighlight((prev) => ({ ...prev, description: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                    className="px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                     placeholder="Description"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleAddHighlight}
-                  className="w-full px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200 text-sm"
+                  className="w-full px-4 py-2.5 bg-violet-50 text-violet-700 rounded-xl hover:bg-violet-100 font-medium text-sm transition-colors"
                 >
                   Add Highlight
                 </button>
@@ -555,35 +518,33 @@ export default function AdminFamiliesPage() {
 
               {/* Photos Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Photos
-                </label>
-                <div className="grid grid-cols-2 gap-2 mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Photos</label>
+                <div className="grid grid-cols-2 gap-3 mb-3">
                   {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative bg-accent-50 rounded-lg p-2">
+                    <div key={index} className="relative bg-slate-50 rounded-xl p-2">
                       <img src={photo.url} alt={photo.caption} className="w-full h-24 object-cover rounded-lg" />
-                      <p className="text-xs text-accent-700 mt-1 truncate">{photo.caption}</p>
+                      <p className="text-xs text-slate-600 mt-1.5 truncate px-1">{photo.caption}</p>
                       <button
                         onClick={() => handleRemovePhoto(index)}
-                        className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:text-primary-500"
+                        className="absolute top-3 right-3 bg-white rounded-full p-1.5 shadow hover:bg-slate-100 transition-colors"
                       >
-                        <XIcon className="h-3 w-3" />
+                        <XIcon className="h-3 w-3 text-slate-500" />
                       </button>
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-2 mb-2">
+                <div className="flex gap-2 mb-3">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoFileChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                    className="flex-1 px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm text-slate-600"
                   />
                   <input
                     type="text"
                     value={photoCaption}
                     onChange={(e) => setPhotoCaption(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+                    className="flex-1 px-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none text-sm"
                     placeholder="Caption"
                   />
                 </div>
@@ -591,13 +552,13 @@ export default function AdminFamiliesPage() {
                   type="button"
                   onClick={handleAddPhoto}
                   disabled={!photoUrl}
-                  className="w-full px-4 py-2 bg-accent-100 text-accent-700 rounded-lg hover:bg-accent-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
                 >
                   Add Photo
                 </button>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 pt-2">
                 <input
                   type="checkbox"
                   id="consentGiven"
@@ -605,25 +566,25 @@ export default function AdminFamiliesPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, consentGiven: e.target.checked }))
                   }
-                  className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
+                  className="w-4 h-4 text-rose-500 border-slate-300 rounded focus:ring-rose-500"
                 />
-                <label htmlFor="consentGiven" className="text-sm text-gray-700">
+                <label htmlFor="consentGiven" className="text-sm text-slate-700">
                   Photo consent given
                 </label>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+            <div className="flex justify-end gap-3 p-5 border-t bg-slate-50 rounded-b-2xl">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
+                className="px-5 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 font-medium text-sm shadow-sm transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving || !formData.pseudonym}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg border border-indigo-600 hover:bg-indigo-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 bg-rose-500 text-white rounded-xl hover:bg-rose-600 font-medium text-sm shadow-sm shadow-rose-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>

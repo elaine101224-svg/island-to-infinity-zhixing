@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  FileText,
-  Plus,
-  Pencil,
-  Trash2,
-  X as XIcon,
-} from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, X as XIcon } from "lucide-react";
 import type { SupportPlan, Family, FocusArea, PlanStatus } from "@/types";
 
 const focusAreaLabels: Record<FocusArea, string> = {
@@ -17,9 +11,9 @@ const focusAreaLabels: Record<FocusArea, string> = {
 };
 
 const focusAreaColors: Record<FocusArea, string> = {
-  mental_health: "bg-purple-100 text-purple-700",
-  companionship: "bg-amber-100 text-amber-700",
-  social_integration: "bg-blue-100 text-blue-700",
+  mental_health: "bg-purple-50 text-purple-700 border-purple-100",
+  companionship: "bg-rose-50 text-rose-700 border-rose-100",
+  social_integration: "bg-blue-50 text-blue-700 border-blue-100",
 };
 
 const statusLabels: Record<PlanStatus, string> = {
@@ -29,9 +23,9 @@ const statusLabels: Record<PlanStatus, string> = {
 };
 
 const statusColors: Record<PlanStatus, string> = {
-  active: "bg-green-100 text-green-700",
-  completed: "bg-gray-100 text-gray-700",
-  on_hold: "bg-orange-100 text-orange-700",
+  active: "bg-emerald-50 text-emerald-700",
+  completed: "bg-slate-100 text-slate-600",
+  on_hold: "bg-amber-50 text-amber-700",
 };
 
 interface PlanFormData {
@@ -133,9 +127,7 @@ export default function AdminPlansPage() {
       if (res.ok) {
         const savedData = await res.json();
         if (editingPlan) {
-          setPlans((prev) =>
-            prev.map((p) => (p.id === savedData.id ? savedData : p))
-          );
+          setPlans((prev) => prev.map((p) => (p.id === savedData.id ? savedData : p)));
         } else {
           setPlans((prev) => [...prev, savedData]);
         }
@@ -153,9 +145,7 @@ export default function AdminPlansPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this plan?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/plans/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`${API_BASE}/api/admin/plans/${id}`, { method: "DELETE" });
       if (res.ok) {
         setPlans((prev) => prev.filter((p) => p.id !== id));
       }
@@ -166,123 +156,100 @@ export default function AdminPlansPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64 text-neutral-900 font-semibold">
-        Loading...
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-sand-50">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Support Plans</h1>
-          <p className="text-neutral-700 text-sm mt-1">
-            Manage family support plans
-          </p>
+          <h1 className="text-2.5xl font-bold text-slate-900 tracking-tight">Support Plans</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage family support plans</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-colors text-sm flex items-center gap-2"
+          className="bg-rose-500 text-white px-4 py-2.5 rounded-xl hover:bg-rose-600 transition-colors text-sm font-medium flex items-center gap-2 shadow-sm shadow-rose-200"
         >
           <Plus className="h-4 w-4" />
           Add Plan
         </button>
       </div>
 
-      <div className="bg-sand-100 rounded-xl shadow-md overflow-hidden">
-        <table className="min-w-full divide-y divide-sand-300">
-          <thead className="bg-sand-200">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Plan
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Family
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Focus Area
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Progress
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-neutral-900 uppercase tracking-wider">
-                Actions
-              </th>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <table className="min-w-full">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Plan</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Family</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Focus Area</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Progress</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-sand-300">
+          <tbody className="divide-y divide-slate-100">
             {plans.map((plan) => {
-              const achievedObjectives = plan.objectives?.filter(
-                (o) => o.status === "achieved"
-              ).length || 0;
+              const achievedObjectives = plan.objectives?.filter((o) => o.status === "achieved").length || 0;
               const totalObjectives = plan.objectives?.length || 0;
 
               return (
-                <tr key={plan.id} className="hover:bg-sand-50">
-                  <td className="px-6 py-4">
+                <tr key={plan.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
-                        <FileText className="h-4 w-4 text-blue-600" />
+                      <div className="bg-blue-50 p-2 rounded-lg">
+                        <FileText className="h-4 w-4 text-blue-500" />
                       </div>
-                      <span className="font-medium text-neutral-900">{plan.title}</span>
+                      <span className="font-medium text-slate-900">{plan.title}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-neutral-800">
+                  <td className="px-5 py-4 text-sm text-slate-600">
                     {familyMap.get(plan.familyId) || "Unknown"}
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        focusAreaColors[plan.focusArea]
-                      }`}
-                    >
+                  <td className="px-5 py-4">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${focusAreaColors[plan.focusArea]}`}>
                       {focusAreaLabels[plan.focusArea]}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        statusColors[plan.status]
-                      }`}
-                    >
+                  <td className="px-5 py-4">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[plan.status]}`}>
                       {statusLabels[plan.status]}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-sand-200 rounded-full overflow-hidden">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-accent-500 rounded-full"
+                          className="h-full bg-gradient-to-r from-rose-400 to-rose-500 rounded-full"
                           style={{
-                            width:
-                              totalObjectives > 0
-                                ? `${(achievedObjectives / totalObjectives) * 100}%`
-                                : "0%",
+                            width: totalObjectives > 0 ? `${(achievedObjectives / totalObjectives) * 100}%` : "0%",
                           }}
                         />
                       </div>
-                      <span className="text-xs text-neutral-800">
+                      <span className="text-xs text-slate-600 font-medium">
                         {achievedObjectives}/{totalObjectives}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm flex gap-2">
-                    <button
-                      onClick={() => handleOpenModal(plan)}
-                      className="text-blue-500 hover:text-blue-600 flex items-center gap-1"
-                    >
-                      <Pencil className="h-4 w-4" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(plan.id)}
-                      className="text-red-500 hover:text-red-600 flex items-center gap-1"
-                    >
-                      <Trash2 className="h-4 w-4" /> Delete
-                    </button>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-4 text-sm">
+                      <button
+                        onClick={() => handleOpenModal(plan)}
+                        className="text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(plan.id)}
+                        className="text-red-500 hover:text-red-600 font-medium flex items-center gap-1"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -293,27 +260,24 @@ export default function AdminPlansPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-lg">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-slate-200 sticky top-0 bg-white rounded-t-2xl">
+              <h2 className="text-lg font-semibold text-slate-900">
                 {editingPlan ? "Edit Plan" : "Create Plan"}
               </h2>
-              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
+              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Form */}
-            <div className="p-6 space-y-4">
-              {/* Family */}
+            <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Family</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Family</label>
                 <select
                   value={formData.familyId}
                   onChange={(e) => setFormData({ ...formData, familyId: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 >
                   <option value="">Select a family</option>
                   {families.map((f) => (
@@ -322,24 +286,22 @@ export default function AdminPlansPage() {
                 </select>
               </div>
 
-              {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 />
               </div>
 
-              {/* Focus Area */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Focus Area</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Focus Area</label>
                 <select
                   value={formData.focusArea}
-                  onChange={(e) => setFormData({ ...formData, focusArea: e.target.value as any })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  onChange={(e) => setFormData({ ...formData, focusArea: e.target.value as FocusArea })}
+                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 >
                   {Object.entries(focusAreaLabels).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -347,13 +309,12 @@ export default function AdminPlansPage() {
                 </select>
               </div>
 
-              {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as PlanStatus })}
+                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 >
                   {Object.entries(statusLabels).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -361,51 +322,49 @@ export default function AdminPlansPage() {
                 </select>
               </div>
 
-              {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Start Date</label>
                   <input
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Target End Date</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Target End Date</label>
                   <input
                     type="date"
                     value={formData.targetEndDate}
                     onChange={(e) => setFormData({ ...formData, targetEndDate: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                   />
                 </div>
               </div>
 
-              {/* Ethics */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ethics Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Ethics Description</label>
                 <textarea
                   value={formData.ethicsDescription}
                   onChange={(e) => setFormData({ ...formData, ethicsDescription: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  rows={3}
+                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
                 />
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+            <div className="flex justify-end gap-3 p-5 border-t bg-slate-50 rounded-b-2xl">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 shadow-sm"
+                className="px-5 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 font-medium text-sm shadow-sm transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving || !formData.familyId || !formData.title}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg border border-indigo-600 hover:bg-indigo-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 bg-rose-500 text-white rounded-xl hover:bg-rose-600 font-medium text-sm shadow-sm shadow-rose-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>

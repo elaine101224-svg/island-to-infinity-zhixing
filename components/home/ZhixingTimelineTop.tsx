@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const timeline = [
   {
@@ -21,7 +23,7 @@ export default function ZhixingTimelineTop() {
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -29,39 +31,56 @@ export default function ZhixingTimelineTop() {
   const prev = () => setIndex((prev) => (prev - 1 + timeline.length) % timeline.length);
   const item = timeline[index];
 
-  // calculate blur and scale based on scroll
-  const blurAmount = Math.min(scrollY / 50, 12); // max 12px
-  const scaleAmount = 1 + Math.min(scrollY / 1000, 0.05); // max scale 1.05
+  const blurAmount = Math.min(scrollY / 50, 12);
+  const scaleAmount = 1 + Math.min(scrollY / 1000, 0.05);
 
   return (
-    <section className="w-full relative h-[60vh] sm:h-[70vh] overflow-hidden">
+    <section className="w-full relative h-[55vh] sm:h-[65vh] overflow-hidden">
       <img
         src={item.image}
         alt={item.year}
-        className="w-full h-full object-cover transition-all duration-300"
+        className="w-full h-full object-cover transition-all duration-500"
         style={{
           filter: `blur(${blurAmount}px)`,
           transform: `scale(${scaleAmount})`,
         }}
       />
 
-      <div className="absolute inset-0 flex flex-col justify-end items-center text-white pb-10">
-        <h2 className="text-4xl font-bold">{item.year}</h2>
-        <p className="text-lg opacity-90">{item.title}</p>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent" />
+
+      <div className="absolute inset-0 flex flex-col justify-end items-center text-white pb-12 sm:pb-16">
+        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2">{item.year}</h2>
+        <p className="text-lg sm:text-xl text-white/80 font-medium">{item.title}</p>
+      </div>
+
+      {/* Navigation dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        {timeline.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIndex(i)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              i === index ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/60'
+            }`}
+          />
+        ))}
       </div>
 
       <button
         onClick={prev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur px-3 py-2 rounded-full text-white hover:bg-white/30 transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 px-3 py-2 rounded-full text-white transition-all"
+        aria-label="Previous"
       >
-        ←
+        <ChevronLeft className="h-5 w-5" />
       </button>
 
       <button
         onClick={next}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur px-3 py-2 rounded-full text-white hover:bg-white/30 transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 px-3 py-2 rounded-full text-white transition-all"
+        aria-label="Next"
       >
-        →
+        <ChevronRight className="h-5 w-5" />
       </button>
     </section>
   );
