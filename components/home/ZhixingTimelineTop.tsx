@@ -35,7 +35,7 @@ export default function ZhixingTimelineTop() {
   const scaleAmount = 1 + Math.min(scrollY / 1000, 0.05);
 
   return (
-    <section className="w-full relative h-[55vh] sm:h-[65vh] overflow-hidden">
+    <section className="w-full relative h-[40vh] sm:h-[50vh] overflow-hidden">
       <img
         src={item.image}
         alt={item.year}
