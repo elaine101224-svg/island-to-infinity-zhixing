@@ -1,6 +1,10 @@
 import type { Family, ScheduleEvent, SupportPlan } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || '';
+const API_BASE =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+  'http://localhost:3000';
+console.log('API_BASE:', API_BASE);
 
 async function fetchAPI<T>(endpoint: string): Promise<T[]> {
   try {
