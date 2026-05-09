@@ -1,5 +1,3 @@
-HEAD
-# island-to-infinity-zhixing
 # Island to Infinity Zhixing
 
 A publicly accessible web application for a student-led social impact project supporting underprivileged families in Changshu, China.
@@ -9,6 +7,7 @@ A publicly accessible web application for a student-led social impact project su
 Island to Infinity Zhixing is a long-term community project that supports underprivileged families in Changshu. Each family is seen as an "island", and the goal is to build meaningful human connections and reduce isolation.
 
 ### Core Focus Areas
+
 - **Mental Health Support** - Emotional support and resources for families
 - **Companionship** - Regular visits and social interaction for isolated individuals
 - **Social Integration** - Helping families connect with their communities
@@ -20,14 +19,16 @@ Island to Infinity Zhixing is a long-term community project that supports underp
 - **Families Page** - Anonymized family profiles (pseudonyms, no sensitive data)
 - **Plans Page** - Structured support plans with ethical considerations
 - **AI Assistant** - Compassionate communication guidance tool powered by Claude AI
-- **Admin Mode** - Password-protected dashboard for managing content (accessible at `/admin`)
+- **Admin Dashboard** - Password-protected management interface at `/admin`
+- **Login Page** - Secure admin authentication at `/login`
 
 ## Tech Stack
 
-- **Framework:** Next.js 14 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Styling:** Tailwind CSS
 - **AI:** Anthropic Claude API
 - **Data:** JSON files (no database required)
+- **Deployment:** Vercel
 
 ## Getting Started
 
@@ -41,7 +42,7 @@ Island to Infinity Zhixing is a long-term community project that supports underp
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/elaine101224-svg/island-to-infinity-zhixing.git
 cd island-to-infinity-zhixing
 
 # Install dependencies
@@ -61,6 +62,9 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 
 # Required for Admin Access (choose a secure password)
 ADMIN_PASSWORD=your_admin_password
+
+# Public site URL
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
 ```
 
 ### Development
@@ -91,8 +95,14 @@ npm start
 # Install Vercel CLI
 npm i -g vercel
 
+# Link project
+vercel link
+
+# Pull environment variables
+vercel env pull
+
 # Deploy
-vercel
+vercel --prod
 ```
 
 ### Option 2: Vercel Dashboard
@@ -103,6 +113,7 @@ vercel
 4. Configure environment variables:
    - `ANTHROPIC_API_KEY` - Your Anthropic API key
    - `ADMIN_PASSWORD` - Your admin password
+   - `NEXT_PUBLIC_SITE_URL` - Your Vercel deployment URL
 5. Deploy
 
 ### Environment Variables on Vercel
@@ -113,6 +124,7 @@ In your Vercel project settings, add these environment variables:
 |----------|-------------|----------|
 | `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes (for AI Assistant) |
 | `ADMIN_PASSWORD` | Admin dashboard password | Yes (for admin access) |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL | Yes |
 
 ## Privacy & Ethics
 
@@ -125,32 +137,40 @@ In your Vercel project settings, add these environment variables:
 ## Project Structure
 
 ```
-├── app/                    # Next.js App Router pages
-│   ├── api/               # API routes
-│   │   ├── ai-assistant/  # AI Assistant API
-│   │   └── admin/         # Admin auth API
-│   ├── admin/             # Admin dashboard
-│   ├── families/          # Families pages
-│   ├── plans/             # Plans pages
-│   ├── schedule/          # Schedule pages
-│   └── ai-assistant/      # AI Assistant page
-├── components/            # React components
-│   ├── layout/           # Navbar, Footer
-│   ├── home/             # Home page sections
-│   ├── families/         # Family-related components
-│   ├── schedule/         # Schedule components
-│   ├── plans/            # Plan components
-│   ├── ai-assistant/     # AI chat components
-│   └── admin/            # Admin components
-├── data/                  # JSON data files
+├── app/
+│   ├── api/
+│   │   ├── ai-assistant/     # AI Assistant API
+│   │   └── admin/           # Admin auth API
+│   ├── admin/
+│   │   ├── families/         # Manage families
+│   │   ├── plans/            # Manage plans
+│   │   └── schedule/         # Manage schedule
+│   ├── families/             # Public families listing
+│   │   └── [id]/            # Family detail page
+│   ├── plans/                # Public plans listing
+│   ├── schedule/             # Public schedule
+│   ├── ai-assistant/         # AI Assistant page
+│   ├── login/                # Admin login page
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Home page
+├── components/
+│   ├── layout/              # Navbar, Footer
+│   ├── home/                # Home page sections
+│   ├── families/             # Family components
+│   ├── schedule/             # Schedule components
+│   ├── plans/               # Plan components
+│   ├── ai-assistant/        # AI chat components
+│   └── admin/               # Admin components
+├── data/
 │   ├── families.json
 │   ├── schedule.json
 │   └── plans.json
-├── lib/                   # Utility functions
-│   ├── anthropic.ts      # Claude API client
-│   ├── auth.ts           # Admin authentication
-│   └── data.ts           # Data fetching
-└── types/                # TypeScript interfaces
+├── lib/
+│   ├── anthropic.ts         # Claude API client
+│   ├── auth.ts              # Admin authentication
+│   └── data.ts              # Data fetching
+└── types/
+    └── index.ts             # TypeScript interfaces
 ```
 
 ## License
@@ -160,4 +180,3 @@ This project is created for educational and social impact purposes.
 ---
 
 Built with care for the community.
->>>>>>> 5244565 (Initial commit)
