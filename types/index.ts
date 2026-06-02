@@ -51,12 +51,12 @@ export interface ScheduleEvent {
 }
 
 // Plan Types
-export type FocusArea = 'mental_health' | 'companionship' | 'social_integration';
+export type FocusArea = 'social' | 'financial' | 'academic';
 export type PlanStatus = 'active' | 'completed' | 'on_hold';
 
 export interface SupportPlan {
   id: string;
-  familyId: string;
+  familyIds: string[];
   title: string;
   focusArea: FocusArea;
   status: PlanStatus;

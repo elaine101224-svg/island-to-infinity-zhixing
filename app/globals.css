@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair), Georgia, serif;
+
+  /* Warm NGO palette */
+  --color-cream: #FAF7F2;
+  --color-sand: #E8E0D5;
+  --color-sand-dark: #D4C8B8;
+  --color-terracotta: #C4785A;
+  --color-terracotta-light: #E8C4B0;
+  --color-terracotta-dark: #A8624A;
+  --color-sage: #7A9E7E;
+  --color-sage-light: #B5D0B6;
+  --color-amber-warm: #D4A853;
+  --color-amber-light: #F0E0C0;
+  --color-earth-dark: #3D2E24;
+  --color-earth-mid: #6B5B4E;
+  --color-earth-light: #8B7B6E;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #FAF7F2;
+  --foreground: #3D2E24;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
 }

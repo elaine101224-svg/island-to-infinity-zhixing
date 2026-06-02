@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Heart, Users, Calendar, FileText, LayoutDashboard, LogOut, Sparkles } from 'lucide-react';
 
 const navItems = [
@@ -13,18 +13,25 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
+  };
 
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col min-h-screen shadow-xl">
+    <aside className="w-64 bg-earth-dark text-white flex flex-col min-h-screen shadow-xl">
       {/* Logo */}
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-5 border-b border-earth-mid/30">
         <Link href="/admin" className="flex items-center gap-3 group">
-          <div className="bg-gradient-to-br from-rose-400 to-rose-500 p-2 rounded-xl shadow-lg shadow-rose-500/20">
+          <div className="bg-gradient-to-br from-terracotta to-terracotta-dark p-2 rounded-xl shadow-lg">
             <span className="text-xl">🏝️</span>
           </div>
           <div>
             <span className="font-semibold text-base text-white">Admin</span>
-            <p className="text-xs text-slate-400">Island to Infinity</p>
+            <p className="text-xs text-amber-light/50">Island to Infinity</p>
           </div>
         </Link>
       </div>
@@ -40,11 +47,11 @@ export default function AdminSidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
                     isActive
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                      ? 'bg-terracotta text-white shadow-lg shadow-terracotta/25'
+                      : 'text-amber-light/60 hover:text-white hover:bg-earth-mid/50'
                   }`}
                 >
-                  <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-amber-light/40'}`} />
                   <span>{item.label}</span>
                 </Link>
               </li>
@@ -53,15 +60,15 @@ export default function AdminSidebar() {
         </ul>
       </nav>
 
-      {/* Exit Admin */}
-      <div className="p-4 border-t border-slate-800">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all text-sm font-medium"
+      {/* Logout */}
+      <div className="p-4 border-t border-earth-mid/30">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-amber-light/60 hover:text-white hover:bg-earth-mid/50 transition-all text-sm font-medium"
         >
-          <LogOut className="h-5 w-5 text-slate-400" />
-          <span>Exit Admin</span>
-        </Link>
+          <LogOut className="h-5 w-5 text-amber-light/40" />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );

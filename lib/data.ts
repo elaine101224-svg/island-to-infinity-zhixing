@@ -61,7 +61,7 @@ export async function getPlanById(id: string): Promise<SupportPlan | null> {
 export async function getPlansByFamilyId(familyId: string): Promise<SupportPlan[]> {
   if (!familyId) return [];
   const plans = await getPlans();
-  return plans.filter(p => p && p.familyId === familyId);
+  return plans.filter(p => p && p.familyIds && p.familyIds.includes(familyId));
 }
 
 // Schedule

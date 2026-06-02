@@ -14,17 +14,17 @@ export default async function AdminDashboardPage() {
   const upcomingEvents = events.filter((e) => new Date(e.date) >= new Date()).length;
 
   const stats = [
-    { label: 'Families', value: families.length, icon: Users, href: '/admin/families', color: 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100' },
-    { label: 'Active Plans', value: activePlans, icon: FileText, href: '/admin/plans', color: 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100' },
-    { label: 'Upcoming Events', value: upcomingEvents, icon: Calendar, href: '/admin/schedule', color: 'bg-violet-50 border-violet-100 text-violet-600 hover:bg-violet-100' },
-    { label: 'Public Events', value: publicEvents, icon: Heart, href: '/admin/schedule', color: 'bg-emerald-50 border-emerald-100 text-emerald-600 hover:bg-emerald-100' },
+    { label: 'Families', value: families.length, icon: Users, href: '/admin/families', color: 'bg-terracotta/10 border-terracotta/20 text-terracotta-dark hover:bg-terracotta/20' },
+    { label: 'Active Plans', value: activePlans, icon: FileText, href: '/admin/plans', color: 'bg-sage/10 border-sage/20 text-sage hover:bg-sage/20' },
+    { label: 'Upcoming Events', value: upcomingEvents, icon: Calendar, href: '/admin/schedule', color: 'bg-amber-warm/10 border-amber-warm/20 text-amber-warm hover:bg-amber-warm/20' },
+    { label: 'Public Events', value: publicEvents, icon: Heart, href: '/admin/schedule', color: 'bg-earth-mid/10 border-earth-mid/20 text-earth-mid hover:bg-earth-mid/20' },
   ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2.5xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1.5">
+        <h1 className="text-2.5xl font-bold text-earth-dark tracking-tight">Dashboard</h1>
+        <p className="text-earth-mid text-sm mt-1.5">
           Welcome back. Here&apos;s an overview of your data.
         </p>
       </div>
@@ -48,42 +48,42 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Link
           href="/admin/families"
-          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-sand text-earth-dark hover:bg-cream/50 hover:border-terracotta/30 transition-all"
         >
-          <Users className="h-5 w-5 text-rose-500" />
+          <Users className="h-5 w-5 text-terracotta" />
           <span className="font-medium">Manage Families</span>
         </Link>
         <Link
           href="/admin/schedule"
-          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-sand text-earth-dark hover:bg-cream/50 hover:border-amber-warm/30 transition-all"
         >
-          <Calendar className="h-5 w-5 text-violet-500" />
+          <Calendar className="h-5 w-5 text-amber-warm" />
           <span className="font-medium">Manage Schedule</span>
         </Link>
         <Link
           href="/admin/plans"
-          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+          className="flex items-center gap-3 p-4 rounded-xl bg-white border border-sand text-earth-dark hover:bg-cream/50 hover:border-sage/30 transition-all"
         >
-          <FileText className="h-5 w-5 text-blue-500" />
+          <FileText className="h-5 w-5 text-sage" />
           <span className="font-medium">Manage Plans</span>
         </Link>
       </div>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <h2 className="text-base font-semibold text-slate-900">Families</h2>
-            <Link href="/admin/families" className="text-sm text-rose-500 hover:text-rose-600 font-medium">View all</Link>
+        <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
+            <h2 className="text-base font-semibold text-earth-dark">Families</h2>
+            <Link href="/admin/families" className="text-sm text-terracotta hover:text-terracotta-dark font-medium">View all</Link>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-sand/60">
             {families.slice(0, 5).map((family) => (
-              <div key={family.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50 transition-colors">
+              <div key={family.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-cream/50 transition-colors">
                 <div>
-                  <p className="font-medium text-slate-900 text-sm">{family.pseudonym}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{family.location}</p>
+                  <p className="font-medium text-earth-dark text-sm">{family.pseudonym}</p>
+                  <p className="text-xs text-earth-mid mt-0.5">{family.location}</p>
                 </div>
-                <span className="text-xs text-slate-600 bg-slate-100 px-2 py-1 rounded-full">
+                <span className="text-xs text-earth-mid bg-sand/50 px-2 py-1 rounded-full">
                   {family.familyComposition.adults}A / {family.familyComposition.children}C / {family.familyComposition.elderly}E
                 </span>
               </div>
@@ -91,19 +91,19 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <h2 className="text-base font-semibold text-slate-900">Upcoming Events</h2>
-            <Link href="/admin/schedule" className="text-sm text-violet-500 hover:text-violet-600 font-medium">View all</Link>
+        <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
+            <h2 className="text-base font-semibold text-earth-dark">Upcoming Events</h2>
+            <Link href="/admin/schedule" className="text-sm text-amber-warm hover:text-amber-warm/80 font-medium">View all</Link>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-sand/60">
             {events.filter((e) => new Date(e.date) >= new Date()).slice(0, 5).map((event) => (
-              <div key={event.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50 transition-colors">
+              <div key={event.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-cream/50 transition-colors">
                 <div>
-                  <p className="font-medium text-slate-900 text-sm">{event.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{event.location}</p>
+                  <p className="font-medium text-earth-dark text-sm">{event.title}</p>
+                  <p className="text-xs text-earth-mid mt-0.5">{event.location}</p>
                 </div>
-                <span className="text-xs text-violet-600 bg-violet-50 px-2 py-1 rounded-full">{new Date(event.date).toLocaleDateString()}</span>
+                <span className="text-xs text-amber-warm bg-amber-warm/10 px-2 py-1 rounded-full">{new Date(event.date).toLocaleDateString()}</span>
               </div>
             ))}
           </div>

@@ -9,22 +9,22 @@ interface EventCardProps {
 const eventTypeConfig = {
   field_trip: {
     label: 'Field Trip',
-    color: 'bg-blue-50 text-blue-700 border-blue-100',
+    color: 'bg-terracotta/10 text-terracotta-dark border-terracotta/20',
     icon: '🚗',
   },
   visit: {
     label: 'Visit',
-    color: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+    color: 'bg-sage/10 text-sage border-sage/20',
     icon: '🤝',
   },
   event: {
     label: 'Event',
-    color: 'bg-violet-50 text-violet-700 border-violet-100',
+    color: 'bg-amber-warm/10 text-amber-warm border-amber-warm/20',
     icon: '🎉',
   },
   meeting: {
     label: 'Meeting',
-    color: 'bg-slate-100 text-slate-700 border-slate-200',
+    color: 'bg-sand text-earth-mid border-sand-dark',
     icon: '📋',
   },
 };
@@ -34,46 +34,46 @@ export default function EventCard({ event }: EventCardProps) {
   const eventDate = new Date(event.date);
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+    <div className="bg-white border border-sand rounded-2xl p-5 hover:shadow-lg hover:border-terracotta-light transition-all duration-300">
       <div className="flex items-start justify-between mb-3">
         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${config.color}`}>
           <span>{config.icon}</span>
           {config.label}
         </span>
         {event.isPublic && (
-          <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-medium">
+          <span className="text-xs bg-amber-light/50 text-amber-warm px-2.5 py-1 rounded-full font-medium">
             Public
           </span>
         )}
       </div>
 
-      <h3 className="text-lg font-serif font-semibold text-slate-900 mb-3 tracking-wide">
+      <h3 className="text-lg font-serif font-semibold text-earth-dark mb-3 tracking-wide">
         {event.title}
       </h3>
 
-      <div className="space-y-2 text-sm text-slate-600">
+      <div className="space-y-2 text-sm text-earth-mid">
         <div className="flex items-center gap-2.5">
-          <Calendar className="h-4 w-4 text-rose-400" />
+          <Calendar className="h-4 w-4 text-terracotta" />
           <span>{format(eventDate, 'EEEE, MMMM d, yyyy')}</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <Clock className="h-4 w-4 text-rose-400" />
+          <Clock className="h-4 w-4 text-terracotta" />
           <span>{event.startTime} - {event.endTime}</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <MapPin className="h-4 w-4 text-rose-400" />
+          <MapPin className="h-4 w-4 text-terracotta" />
           <span>{event.location}</span>
         </div>
         {event.maxParticipants && (
           <div className="flex items-center gap-2.5">
-            <Users className="h-4 w-4 text-rose-400" />
+            <Users className="h-4 w-4 text-terracotta" />
             <span>Max {event.maxParticipants} participants</span>
           </div>
         )}
       </div>
 
       {event.description && (
-        <p className="mt-4 text-slate-500 text-sm leading-relaxed border-t border-slate-100 pt-4">
+        <p className="mt-4 text-earth-light text-sm leading-relaxed border-t border-sand pt-4">
           {event.description}
         </p>
       )}

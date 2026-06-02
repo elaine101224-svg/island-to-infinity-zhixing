@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Plus, Pencil, Trash2, X as XIcon } from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, X as XIcon, Check } from "lucide-react";
 import type { SupportPlan, Family, FocusArea, PlanStatus } from "@/types";
 
 const focusAreaLabels: Record<FocusArea, string> = {
-  mental_health: "Mental Health",
-  companionship: "Companionship",
-  social_integration: "Social Integration",
+  social: "Social",
+  financial: "Financial",
+  academic: "Academic",
 };
 
 const focusAreaColors: Record<FocusArea, string> = {
-  mental_health: "bg-purple-50 text-purple-700 border-purple-100",
-  companionship: "bg-rose-50 text-rose-700 border-rose-100",
-  social_integration: "bg-blue-50 text-blue-700 border-blue-100",
+  social: "bg-sage/10 text-sage border-sage/20",
+  financial: "bg-terracotta/10 text-terracotta border-terracotta/20",
+  academic: "bg-amber-warm/10 text-amber-warm border-amber-warm/20",
 };
 
 const statusLabels: Record<PlanStatus, string> = {
@@ -23,13 +23,13 @@ const statusLabels: Record<PlanStatus, string> = {
 };
 
 const statusColors: Record<PlanStatus, string> = {
-  active: "bg-emerald-50 text-emerald-700",
-  completed: "bg-slate-100 text-slate-600",
-  on_hold: "bg-amber-50 text-amber-700",
+  active: "bg-sage/10 text-sage",
+  completed: "bg-sand text-earth-mid",
+  on_hold: "bg-amber-light/40 text-amber-warm",
 };
 
 interface PlanFormData {
-  familyId: string;
+  familyIds: string[];
   title: string;
   focusArea: FocusArea;
   status: PlanStatus;
@@ -39,9 +39,9 @@ interface PlanFormData {
 }
 
 const emptyForm: PlanFormData = {
-  familyId: "",
+  familyIds: [],
   title: "",
-  focusArea: "companionship",
+  focusArea: "social",
   status: "active",
   startDate: new Date().toISOString().split("T")[0],
   targetEndDate: "",
@@ -84,7 +84,7 @@ export default function AdminPlansPage() {
     if (plan) {
       setEditingPlan(plan);
       setFormData({
-        familyId: plan.familyId,
+        familyIds: plan.familyIds || [],
         title: plan.title,
         focusArea: plan.focusArea,
         status: plan.status,
@@ -105,8 +105,17 @@ export default function AdminPlansPage() {
     setFormData(emptyForm);
   };
 
+  const handleToggleFamily = (familyId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      familyIds: prev.familyIds.includes(familyId)
+        ? prev.familyIds.filter((id) => id !== familyId)
+        : [...prev.familyIds, familyId],
+    }));
+  };
+
   const handleSave = async () => {
-    if (!formData.familyId || !formData.title) return;
+    if (formData.familyIds.length === 0 || !formData.title) return;
     setIsSaving(true);
     try {
       const url = editingPlan
@@ -154,10 +163,15 @@ export default function AdminPlansPage() {
     }
   };
 
+  const getFamilyNames = (familyIds: string[]) => {
+    if (!familyIds || familyIds.length === 0) return "None";
+    return familyIds.map((id) => familyMap.get(id) || "Unknown").join(", ");
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -166,47 +180,47 @@ export default function AdminPlansPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2.5xl font-bold text-slate-900 tracking-tight">Support Plans</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage family support plans</p>
+          <h1 className="text-2.5xl font-serif font-bold text-earth-dark tracking-tight">Support Plans</h1>
+          <p className="text-earth-mid text-sm mt-1">Manage family support plans</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-rose-500 text-white px-4 py-2.5 rounded-xl hover:bg-rose-600 transition-colors text-sm font-medium flex items-center gap-2 shadow-sm shadow-rose-200"
+          className="bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           Add Plan
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
         <table className="min-w-full">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Plan</th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Family</th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Focus Area</th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Progress</th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+            <tr className="bg-cream border-b border-sand">
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Plan</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Families</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Focus Area</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Status</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Progress</th>
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-sand/60">
             {plans.map((plan) => {
               const achievedObjectives = plan.objectives?.filter((o) => o.status === "achieved").length || 0;
               const totalObjectives = plan.objectives?.length || 0;
 
               return (
-                <tr key={plan.id} className="hover:bg-slate-50/70 transition-colors">
+                <tr key={plan.id} className="hover:bg-cream/50 transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-50 p-2 rounded-lg">
-                        <FileText className="h-4 w-4 text-blue-500" />
+                      <div className="bg-terracotta/10 p-2 rounded-lg">
+                        <FileText className="h-4 w-4 text-terracotta" />
                       </div>
-                      <span className="font-medium text-slate-900">{plan.title}</span>
+                      <span className="font-medium text-earth-dark">{plan.title}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-600">
-                    {familyMap.get(plan.familyId) || "Unknown"}
+                  <td className="px-5 py-4 text-sm text-earth-mid">
+                    {getFamilyNames(plan.familyIds)}
                   </td>
                   <td className="px-5 py-4">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${focusAreaColors[plan.focusArea]}`}>
@@ -220,15 +234,15 @@ export default function AdminPlansPage() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="w-24 h-2 bg-sand rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-rose-400 to-rose-500 rounded-full"
+                          className="h-full bg-gradient-to-r from-terracotta to-terracotta-dark rounded-full"
                           style={{
                             width: totalObjectives > 0 ? `${(achievedObjectives / totalObjectives) * 100}%` : "0%",
                           }}
                         />
                       </div>
-                      <span className="text-xs text-slate-600 font-medium">
+                      <span className="text-xs text-earth-mid font-medium">
                         {achievedObjectives}/{totalObjectives}
                       </span>
                     </div>
@@ -237,7 +251,7 @@ export default function AdminPlansPage() {
                     <div className="flex items-center gap-4 text-sm">
                       <button
                         onClick={() => handleOpenModal(plan)}
-                        className="text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1"
+                        className="text-sage hover:text-sage/80 font-medium flex items-center gap-1"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         Edit
@@ -260,48 +274,67 @@ export default function AdminPlansPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-earth-dark/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-slate-200 sticky top-0 bg-white rounded-t-2xl">
-              <h2 className="text-lg font-semibold text-slate-900">
+            <div className="flex items-center justify-between p-5 border-b border-sand sticky top-0 bg-white rounded-t-2xl">
+              <h2 className="text-lg font-semibold text-earth-dark">
                 {editingPlan ? "Edit Plan" : "Create Plan"}
               </h2>
-              <button onClick={handleCloseModal} className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+              <button onClick={handleCloseModal} className="text-earth-light hover:text-earth-dark p-1.5 rounded-lg hover:bg-sand/50 transition-colors">
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Family</label>
-                <select
-                  value={formData.familyId}
-                  onChange={(e) => setFormData({ ...formData, familyId: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
-                >
-                  <option value="">Select a family</option>
-                  {families.map((f) => (
-                    <option key={f.id} value={f.id}>{f.pseudonym}</option>
-                  ))}
-                </select>
+                <label className="block text-sm font-medium text-earth-mid mb-1.5">Families</label>
+                <p className="text-xs text-earth-light mb-2">Select one or more families</p>
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-sand rounded-xl p-3">
+                  {families.map((f) => {
+                    const isSelected = formData.familyIds.includes(f.id);
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => handleToggleFamily(f.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-all ${
+                          isSelected
+                            ? "bg-terracotta/10 border border-terracotta/30 text-earth-dark"
+                            : "bg-white border border-sand text-earth-mid hover:border-terracotta/30"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${
+                          isSelected ? "bg-terracotta border-terracotta" : "border-earth-light"
+                        }`}>
+                          {isSelected && <Check className="h-3 w-3 text-white" />}
+                        </div>
+                        <span className="font-medium">{f.pseudonym}</span>
+                        <span className="text-xs text-earth-light ml-auto">{f.location}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.familyIds.length > 0 && (
+                  <p className="text-xs text-terracotta mt-1">{formData.familyIds.length} family selected</p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
+                <label className="block text-sm font-medium text-earth-mid mb-1.5">Title</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Focus Area</label>
+                <label className="block text-sm font-medium text-earth-mid mb-1.5">Focus Area</label>
                 <select
                   value={formData.focusArea}
                   onChange={(e) => setFormData({ ...formData, focusArea: e.target.value as FocusArea })}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                 >
                   {Object.entries(focusAreaLabels).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -310,11 +343,11 @@ export default function AdminPlansPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
+                <label className="block text-sm font-medium text-earth-mid mb-1.5">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value as PlanStatus })}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                 >
                   {Object.entries(statusLabels).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
@@ -324,47 +357,47 @@ export default function AdminPlansPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Start Date</label>
+                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Start Date</label>
                   <input
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Target End Date</label>
+                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Target End Date</label>
                   <input
                     type="date"
                     value={formData.targetEndDate}
                     onChange={(e) => setFormData({ ...formData, targetEndDate: e.target.value })}
-                    className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                    className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Ethics Description</label>
+                <label className="block text-sm font-medium text-earth-mid mb-1.5">Ethics Description</label>
                 <textarea
                   value={formData.ethicsDescription}
                   onChange={(e) => setFormData({ ...formData, ethicsDescription: e.target.value })}
                   rows={3}
-                  className="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none"
+                  className="w-full border border-sand rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-earth-dark"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-5 border-t bg-slate-50 rounded-b-2xl">
+            <div className="flex justify-end gap-3 p-5 border-t border-sand bg-cream/50 rounded-b-2xl">
               <button
                 onClick={handleCloseModal}
-                className="px-5 py-2.5 text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 font-medium text-sm shadow-sm transition-colors"
+                className="px-5 py-2.5 text-earth-mid bg-white border border-sand rounded-xl hover:bg-sand/50 font-medium text-sm shadow-sm transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                disabled={isSaving || !formData.familyId || !formData.title}
-                className="px-5 py-2.5 bg-rose-500 text-white rounded-xl hover:bg-rose-600 font-medium text-sm shadow-sm shadow-rose-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={isSaving || formData.familyIds.length === 0 || !formData.title}
+                className="px-5 py-2.5 bg-terracotta text-white rounded-xl hover:bg-terracotta-dark font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
