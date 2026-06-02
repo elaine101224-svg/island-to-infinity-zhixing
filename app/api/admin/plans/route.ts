@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const familyId = searchParams.get('familyId');
-
-    let query = supabase.from('plans').select('*');
-
-    if (familyId) {
-      query = query.eq('data->>familyId', familyId);
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await supabase
+      .from('plans')
+      .select('*');
 
     if (error) {
       console.error('Supabase error:', error);
