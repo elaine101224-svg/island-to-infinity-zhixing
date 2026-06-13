@@ -17,8 +17,8 @@ export default function AboutSection() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {/* Semester 1 */}
-          <div className="bg-gradient-to-br from-white to-amber-light/30 rounded-xl p-5 border border-sand hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-            <h3 className="text-base font-serif font-semibold text-earth-dark mb-3 tracking-wide">
+          <div className="bg-gradient-to-br from-white to-amber-light/30 rounded-sm p-5 border border-sand hover:shadow-md transition-all duration-300">
+            <h3 className="heading-display text-base font-medium text-earth-dark mb-3">
               Semester 1 &mdash; Building Foundations
             </h3>
             <ul className="space-y-2 text-earth-mid text-sm leading-relaxed">
@@ -46,8 +46,8 @@ export default function AboutSection() {
           </div>
 
           {/* Semester 2 */}
-          <div className="bg-gradient-to-br from-white to-sage-light/30 rounded-xl p-5 border border-sand hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-            <h3 className="text-base font-serif font-semibold text-earth-dark mb-3 tracking-wide">
+          <div className="bg-gradient-to-br from-white to-sage-light/30 rounded-sm p-5 border border-sand hover:shadow-md transition-all duration-300">
+            <h3 className="heading-display text-base font-medium text-earth-dark mb-3">
               Semester 2 &mdash; Deepening Impact
             </h3>
             <ul className="space-y-2 text-earth-mid text-sm leading-relaxed">

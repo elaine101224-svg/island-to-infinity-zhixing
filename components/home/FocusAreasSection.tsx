@@ -34,21 +34,21 @@ export default function FocusAreasSection() {
   return (
     <section className="py-12 sm:py-16 bg-cream/60">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-earth-dark mb-10 text-center tracking-wide">
+        <h2 className="heading-display text-2xl sm:text-3xl font-semibold text-earth-dark mb-10 text-center">
           Our Focus Areas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {focusAreas.map((area) => (
             <div
               key={area.title}
-              className={`${area.color} border rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
+              className={`${area.color} border rounded-sm p-6 hover:shadow-lg transition-all duration-300`}
             >
               <div className="flex items-center justify-center mb-4">
-                <div className={`${area.iconBg} p-3.5 rounded-xl`}>
+                <div className={`${area.iconBg} p-3.5`}>
                   <area.icon className={`h-6 w-6 ${area.iconColor}`} />
                 </div>
               </div>
-              <h3 className="text-base font-serif font-semibold text-earth-dark mb-2.5 text-center tracking-wide">
+              <h3 className="heading-display text-base font-medium text-earth-dark mb-2.5 text-center">
                 {area.title}
               </h3>
               <p className="text-earth-mid text-sm leading-relaxed">

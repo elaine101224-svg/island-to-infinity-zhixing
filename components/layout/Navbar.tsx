@@ -34,22 +34,22 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 text-earth-mid hover:text-terracotta rounded-lg hover:bg-terracotta/5 transition-all font-medium text-sm"
+                className="nav-link text-earth-mid hover:text-terracotta transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-terracotta hover:after:w-full after:transition-all after:duration-300"
               >
                 {link.label}
               </Link>
             ))}
             <Link
               href="/login"
-              className="ml-2 px-4 py-2 text-white bg-earth-dark hover:bg-earth-mid rounded-lg transition-colors font-medium text-sm flex items-center gap-1.5"
+              className="nav-link text-white bg-earth-dark hover:bg-earth-mid px-5 py-2 transition-colors duration-200 flex items-center gap-2"
             >
-              <Lock className="h-3.5 w-3.5" />
-              Admin Login
+              <Lock className="h-3 w-3" />
+              Admin
             </Link>
           </div>
 

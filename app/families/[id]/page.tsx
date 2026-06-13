@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Users as UsersIcon, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, Users as UsersIcon, Calendar, Shield } from 'lucide-react';
 import PhotoGallery from '@/components/families/PhotoGallery';
 import PlanCard from '@/components/plans/PlanCard';
 import { format } from 'date-fns';
@@ -38,43 +38,49 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       {/* Back Link */}
       <Link
         href="/families"
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-rose-500 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-earth-mid hover:text-terracotta mb-8 transition-colors text-sm font-medium"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Back to Families</span>
       </Link>
 
-      {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h1 className="text-3xl font-serif font-bold text-slate-900 mb-2 tracking-wide">
-          {family.pseudonym}
-        </h1>
-
-        <div className="flex items-center gap-4 text-slate-600 mb-4">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4 text-slate-400" />
-            <span>{family.location}</span>
+      {/* Header Card */}
+      <div className="bg-white border border-sand rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-earth-dark mb-2 tracking-wide">
+              {family.pseudonym}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-earth-mid">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-earth-light" />
+                <span>{family.location}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <UsersIcon className="h-4 w-4 text-earth-light" />
+                <span>{totalMembers} family members</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <UsersIcon className="h-4 w-4 text-slate-400" />
-            <span>{totalMembers} family members</span>
+          <div className="bg-sage/10 text-sage px-3 py-1 rounded-full text-xs font-medium border border-sage/20">
+            Anonymized
           </div>
         </div>
 
         {/* Family Composition */}
-        <div className="flex flex-wrap gap-3 mb-4">
+        <div className="flex flex-wrap gap-2.5 mb-6">
           {family.familyComposition.adults > 0 && (
-            <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-sand text-earth-dark px-3 py-1.5 rounded-full text-sm font-medium">
               {family.familyComposition.adults} adult{family.familyComposition.adults > 1 ? 's' : ''}
             </span>
           )}
           {family.familyComposition.children > 0 && (
-            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-terracotta/10 text-terracotta-dark px-3 py-1.5 rounded-full text-sm font-medium">
               {family.familyComposition.children} child{family.familyComposition.children > 1 ? 'ren' : ''}
             </span>
           )}
           {family.familyComposition.elderly > 0 && (
-            <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm">
+            <span className="bg-amber-light/40 text-amber-warm px-3 py-1.5 rounded-full text-sm font-medium">
               {family.familyComposition.elderly} elder{family.familyComposition.elderly > 1 ? 's' : ''}
             </span>
           )}
@@ -82,24 +88,24 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
         {/* Background */}
         <div className="mb-6">
-          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-2 tracking-wide">Background</h2>
-          <p className="text-slate-600 leading-relaxed">{family.background}</p>
+          <h2 className="text-lg font-serif font-semibold text-earth-dark mb-2 tracking-wide">Background</h2>
+          <p className="text-earth-mid leading-relaxed">{family.background}</p>
         </div>
 
         {/* Current Situation */}
         <div className="mb-6">
-          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-2 tracking-wide">Current Situation</h2>
-          <p className="text-slate-600 leading-relaxed">{family.currentSituation}</p>
+          <h2 className="text-lg font-serif font-semibold text-earth-dark mb-2 tracking-wide">Current Situation</h2>
+          <p className="text-earth-mid leading-relaxed">{family.currentSituation}</p>
         </div>
 
         {/* Key Challenges */}
         <div>
-          <h2 className="text-lg font-serif font-semibold text-slate-900 mb-3 tracking-wide">Key Challenges</h2>
-          <ul className="space-y-2">
+          <h2 className="text-lg font-serif font-semibold text-earth-dark mb-3 tracking-wide">Key Challenges</h2>
+          <ul className="space-y-2.5">
             {family.keyChallenges.map((challenge, index) => (
-              <li key={index} className="flex items-start gap-2 text-slate-600">
-                <span className="text-rose-400 mt-1">•</span>
-                <span>{challenge}</span>
+              <li key={index} className="flex items-start gap-3 text-earth-mid text-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-terracotta mt-2 flex-shrink-0" />
+                <span className="leading-relaxed">{challenge}</span>
               </li>
             ))}
           </ul>
@@ -107,24 +113,30 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       </div>
 
       {/* Interaction Highlights */}
-      <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-        <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
+      <div className="bg-white border border-sand rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+        <h2 className="text-xl font-serif font-semibold text-earth-dark mb-6 tracking-wide">
           Interaction Highlights
         </h2>
         <div className="space-y-6">
           {family.highlights.map((highlight, index) => (
             <div
               key={index}
-              className="border-l-4 border-rose-300 pl-4 pb-4 last:pb-0"
+              className="relative pl-8 pb-6 last:pb-0"
             >
+              {/* Timeline dot */}
+              <div className="absolute left-0 top-1 w-3 h-3 rounded-full bg-terracotta border-2 border-cream shadow-sm" />
+              {/* Timeline line */}
+              {index < family.highlights.length - 1 && (
+                <div className="absolute left-[5px] top-4 bottom-0 w-px bg-sand" />
+              )}
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-slate-400" />
-                <span className="text-sm text-slate-500">
+                <Calendar className="h-3.5 w-3.5 text-earth-light" />
+                <span className="text-xs text-earth-mid font-medium">
                   {format(new Date(highlight.date), 'MMMM d, yyyy')}
                 </span>
               </div>
-              <h3 className="font-medium text-slate-900 mb-1">{highlight.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="font-semibold text-earth-dark mb-1.5">{highlight.title}</h3>
+              <p className="text-earth-mid text-sm leading-relaxed">
                 {highlight.description}
               </p>
             </div>
@@ -134,11 +146,14 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
       {/* Photo Gallery */}
       {family.consentGiven && family.photos.length > 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
-          <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
-            Photo Gallery
-          </h2>
-          <p className="text-sm text-slate-500 mb-4">
+        <div className="bg-white border border-sand rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-xl font-serif font-semibold text-earth-dark tracking-wide">
+              Photo Gallery
+            </h2>
+            <span className="bg-sage/20 text-sage px-2 py-0.5 rounded-full text-xs font-medium">Consent Given</span>
+          </div>
+          <p className="text-xs text-earth-light mb-5">
             These photos are shared with explicit consent from the family.
           </p>
           <PhotoGallery photos={family.photos} familyPseudonym={family.pseudonym} />
@@ -147,11 +162,11 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
 
       {/* Related Plans */}
       {plans.length > 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6">
-          <h2 className="text-xl font-serif font-semibold text-slate-900 mb-4 tracking-wide">
+        <div className="bg-white border border-sand rounded-2xl p-6 sm:p-8 shadow-sm">
+          <h2 className="text-xl font-serif font-semibold text-earth-dark mb-6 tracking-wide">
             Support Plans
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {plans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} />
             ))}
@@ -160,8 +175,9 @@ export default async function FamilyPage({ params }: FamilyPageProps) {
       )}
 
       {/* Privacy Reminder */}
-      <div className="mt-6 p-4 bg-slate-100 rounded-lg text-center text-sm text-slate-600">
-        <p>
+      <div className="mt-6 p-4 bg-amber-light/20 rounded-xl border border-sand flex items-start gap-3">
+        <Shield className="h-4 w-4 text-amber-warm mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-earth-mid leading-relaxed">
           All information about this family is anonymized and shared with their consent.
           We are committed to protecting their privacy and dignity.
         </p>

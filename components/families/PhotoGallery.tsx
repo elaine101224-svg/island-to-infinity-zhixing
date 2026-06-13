@@ -36,57 +36,57 @@ export default function PhotoGallery({ photos, familyPseudonym }: PhotoGalleryPr
           <button
             key={index}
             onClick={() => openModal(index)}
-            className="relative aspect-square rounded-lg overflow-hidden group"
+            className="relative aspect-square rounded-xl overflow-hidden group"
           >
             <img
               src={photo.url}
               alt={photo.caption}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute inset-0 bg-earth-dark/0 group-hover:bg-earth-dark/20 transition-colors" />
           </button>
         ))}
       </div>
 
       {/* Modal */}
       {selectedIndex !== null && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-earth-dark/95 z-50 flex items-center justify-center p-4">
           <button
             onClick={closeModal}
-            className="absolute top-4 right-4 text-white hover:text-gray-300"
+            className="absolute top-4 right-4 text-amber-light/60 hover:text-white p-2 rounded-lg hover:bg-earth-mid/30 transition-colors"
             aria-label="Close modal"
           >
-            <X className="h-8 w-8" />
+            <X className="h-7 w-7" />
           </button>
 
           <button
             onClick={goPrev}
-            className="absolute left-4 text-white hover:text-gray-300"
+            className="absolute left-4 text-amber-light/60 hover:text-white p-2 rounded-lg hover:bg-earth-mid/30 transition-colors"
             aria-label="Previous photo"
           >
-            <ChevronLeft className="h-10 w-10" />
+            <ChevronLeft className="h-9 w-9" />
           </button>
 
           <div className="max-w-4xl max-h-full">
             <img
               src={photos[selectedIndex].url}
               alt={photos[selectedIndex].caption}
-              className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              className="max-w-full max-h-[75vh] object-contain rounded-xl"
             />
-            <p className="text-white text-center mt-4">
+            <p className="text-amber-light text-center mt-4 text-sm">
               {photos[selectedIndex].caption}
             </p>
-            <p className="text-gray-400 text-center text-sm mt-1">
-              {familyPseudonym} - Photo {selectedIndex + 1} of {photos.length}
+            <p className="text-amber-light/40 text-center text-xs mt-1">
+              {familyPseudonym} &mdash; Photo {selectedIndex + 1} of {photos.length}
             </p>
           </div>
 
           <button
             onClick={goNext}
-            className="absolute right-4 text-white hover:text-gray-300"
+            className="absolute right-4 text-amber-light/60 hover:text-white p-2 rounded-lg hover:bg-earth-mid/30 transition-colors"
             aria-label="Next photo"
           >
-            <ChevronRight className="h-10 w-10" />
+            <ChevronRight className="h-9 w-9" />
           </button>
         </div>
       )}

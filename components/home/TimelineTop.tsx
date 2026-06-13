@@ -50,8 +50,8 @@ export default function TimelineTop() {
       <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/70 via-earth-dark/20 to-transparent" />
 
       <div className="absolute inset-0 flex flex-col justify-end items-center text-white pb-12 sm:pb-16">
-        <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2">{item.year}</h2>
-        <p className="text-lg sm:text-xl text-white/80 font-medium">{item.title}</p>
+        <h2 className="display-number text-5xl sm:text-6xl font-semibold mb-2">{item.year}</h2>
+        <p className="text-sm tracking-widest uppercase text-white/70">{item.title}</p>
       </div>
 
       {/* Navigation dots */}

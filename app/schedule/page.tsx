@@ -184,7 +184,7 @@ export default function SchedulePage() {
             <Calendar className="h-6 w-6 text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-serif font-bold text-earth-dark tracking-wide">Event Calendar</h1>
+            <h1 className="heading-display text-xl font-semibold text-earth-dark">Event Calendar</h1>
             <p className="text-earth-mid text-xs">Join us for our activities</p>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function SchedulePage() {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <div className="text-center">
-                  <h2 className="text-xl font-serif font-bold text-earth-dark tracking-wide">
+                  <h2 className="heading-display text-xl font-semibold text-earth-dark">
                     {format(currentMonth, "MMMM yyyy")}
                   </h2>
                 </div>
@@ -322,7 +322,7 @@ export default function SchedulePage() {
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-sand">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-sand bg-cream">
-              <h2 className="text-lg font-serif font-bold text-earth-dark flex items-center gap-2 tracking-wide">
+                <h2 className="heading-display text-lg font-semibold text-earth-dark flex items-center gap-2">
                 {eventTypeEmoji[selectedEvent.type]} {selectedEvent.title}
               </h2>
               <button

@@ -13,11 +13,11 @@ export default async function PlansPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-10">
         <div className="flex justify-center mb-4">
-          <div className="bg-amber-light/30 p-3 rounded-full shadow-sm border border-sand">
+          <div className="bg-amber-light/30 p-3 shadow-sm border border-sand">
             <FileText className="h-8 w-8 text-amber-warm" />
           </div>
         </div>
-        <h1 className="text-3xl font-serif font-bold text-earth-dark mb-3 tracking-wide">
+        <h1 className="heading-display text-3xl font-semibold text-earth-dark mb-3">
           Support Plans
         </h1>
         <p className="text-earth-mid max-w-2xl mx-auto">

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -47,7 +46,7 @@ export default function ZhixingTimelineTop() {
       />
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-earth-dark/80 via-earth-dark/30 to-transparent" />
 
       <div className="absolute inset-0 flex flex-col justify-end items-center text-white pb-12 sm:pb-16">
         <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-2">{item.year}</h2>
