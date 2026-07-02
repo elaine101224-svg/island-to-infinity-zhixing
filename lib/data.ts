@@ -1,4 +1,4 @@
-import type { Family, ScheduleEvent, SupportPlan } from '@/types';
+import type { Family, ScheduleEvent, SupportPlan, TeamMember, ActivityRecord } from '@/types';
 
 const API_BASE =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -73,4 +73,16 @@ export async function getScheduleEvents(): Promise<ScheduleEvent[]> {
 export async function getPublicEvents(): Promise<ScheduleEvent[]> {
   const events = await getScheduleEvents();
   return events.filter(e => e && e.isPublic);
+}
+
+// Team Members
+export async function getTeamMembers(): Promise<TeamMember[]> {
+  const members = await fetchAPI<TeamMember>('/api/admin/team');
+  return members.filter(Boolean);
+}
+
+// Activity Records
+export async function getActivityRecords(): Promise<ActivityRecord[]> {
+  const records = await fetchAPI<ActivityRecord>('/api/admin/activities');
+  return records.filter(Boolean);
 }

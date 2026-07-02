@@ -4,9 +4,7 @@ import { validateSession } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from('schedule')
-      .select('*');
+    const { data, error } = await supabase.from('team_members').select('*');
 
     if (error) {
       console.error('Supabase error:', error);
@@ -17,12 +15,11 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const events = data.map((row) => (row.data ?? row));
-
-    return NextResponse.json(events);
+    const members = data.map((row) => row.data ?? row);
+    return NextResponse.json(members);
   } catch (error) {
-    console.error('Error reading schedule:', error);
-    return NextResponse.json({ error: 'Failed to read schedule' }, { status: 500 });
+    console.error('Error reading team members:', error);
+    return NextResponse.json({ error: 'Failed to read team members' }, { status: 500 });
   }
 }
 
@@ -38,25 +35,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
     }
 
-    const newEvent = {
-      id: `event-${Date.now()}`,
+    const newMember = {
+      id: `member-${Date.now()}`,
       ...body,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     const { error } = await supabase
-      .from('schedule')
-      .insert({ id: newEvent.id, data: newEvent });
+      .from('team_members')
+      .insert({ id: newMember.id, data: newMember });
 
     if (error) {
       console.error('Supabase error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(newEvent, { status: 201 });
+    return NextResponse.json(newMember, { status: 201 });
   } catch (error) {
-    console.error('Error creating event:', error);
-    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
+    console.error('Error creating team member:', error);
+    return NextResponse.json({ error: 'Failed to create team member' }, { status: 500 });
   }
 }

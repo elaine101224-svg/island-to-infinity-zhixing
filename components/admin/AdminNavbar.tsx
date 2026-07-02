@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Heart, Users, Calendar, FileText, LayoutDashboard, LogOut, Sparkles } from 'lucide-react';
+import { UserCog, Users, Calendar, FileText, LayoutDashboard, LogOut, ClipboardList } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/team', label: 'Team', icon: UserCog },
   { href: '/admin/families', label: 'Families', icon: Users },
   { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
+  { href: '/admin/activities', label: 'Activity Log', icon: ClipboardList },
   { href: '/admin/plans', label: 'Plans', icon: FileText },
 ];
 
