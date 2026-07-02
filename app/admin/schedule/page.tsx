@@ -16,6 +16,7 @@ import {
   isSameDay,
 } from "date-fns";
 import type { ScheduleEvent, EventType } from "@/types";
+import { useToast } from "@/components/admin/Toast";
 
 const eventTypeColors: Record<EventType, { bg: string; border: string; text: string; dot: string }> = {
   field_trip: { bg: "bg-terracotta/10", border: "border-terracotta/30", text: "text-terracotta-dark", dot: "bg-terracotta" },
@@ -61,6 +62,7 @@ const emptyForm: EventFormData = {
 };
 
 export default function AdminSchedulePage() {
+  const toast = useToast();
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -145,12 +147,14 @@ export default function AdminSchedulePage() {
         } else {
           setEvents((prev) => [...prev, savedEvent]);
         }
+        toast.success(editingEvent ? "Event updated" : "Event added");
         handleCloseModal();
       } else {
-        console.error("Failed to save event");
+        toast.error("Couldn't save the event. Please try again.");
       }
     } catch (error) {
       console.error("Error saving event:", error);
+      toast.error("Something went wrong while saving. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -163,10 +167,14 @@ export default function AdminSchedulePage() {
       const res = await fetch(`/api/admin/schedule/${id}`, { method: "DELETE" });
       if (res.ok) {
         setEvents((prev) => prev.filter((e) => e.id !== id));
+        toast.success("Event deleted");
         handleCloseModal();
+      } else {
+        toast.error("Couldn't delete the event. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting event:", error);
+      toast.error("Something went wrong while deleting. Please try again.");
     }
   };
 
@@ -181,11 +189,11 @@ export default function AdminSchedulePage() {
 
   const renderDaysHeader = () => {
     return (
-      <div className="grid grid-cols-7 gap-3">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
         {weekDays.map((day) => (
           <div
             key={day}
-            className="py-2.5 text-center text-xs font-semibold text-earth-mid bg-sand/40 rounded-lg uppercase tracking-wider"
+            className="py-2 sm:py-2.5 text-center text-[0.65rem] sm:text-xs font-semibold text-earth-mid bg-sand/40 rounded-lg uppercase tracking-wider"
           >
             {day}
           </div>
@@ -211,7 +219,7 @@ export default function AdminSchedulePage() {
           <div
             key={day.toString()}
             onClick={() => setSelectedDate(currentDay)}
-            className={`min-h-[100px] p-3 rounded-xl border transition-all cursor-pointer ${
+            className={`min-h-[68px] sm:min-h-[100px] p-1.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${
               !isCurrentMonth
                 ? "bg-sand/30 border-sand"
                 : isSelected
@@ -220,7 +228,7 @@ export default function AdminSchedulePage() {
             }`}
           >
             <div
-              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full text-xs sm:text-sm font-semibold ${
                 isTodayDate
                   ? "bg-terracotta text-white"
                   : isCurrentMonth
@@ -256,7 +264,7 @@ export default function AdminSchedulePage() {
         day = addDays(day, 1);
       }
       rows.push(
-        <div key={day.toString()} className="grid grid-cols-7 gap-3">
+        <div key={day.toString()} className="grid grid-cols-7 gap-1.5 sm:gap-3">
           {days}
         </div>
       );
@@ -302,9 +310,9 @@ export default function AdminSchedulePage() {
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Calendar + Event List Layout */}
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Calendar */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-sand">
               {/* Calendar Header */}
               <div className="bg-cream px-6 py-4 flex items-center justify-between border-b border-sand">
@@ -336,13 +344,13 @@ export default function AdminSchedulePage() {
               </div>
 
               {/* Days Header */}
-              <div className="px-6 pt-4">
+              <div className="px-2 sm:px-6 pt-4">
                 {renderDaysHeader()}
               </div>
 
               {/* Calendar Grid */}
-              <div className="max-h-[600px] overflow-y-auto px-6 py-4">
-                <div className="space-y-3">{renderCells()}</div>
+              <div className="max-h-[600px] overflow-y-auto px-2 sm:px-6 py-4">
+                <div className="space-y-1.5 sm:space-y-3">{renderCells()}</div>
               </div>
             </div>
 
@@ -370,8 +378,8 @@ export default function AdminSchedulePage() {
           </div>
 
           {/* Event List Side Panel */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-sand sticky top-24">
+          <div className="w-full lg:w-80 lg:flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-sand lg:sticky lg:top-24">
               <div className="bg-cream px-4 py-3 border-b border-sand">
                 <h3 className="text-earth-dark font-semibold text-sm">
                   {selectedDate

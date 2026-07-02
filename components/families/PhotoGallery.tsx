@@ -41,6 +41,8 @@ export default function PhotoGallery({ photos, familyPseudonym }: PhotoGalleryPr
             <img
               src={photo.url}
               alt={photo.caption}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-earth-dark/0 group-hover:bg-earth-dark/20 transition-colors" />
@@ -71,6 +73,7 @@ export default function PhotoGallery({ photos, familyPseudonym }: PhotoGalleryPr
             <img
               src={photos[selectedIndex].url}
               alt={photos[selectedIndex].caption}
+              decoding="async"
               className="max-w-full max-h-[75vh] object-contain rounded-xl"
             />
             <p className="text-amber-light text-center mt-4 text-sm">

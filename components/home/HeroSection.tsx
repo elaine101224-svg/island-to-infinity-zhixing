@@ -8,14 +8,7 @@ export default function HeroSection() {
         <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-terracotta-light/30 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* icon */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-gradient-to-br from-terracotta/20 to-terracotta/5 p-5 rounded-2xl shadow-sm border border-terracotta/20">
-            <span className="text-5xl">🏝️</span>
-          </div>
-        </div>
-
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16">
         {/* title */}
         <h1 className="heading-display text-4xl sm:text-5xl md:text-6xl font-semibold text-earth-dark mb-4 leading-tight">
           Island to Infinity

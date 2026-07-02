@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FileText, Plus, Pencil, Trash2, X as XIcon, Check } from "lucide-react";
 import type { SupportPlan, Family, FocusArea, PlanStatus } from "@/types";
+import { useToast } from "@/components/admin/Toast";
 
 const focusAreaLabels: Record<FocusArea, string> = {
   social: "Social",
@@ -49,6 +50,7 @@ const emptyForm: PlanFormData = {
 };
 
 export default function AdminPlansPage() {
+  const toast = useToast();
   const [plans, setPlans] = useState<SupportPlan[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,12 +142,14 @@ export default function AdminPlansPage() {
         } else {
           setPlans((prev) => [...prev, savedData]);
         }
+        toast.success(editingPlan ? "Plan updated" : "Plan added");
         handleCloseModal();
       } else {
-        console.error("Failed to save plan");
+        toast.error("Couldn't save the plan. Please try again.");
       }
     } catch (error) {
       console.error("Error saving plan:", error);
+      toast.error("Something went wrong while saving. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -157,9 +161,13 @@ export default function AdminPlansPage() {
       const res = await fetch(`${API_BASE}/api/admin/plans/${id}`, { method: "DELETE" });
       if (res.ok) {
         setPlans((prev) => prev.filter((p) => p.id !== id));
+        toast.success("Plan deleted");
+      } else {
+        toast.error("Couldn't delete the plan. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting plan:", error);
+      toast.error("Something went wrong while deleting. Please try again.");
     }
   };
 
@@ -192,8 +200,24 @@ export default function AdminPlansPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
-        <table className="min-w-full">
+      {plans.length === 0 ? (
+        <div className="bg-white rounded-xl border border-sand shadow-sm py-16 px-6 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center mb-4">
+            <FileText className="h-6 w-6 text-terracotta" />
+          </div>
+          <h3 className="text-earth-dark font-semibold mb-1">No support plans yet</h3>
+          <p className="text-earth-mid text-sm mb-5">Create your first support plan to get started.</p>
+          <button
+            onClick={() => handleOpenModal()}
+            className="inline-flex items-center gap-2 bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            Add Plan
+          </button>
+        </div>
+      ) : (
+      <div className="bg-white rounded-xl border border-sand shadow-sm overflow-x-auto">
+        <table className="min-w-[720px] w-full">
           <thead>
             <tr className="bg-cream border-b border-sand">
               <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Plan</th>
@@ -271,6 +295,7 @@ export default function AdminPlansPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Modal */}
       {showModal && (

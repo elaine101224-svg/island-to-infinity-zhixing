@@ -1,4 +1,5 @@
 import { Brain, HandHeart, Users } from 'lucide-react';
+import Reveal from '@/components/ui/Reveal';
 
 const focusAreas = [
   {
@@ -38,10 +39,11 @@ export default function FocusAreasSection() {
           Our Focus Areas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {focusAreas.map((area) => (
-            <div
+          {focusAreas.map((area, i) => (
+            <Reveal
               key={area.title}
-              className={`${area.color} border rounded-sm p-6 hover:shadow-lg transition-all duration-300`}
+              delay={i * 120}
+              className={`${area.color} border rounded-sm p-6 hover:shadow-lg transition-shadow duration-300`}
             >
               <div className="flex items-center justify-center mb-4">
                 <div className={`${area.iconBg} p-3.5`}>
@@ -54,7 +56,7 @@ export default function FocusAreasSection() {
               <p className="text-earth-mid text-sm leading-relaxed">
                 {area.description}
               </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

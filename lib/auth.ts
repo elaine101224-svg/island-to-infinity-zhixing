@@ -1,22 +1,37 @@
 import { cookies } from 'next/headers';
-import { createHash } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_EXPIRY_HOURS = 24;
 
-interface SessionData {
-  hash: string;
+interface SessionPayload {
   expiresAt: number;
 }
 
-function hashSession(sessionId: string): string {
-  return createHash('sha256').update(sessionId).digest('hex');
+interface SignedSession extends SessionPayload {
+  sig: string;
 }
 
-function generateSessionId(): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2);
-  return `${timestamp}-${random}`;
+/**
+ * The session is signed with an HMAC keyed on ADMIN_PASSWORD. Because the key
+ * never leaves the server, a client cannot forge a valid signature without
+ * knowing the password — so tampering with the cookie (e.g. extending
+ * expiresAt) is rejected on validation.
+ */
+function signPayload(payload: SessionPayload, secret: string): string {
+  return createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+}
+
+/** Constant-time string comparison that never throws on length mismatch. */
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
 }
 
 export async function createSession(password: string): Promise<string | null> {
@@ -26,12 +41,13 @@ export async function createSession(password: string): Promise<string | null> {
     return null;
   }
 
-  const sessionId = generateSessionId();
-  const hash = hashSession(sessionId);
-  const expiresAt = Date.now() + (SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+  const payload: SessionPayload = {
+    expiresAt: Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000,
+  };
+  const sig = signPayload(payload, adminPassword);
 
-  const sessionData: SessionData = { hash, expiresAt };
-  const sessionString = Buffer.from(JSON.stringify(sessionData)).toString('base64');
+  const signedSession: SignedSession = { ...payload, sig };
+  const sessionString = Buffer.from(JSON.stringify(signedSession)).toString('base64');
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionString, {
@@ -42,10 +58,15 @@ export async function createSession(password: string): Promise<string | null> {
     path: '/',
   });
 
-  return sessionId;
+  return sig;
 }
 
 export async function validateSession(): Promise<boolean> {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    return false;
+  }
+
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
 
@@ -54,15 +75,22 @@ export async function validateSession(): Promise<boolean> {
   }
 
   try {
-    const sessionData: SessionData = JSON.parse(
+    const { expiresAt, sig }: SignedSession = JSON.parse(
       Buffer.from(sessionCookie.value, 'base64').toString('utf-8')
     );
 
-    if (Date.now() > sessionData.expiresAt) {
+    if (typeof expiresAt !== 'number' || typeof sig !== 'string') {
       return false;
     }
 
-    return true;
+    if (Date.now() > expiresAt) {
+      return false;
+    }
+
+    // Reject any cookie whose signature doesn't match — this is what prevents
+    // forged or tampered sessions from being accepted.
+    const expectedSig = signPayload({ expiresAt }, adminPassword);
+    return safeEqual(sig, expectedSig);
   } catch {
     return false;
   }

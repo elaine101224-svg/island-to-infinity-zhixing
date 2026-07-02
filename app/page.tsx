@@ -4,6 +4,8 @@ import HeroSection from '@/components/home/HeroSection';
 import AboutSection from '@/components/home/AboutSection';
 import FocusAreasSection from '@/components/home/FocusAreasSection';
 import TimelineTop from '@/components/home/TimelineTop';
+import ImpactStats from '@/components/home/ImpactStats';
+import Reveal from '@/components/ui/Reveal';
 
 export default function Home() {
   return (
@@ -15,7 +17,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-10 sm:py-14 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <Reveal className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="heading-display text-2xl sm:text-3xl font-semibold text-earth-dark mb-3">
             Learn More About Our Work
           </h2>
@@ -45,42 +47,16 @@ export default function Home() {
               <span>Plans</span>
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Impact Stats */}
-      <section className="py-10 sm:py-12 bg-gradient-to-r from-earth-dark to-earth-mid text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="display-number text-4xl sm:text-5xl font-semibold mb-1">4</div>
-              <div className="text-amber-light/60 text-xs tracking-widest uppercase">Families</div>
-            </div>
-            <div>
-              <div className="display-number text-4xl sm:text-5xl font-semibold mb-1">15+</div>
-              <div className="text-amber-light/60 text-xs tracking-widest uppercase">Visits</div>
-            </div>
-            <div>
-              <div className="display-number text-4xl sm:text-5xl font-semibold mb-1">3</div>
-              <div className="text-amber-light/60 text-xs tracking-widest uppercase">Focus Areas</div>
-            </div>
-            <div>
-              <div className="display-number text-4xl sm:text-5xl font-semibold mb-1">12+</div>
-              <div className="text-amber-light/60 text-xs tracking-widest uppercase">Volunteers</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ImpactStats />
 
       {/* AI Assistant Promo */}
       <section className="py-10 sm:py-14 bg-cream">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-amber-light/30 via-white to-terracotta-light/20 rounded-sm p-8 sm:p-10 text-center border border-sand shadow-sm">
-            <div className="flex justify-center mb-5">
-              <div className="bg-white p-4 shadow-sm border border-sand">
-                <span className="text-4xl">🏝️</span>
-              </div>
-            </div>
             <h2 className="heading-display text-2xl font-semibold text-earth-dark mb-3">
               Need Support Guidance?
             </h2>
@@ -97,7 +73,7 @@ export default function Home() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

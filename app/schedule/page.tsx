@@ -80,11 +80,11 @@ export default function SchedulePage() {
 
   const renderDaysHeader = () => {
     return (
-      <div className="grid grid-cols-7 gap-4">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
         {weekDays.map((day) => (
           <div
             key={day}
-            className="py-3 text-center text-sm font-semibold text-earth-mid bg-sand/40 rounded-lg"
+            className="py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold text-earth-mid bg-sand/40 rounded-lg"
           >
             {day}
           </div>
@@ -110,7 +110,7 @@ export default function SchedulePage() {
           <div
             key={day.toString()}
             onClick={() => setSelectedDate(currentDay)}
-            className={`min-h-[100px] p-4 rounded-lg border flex flex-col cursor-pointer transition-all ${
+            className={`min-h-[68px] sm:min-h-[100px] p-1.5 sm:p-3 rounded-lg border flex flex-col cursor-pointer transition-all ${
               !isCurrentMonth
                 ? "bg-sand/30 border-sand"
                 : isSelected
@@ -119,7 +119,7 @@ export default function SchedulePage() {
             }`}
           >
             <div
-              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full text-xs sm:text-sm font-semibold ${
                 isTodayDate
                   ? "bg-terracotta text-white"
                   : isCurrentMonth
@@ -155,7 +155,7 @@ export default function SchedulePage() {
         day = addDays(day, 1);
       }
       rows.push(
-        <div key={day.toString()} className="grid grid-cols-7 gap-4">
+        <div key={day.toString()} className="grid grid-cols-7 gap-1.5 sm:gap-3">
           {days}
         </div>
       );
@@ -192,7 +192,7 @@ export default function SchedulePage() {
 
       <div className="max-w-7xl mx-auto p-6">
         {/* Calendar + Event List Layout */}
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Calendar */}
           <div className="flex-1">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand">
@@ -226,12 +226,12 @@ export default function SchedulePage() {
               </div>
 
               {/* Days Header */}
-              <div className="px-6 pt-4">
+              <div className="px-2 sm:px-6 pt-4">
                 {renderDaysHeader()}
               </div>
 
               {/* Calendar Grid - Scrollable */}
-              <div className="max-h-[600px] overflow-y-auto px-6 py-4">
+              <div className="max-h-[600px] overflow-y-auto px-2 sm:px-6 py-4">
                 <div className="space-y-4">{renderCells()}</div>
               </div>
             </div>
@@ -260,7 +260,7 @@ export default function SchedulePage() {
           </div>
 
           {/* Event List Side Panel */}
-          <div className="w-80 flex-shrink-0">
+          <div className="w-full lg:w-80 lg:flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand sticky top-24">
               <div className="bg-cream px-4 py-3 border-b border-sand">
                 <h3 className="text-earth-dark font-semibold text-sm">

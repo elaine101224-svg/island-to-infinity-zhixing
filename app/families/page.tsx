@@ -2,6 +2,7 @@ import FamilyCard from '@/components/families/FamilyCard';
 import type { Family } from '@/types';
 import { Users, Shield } from 'lucide-react';
 import Link from 'next/link';
+import Reveal from '@/components/ui/Reveal';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export default async function FamiliesPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Header */}
-      <div className="text-center mb-10">
+      <Reveal className="text-center mb-10">
         <div className="flex justify-center mb-4">
           <div className="bg-terracotta/10 p-3.5 shadow-sm border border-sand">
             <Users className="h-7 w-7 text-terracotta" />
@@ -26,7 +27,7 @@ export default async function FamiliesPage() {
           Every family is unique, with their own story, strengths, and challenges.
           We walk alongside them with respect, compassion, and commitment to their wellbeing.
         </p>
-      </div>
+      </Reveal>
 
       {/* Privacy Notice */}
       <div className="bg-amber-light/20 border border-sand rounded-xl p-4 mb-8 flex items-start gap-3">
@@ -47,16 +48,18 @@ export default async function FamiliesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {families.map((family: Family) => (
-            <Link key={family.id} href={`/families/${family.id}`}>
-              <FamilyCard family={family} />
-            </Link>
+          {families.map((family: Family, i: number) => (
+            <Reveal key={family.id} delay={i * 90}>
+              <Link href={`/families/${family.id}`}>
+                <FamilyCard family={family} />
+              </Link>
+            </Reveal>
           ))}
         </div>
       )}
 
       {/* Support Philosophy */}
-      <div className="mt-14 pt-8 border-t border-sand text-center">
+      <Reveal className="mt-14 pt-8 border-t border-sand text-center">
         <h2 className="heading-display text-2xl font-semibold text-earth-dark mb-8">
           Our Approach
         </h2>
@@ -83,7 +86,7 @@ export default async function FamiliesPage() {
             </p>
           </div>
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 }

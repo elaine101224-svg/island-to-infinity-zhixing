@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -36,10 +36,13 @@ export default function TimelineTop() {
 
   return (
     <section className="w-full relative h-[40vh] sm:h-[50vh] overflow-hidden">
-      <img
+      <Image
         src={item.image}
-        alt={item.year}
-        className="w-full h-full object-cover transition-all duration-500"
+        alt={item.title}
+        fill
+        priority={index === 0}
+        sizes="100vw"
+        className="object-cover transition-all duration-500"
         style={{
           filter: `blur(${blurAmount}px)`,
           transform: `scale(${scaleAmount})`,

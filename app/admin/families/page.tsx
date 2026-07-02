@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Users, MapPin, Check, X, Plus, Pencil, Trash2, ArrowRight, X as XIcon } from "lucide-react";
 import type { Family } from "@/types";
+import { useToast } from "@/components/admin/Toast";
 
 interface PhotoFormData {
   url: string;
@@ -41,6 +42,7 @@ const emptyForm: FamilyFormData = {
 };
 
 export default function AdminFamiliesPage() {
+  const toast = useToast();
   const [families, setFamilies] = useState<Family[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -186,12 +188,14 @@ export default function AdminFamiliesPage() {
         } else {
           setFamilies((prev) => [...prev, savedData]);
         }
+        toast.success(editingFamily ? "Family updated" : "Family added");
         handleCloseModal();
       } else {
-        console.error("Failed to save family");
+        toast.error("Couldn't save the family. Please try again.");
       }
     } catch (error) {
       console.error("Error saving family:", error);
+      toast.error("Something went wrong while saving. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -204,9 +208,13 @@ export default function AdminFamiliesPage() {
       const res = await fetch(`/api/admin/families/${id}`, { method: "DELETE" });
       if (res.ok) {
         setFamilies((prev) => prev.filter((f) => f.id !== id));
+        toast.success("Family deleted");
+      } else {
+        toast.error("Couldn't delete the family. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting family:", error);
+      toast.error("Something went wrong while deleting. Please try again.");
     }
   };
 
@@ -234,8 +242,24 @@ export default function AdminFamiliesPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
-        <table className="min-w-full">
+      {families.length === 0 ? (
+        <div className="bg-white rounded-xl border border-sand shadow-sm py-16 px-6 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center mb-4">
+            <Users className="h-6 w-6 text-terracotta" />
+          </div>
+          <h3 className="text-earth-dark font-semibold mb-1">No families yet</h3>
+          <p className="text-earth-mid text-sm mb-5">Add your first family profile to get started.</p>
+          <button
+            onClick={() => handleOpenModal()}
+            className="inline-flex items-center gap-2 bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            Add Family
+          </button>
+        </div>
+      ) : (
+      <div className="bg-white rounded-xl border border-sand shadow-sm overflow-x-auto">
+        <table className="min-w-[640px] w-full">
           <thead>
             <tr className="bg-cream border-b border-sand">
               <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Pseudonym</th>
@@ -307,6 +331,7 @@ export default function AdminFamiliesPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -522,7 +547,7 @@ export default function AdminFamiliesPage() {
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   {formData.photos.map((photo, index) => (
                     <div key={index} className="relative bg-cream/60 rounded-xl p-2">
-                      <img src={photo.url} alt={photo.caption} className="w-full h-24 object-cover rounded-lg" />
+                      <img src={photo.url} alt={photo.caption} loading="lazy" decoding="async" className="w-full h-24 object-cover rounded-lg" />
                       <p className="text-xs text-earth-mid mt-1.5 truncate px-1">{photo.caption}</p>
                       <button
                         onClick={() => handleRemovePhoto(index)}
