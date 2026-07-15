@@ -1,8 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+// The client talks to whatever Anthropic-compatible endpoint ANTHROPIC_BASE_URL
+// points at. Left unset it uses api.anthropic.com; set to a gateway (e.g.
+// MiniMax's https://api.minimaxi.com/anthropic) to use that provider's models.
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  ...(process.env.ANTHROPIC_BASE_URL
+    ? { baseURL: process.env.ANTHROPIC_BASE_URL }
+    : {}),
 });
+
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
 
 const SYSTEM_PROMPT = `You are a compassionate assistant for "Island to Infinity Zhixing", a student-led community project supporting underprivileged families in Changshu, China.
 
@@ -72,14 +80,17 @@ export async function generateAIResponse(
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      model: MODEL,
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
       messages,
     });
 
-    return response.content[0].type === 'text'
-      ? response.content[0].text
+    // Reasoning models (e.g. MiniMax-M1) return a `thinking` block before the
+    // `text` block, so pick the text block rather than assuming content[0].
+    const textBlock = response.content.find((b) => b.type === 'text');
+    return textBlock && textBlock.type === 'text'
+      ? textBlock.text
       : 'I understand. How can I help you with this situation?';
   } catch (error) {
     // Surface the real status (401 = invalid/expired key, 429 = rate limit, etc.)

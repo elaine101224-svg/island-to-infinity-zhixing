@@ -5,6 +5,9 @@ import {
   AIUpstreamError,
 } from '@/lib/anthropic';
 
+// Reasoning models can take several seconds; allow headroom (Vercel Hobby max).
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
