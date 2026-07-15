@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { UserCog, Users, Calendar, FileText, LayoutDashboard, LogOut, ClipboardList } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,8 +29,8 @@ export default function AdminSidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-earth-mid/30">
         <Link href="/admin" className="flex items-center gap-3 group">
-          <div className="bg-gradient-to-br from-terracotta to-terracotta-dark p-2 rounded-xl shadow-lg">
-            <span className="text-xl">🏝️</span>
+          <div className="bg-cream rounded-xl p-1.5 shadow-lg">
+            <Logo size={38} />
           </div>
           <div>
             <span className="font-semibold text-base text-white">Admin</span>

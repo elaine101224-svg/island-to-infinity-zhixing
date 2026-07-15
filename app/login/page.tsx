@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, LogIn } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,8 +45,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-terracotta to-terracotta-dark rounded-2xl shadow-lg mb-4">
-            <span className="text-3xl">🏝️</span>
+          <div className="inline-flex items-center justify-center mb-4">
+            <Logo size={76} priority />
           </div>
           <h1 className="text-2xl font-serif font-bold text-earth-dark">Admin Portal</h1>
           <p className="text-earth-mid text-sm mt-1">Island to Infinity</p>

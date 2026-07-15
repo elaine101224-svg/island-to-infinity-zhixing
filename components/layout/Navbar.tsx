@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, Heart, Lock } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -21,9 +22,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="bg-gradient-to-br from-terracotta-light/60 to-terracotta-light/30 p-2 rounded-xl shadow-sm group-hover:shadow-md transition-all">
-                <span className="text-xl">🏝️</span>
-              </div>
+              <Logo size={44} priority className="shrink-0 group-hover:scale-105 transition-transform" />
               <span className="font-semibold text-lg text-earth-dark hidden sm:block">
                 Island to Infinity
               </span>

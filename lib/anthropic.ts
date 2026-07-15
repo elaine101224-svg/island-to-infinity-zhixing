@@ -40,26 +40,37 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Thrown when ANTHROPIC_API_KEY is missing entirely. */
+export class AINotConfiguredError extends Error {}
+/** Thrown when the upstream Anthropic API call fails (bad key, rate limit, etc.). */
+export class AIUpstreamError extends Error {
+  status?: number;
+  constructor(message: string, status?: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 export async function generateAIResponse(
   userMessage: string,
   conversationHistory: ChatMessage[] = []
 ): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('AI service is not configured. Please try again later.');
+    throw new AINotConfiguredError('ANTHROPIC_API_KEY is not set');
   }
 
-  try {
-    const messages = [
-      ...conversationHistory.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      })),
-      {
-        role: 'user' as const,
-        content: userMessage,
-      },
-    ];
+  const messages = [
+    ...conversationHistory.map(msg => ({
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content,
+    })),
+    {
+      role: 'user' as const,
+      content: userMessage,
+    },
+  ];
 
+  try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
@@ -67,9 +78,17 @@ export async function generateAIResponse(
       messages,
     });
 
-    return response.content[0].type === 'text' ? response.content[0].text : 'I understand. How can I help you with this situation?';
+    return response.content[0].type === 'text'
+      ? response.content[0].text
+      : 'I understand. How can I help you with this situation?';
   } catch (error) {
-    console.error('Anthropic API error:', error);
-    throw new Error('Unable to connect to the AI service. Please try again later.');
+    // Surface the real status (401 = invalid/expired key, 429 = rate limit, etc.)
+    const status =
+      error instanceof Anthropic.APIError ? error.status : undefined;
+    console.error('Anthropic API error:', status, error);
+    throw new AIUpstreamError(
+      error instanceof Error ? error.message : 'Anthropic request failed',
+      status
+    );
   }
 }

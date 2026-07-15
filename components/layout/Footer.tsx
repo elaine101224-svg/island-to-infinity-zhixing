@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 export default function Footer() {
   return (
@@ -9,8 +10,8 @@ export default function Footer() {
           {/* Mission */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-terracotta/20 p-2 rounded-xl">
-                <span className="text-2xl">🏝️</span>
+              <div className="bg-cream rounded-xl p-1.5 shadow-sm">
+                <Logo size={40} />
               </div>
               <div>
                 <span className="font-semibold text-white text-base">Island to Infinity</span>
