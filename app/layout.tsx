@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Island to Infinity Zhixing",
+  title: "Island to Infinity",
   description: "A student-led community project supporting underprivileged families in Changshu, China. Building bridges of compassion, one connection at a time.",
   keywords: ["social impact", "community support", "Changshu", "families", "mental health", "companionship"],
 };
@@ -28,13 +29,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-full flex flex-col bg-cream">{children}</body>
     </html>
   );
 }

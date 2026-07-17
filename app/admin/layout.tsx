@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { validateSession } from '@/lib/auth';
-import AdminNavbar from '@/components/admin/AdminNavbar';
+import AdminSidebar from '@/components/admin/AdminNavbar';
+import { ToastProvider } from '@/components/admin/Toast';
 
 export default async function AdminLayout({
   children,
@@ -10,15 +11,17 @@ export default async function AdminLayout({
   const isAuthenticated = await validateSession();
 
   if (!isAuthenticated) {
-    redirect('/admin/login');
+    redirect('/login');
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <AdminNavbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+    <ToastProvider>
+      <div className="flex min-h-screen bg-sand/40 font-sans">
+        <AdminSidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        </main>
       </div>
-    </div>
+    </ToastProvider>
   );
 }

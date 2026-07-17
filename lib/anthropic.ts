@@ -1,8 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+// The client talks to whatever Anthropic-compatible endpoint ANTHROPIC_BASE_URL
+// points at. Left unset it uses api.anthropic.com; set to a gateway (e.g.
+// MiniMax's https://api.minimaxi.com/anthropic) to use that provider's models.
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  ...(process.env.ANTHROPIC_BASE_URL
+    ? { baseURL: process.env.ANTHROPIC_BASE_URL }
+    : {}),
 });
+
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
 
 const SYSTEM_PROMPT = `You are a compassionate assistant for "Island to Infinity Zhixing", a student-led community project supporting underprivileged families in Changshu, China.
 
@@ -40,36 +48,58 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Thrown when ANTHROPIC_API_KEY is missing entirely. */
+export class AINotConfiguredError extends Error {}
+/** Thrown when the upstream Anthropic API call fails (bad key, rate limit, etc.). */
+export class AIUpstreamError extends Error {
+  status?: number;
+  constructor(message: string, status?: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 export async function generateAIResponse(
   userMessage: string,
   conversationHistory: ChatMessage[] = []
 ): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('AI service is not configured. Please try again later.');
+    throw new AINotConfiguredError('ANTHROPIC_API_KEY is not set');
   }
 
-  try {
-    const messages = [
-      ...conversationHistory.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-      })),
-      {
-        role: 'user' as const,
-        content: userMessage,
-      },
-    ];
+  const messages = [
+    ...conversationHistory.map(msg => ({
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content,
+    })),
+    {
+      role: 'user' as const,
+      content: userMessage,
+    },
+  ];
 
+  try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1024,
+      model: MODEL,
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
       messages,
     });
 
-    return response.content[0].type === 'text' ? response.content[0].text : 'I understand. How can I help you with this situation?';
+    // Reasoning models (e.g. MiniMax-M1) return a `thinking` block before the
+    // `text` block, so pick the text block rather than assuming content[0].
+    const textBlock = response.content.find((b) => b.type === 'text');
+    return textBlock && textBlock.type === 'text'
+      ? textBlock.text
+      : 'I understand. How can I help you with this situation?';
   } catch (error) {
-    console.error('Anthropic API error:', error);
-    throw new Error('Unable to connect to the AI service. Please try again later.');
+    // Surface the real status (401 = invalid/expired key, 429 = rate limit, etc.)
+    const status =
+      error instanceof Anthropic.APIError ? error.status : undefined;
+    console.error('Anthropic API error:', status, error);
+    throw new AIUpstreamError(
+      error instanceof Error ? error.message : 'Anthropic request failed',
+      status
+    );
   }
 }

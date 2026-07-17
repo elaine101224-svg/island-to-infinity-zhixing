@@ -1,25 +1,46 @@
-import { Heart } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HeroSection() {
   return (
-    <section className="bg-gradient-to-b from-rose-50 to-white py-16 sm:py-24">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="flex justify-center mb-6">
-          <div className="bg-rose-100 p-4 rounded-full">
-            <Heart className="h-12 w-12 text-rose-500" />
-          </div>
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-          Island to Infinity Zhixing
+    <section className="relative bg-gradient-to-b from-cream via-cream to-white pb-10 sm:pb-14 overflow-hidden">
+      {/* warm terracotta glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-terracotta-light/30 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-16">
+        {/* title */}
+        <h1 className="heading-display text-4xl sm:text-5xl md:text-6xl font-semibold text-earth-dark mb-4 leading-tight">
+          Island to Infinity
         </h1>
-        <p className="text-xl sm:text-2xl text-rose-600 font-medium mb-6">
+
+        {/* subtitle */}
+        <p className="text-lg sm:text-xl text-earth-mid font-light mb-6 italic">
           Building Bridges of Compassion in Changshu
         </p>
-        <p className="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
-          Every family is an island. We believe that no one should feel isolated.
-          Through meaningful connections and heartfelt support, we help build
-          infinite bridges between hearts.
+
+        {/* description */}
+        <p className="text-base text-earth-light leading-relaxed max-w-2xl mx-auto mb-8">
+          Every family is an island. Through meaningful relationships, shared
+          experiences, and consistent support, we create lasting connections that
+          turn isolation into community.
         </p>
+
+        {/* CTA */}
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            href="/families"
+            className="px-8 py-3 bg-gradient-to-r from-terracotta to-terracotta-dark text-white font-medium text-sm hover:opacity-90 transition-opacity shadow-sm btn-sophisticated"
+          >
+            Meet Our Families
+          </Link>
+          <Link
+            href="/schedule"
+            className="px-8 py-3 bg-white border border-sand text-earth-dark font-medium text-sm hover:bg-sand/50 transition-colors shadow-sm btn-sophisticated"
+          >
+            View Activities
+          </Link>
+        </div>
       </div>
     </section>
   );

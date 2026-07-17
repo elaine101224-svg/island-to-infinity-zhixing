@@ -7,26 +7,35 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@supabase/supabase-js": "^2.101.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.7.0",
     "next": "16.2.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-calendar": "^6.0.0",
+    "react-dom": "19.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vitest": "^2.1.9",
     "wrangler": "^4.90.0"
   }
 }

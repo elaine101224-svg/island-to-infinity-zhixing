@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateAIResponse } from '@/lib/anthropic';
+import {
+  generateAIResponse,
+  AINotConfiguredError,
+  AIUpstreamError,
+} from '@/lib/anthropic';
+
+// Reasoning models can take several seconds; allow headroom (Vercel Hobby max).
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,10 +26,29 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('AI Assistant error:', error);
 
-    if (error instanceof Error && error.message.includes('AI service')) {
+    if (error instanceof AINotConfiguredError) {
       return NextResponse.json(
-        { error: 'AI service is not configured. Please set ANTHROPIC_API_KEY environment variable.' },
+        { error: 'The AI assistant is not set up yet (missing ANTHROPIC_API_KEY).' },
         { status: 503 }
+      );
+    }
+
+    if (error instanceof AIUpstreamError) {
+      if (error.status === 401) {
+        return NextResponse.json(
+          { error: 'The AI assistant key is invalid or expired. Please update ANTHROPIC_API_KEY.' },
+          { status: 502 }
+        );
+      }
+      if (error.status === 429) {
+        return NextResponse.json(
+          { error: 'The AI assistant is busy right now. Please try again in a moment.' },
+          { status: 429 }
+        );
+      }
+      return NextResponse.json(
+        { error: 'The AI assistant is temporarily unavailable. Please try again.' },
+        { status: 502 }
       );
     }
 

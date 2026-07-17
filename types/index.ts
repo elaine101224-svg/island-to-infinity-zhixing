@@ -39,8 +39,8 @@ export interface ScheduleEvent {
   title: string;
   type: EventType;
   date: string;
-  time: string;
-  duration: string;
+  startTime: string;
+  endTime: string;
   location: string;
   description: string;
   familiesInvolved?: string[];
@@ -51,12 +51,12 @@ export interface ScheduleEvent {
 }
 
 // Plan Types
-export type FocusArea = 'mental_health' | 'companionship' | 'social_integration';
+export type FocusArea = 'social' | 'financial' | 'academic';
 export type PlanStatus = 'active' | 'completed' | 'on_hold';
 
 export interface SupportPlan {
   id: string;
-  familyId: string;
+  familyIds: string[];
   title: string;
   focusArea: FocusArea;
   status: PlanStatus;
@@ -82,6 +82,48 @@ export interface PlannedActivity {
   description: string;
   frequency: string;
   status: 'planned' | 'completed' | 'cancelled';
+}
+
+// Team Member Types
+export type MemberRole = 'lead' | 'coordinator' | 'volunteer';
+export type MemberStatus = 'active' | 'inactive';
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: MemberRole;
+  email: string;
+  phone: string;
+  status: MemberStatus;
+  /** Families this member is responsible for */
+  assignedFamilyIds: string[];
+  joinedDate: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Activity Record Types — a recorded session (what actually happened)
+export interface ActivityRecord {
+  id: string;
+  /** Optional link to the planned ScheduleEvent this record documents */
+  eventId?: string;
+  title: string;
+  type: EventType;
+  date: string;
+  /** Families that took part */
+  familyIds: string[];
+  /** Team members who attended */
+  memberIds: string[];
+  /** What happened during the session */
+  summary: string;
+  /** Impact / results observed */
+  outcomes: string;
+  /** Next steps / things to follow up on */
+  followUps: string;
+  photos: Photo[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 // AI Assistant Types

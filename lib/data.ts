@@ -1,46 +1,87 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { FamiliesData, ScheduleData, PlansData, Family, ScheduleEvent, SupportPlan } from '@/types';
+import type { Family, ScheduleEvent, SupportPlan, TeamMember, ActivityRecord } from '@/types';
 
-const dataDir = path.join(process.cwd(), 'data');
+const API_BASE =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+  'http://localhost:3000';
 
+async function fetchAPI<T>(endpoint: string): Promise<T[]> {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
+    if (!res.ok) {
+      console.error(`Error fetching ${endpoint}: ${res.status} ${res.statusText}`);
+      return [];
+    }
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error(`Exception fetching ${endpoint}:`, error);
+    return [];
+  }
+}
+
+async function fetchAPIOne<T>(endpoint: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data || null;
+  } catch (error) {
+    console.error(`Exception fetching ${endpoint}:`, error);
+    return null;
+  }
+}
+
+// Families
 export async function getFamilies(): Promise<Family[]> {
-  const filePath = path.join(dataDir, 'families.json');
-  const data = await fs.readFile(filePath, 'utf-8');
-  const jsonData: FamiliesData = JSON.parse(data);
-  return jsonData.families;
+  const families = await fetchAPI<Family>('/api/admin/families');
+  return families.filter(Boolean);
 }
 
 export async function getFamilyById(id: string): Promise<Family | null> {
-  const families = await getFamilies();
-  return families.find(f => f.id === id) || null;
+  if (!id) return null;
+  const family = await fetchAPIOne<Family>(`/api/admin/families/${id}`);
+  return family;
 }
 
+// Plans
+export async function getPlans(): Promise<SupportPlan[]> {
+  const plans = await fetchAPI<SupportPlan>('/api/admin/plans');
+  return plans.filter(Boolean);
+}
+
+export async function getPlanById(id: string): Promise<SupportPlan | null> {
+  if (!id) return null;
+  const plan = await fetchAPIOne<SupportPlan>(`/api/admin/plans/${id}`);
+  return plan;
+}
+
+// ✅ 新增 export，按家庭过滤计划
+export async function getPlansByFamilyId(familyId: string): Promise<SupportPlan[]> {
+  if (!familyId) return [];
+  const plans = await getPlans();
+  return plans.filter(p => p && p.familyIds && p.familyIds.includes(familyId));
+}
+
+// Schedule
 export async function getScheduleEvents(): Promise<ScheduleEvent[]> {
-  const filePath = path.join(dataDir, 'schedule.json');
-  const data = await fs.readFile(filePath, 'utf-8');
-  const jsonData: ScheduleData = JSON.parse(data);
-  return jsonData.events;
+  const events = await fetchAPI<ScheduleEvent>('/api/admin/schedule');
+  return events.filter(Boolean);
 }
 
 export async function getPublicEvents(): Promise<ScheduleEvent[]> {
   const events = await getScheduleEvents();
-  return events.filter(e => e.isPublic);
+  return events.filter(e => e && e.isPublic);
 }
 
-export async function getPlans(): Promise<SupportPlan[]> {
-  const filePath = path.join(dataDir, 'plans.json');
-  const data = await fs.readFile(filePath, 'utf-8');
-  const jsonData: PlansData = JSON.parse(data);
-  return jsonData.plans;
+// Team Members
+export async function getTeamMembers(): Promise<TeamMember[]> {
+  const members = await fetchAPI<TeamMember>('/api/admin/team');
+  return members.filter(Boolean);
 }
 
-export async function getPlanById(id: string): Promise<SupportPlan | null> {
-  const plans = await getPlans();
-  return plans.find(p => p.id === id) || null;
-}
-
-export async function getPlansByFamilyId(familyId: string): Promise<SupportPlan[]> {
-  const plans = await getPlans();
-  return plans.filter(p => p.familyId === familyId);
+// Activity Records
+export async function getActivityRecords(): Promise<ActivityRecord[]> {
+  const records = await fetchAPI<ActivityRecord>('/api/admin/activities');
+  return records.filter(Boolean);
 }
