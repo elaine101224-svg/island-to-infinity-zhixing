@@ -15,17 +15,36 @@ const stats: Stat[] = [
   { value: 12, suffix: '+', label: 'Volunteers' },
 ];
 
-function useCountUp(target: number, active: boolean, duration = 1400) {
+/**
+ * SSR-safe `prefers-reduced-motion` probe. Subscribes to changes so toggling
+ * the OS preference updates the UI live.
+ */
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mql.matches);
+    onChange();
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
+
+/**
+ * Animate `0 -> target` over `duration` ms while `active` is true.
+ *
+ * If the section is active and the user prefers reduced motion, we still call
+ * all hooks first (rules-of-hooks), then return the target value. This keeps
+ * the component visually correct while obeying accessibility settings and
+ * never setting state inside the effect body for the reduced-motion path.
+ */
+function useCountUp(target: number, active: boolean, duration = 1400): number {
+  const reducedMotion = usePrefersReducedMotion();
   const [value, setValue] = useState(0);
 
   useEffect(() => {
-    if (!active) return;
-
-    if (typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setValue(target);
-      return;
-    }
+    if (!active || reducedMotion) return;
 
     let frame = 0;
     const start = performance.now();
@@ -33,13 +52,15 @@ function useCountUp(target: number, active: boolean, duration = 1400) {
       const progress = Math.min((now - start) / duration, 1);
       // easeOutExpo for a lively settle
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setValue(Math.round(eased * target));
+      const next = Math.round(eased * target);
+      setValue((current) => (current === next ? current : next));
       if (progress < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [target, active, duration]);
+  }, [target, active, duration, reducedMotion]);
 
+  if (active && reducedMotion) return target;
   return value;
 }
 
@@ -60,16 +81,15 @@ function StatItem({ stat, active }: { stat: Stat; active: boolean }) {
 
 export default function ImpactStats() {
   const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
+  // SSR/no-IO fallback renders the final value immediately.
+  const [active, setActive] = useState(
+    () => typeof IntersectionObserver === 'undefined'
+  );
 
   useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
     const node = ref.current;
     if (!node) return;
-
-    if (typeof IntersectionObserver === 'undefined') {
-      setActive(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

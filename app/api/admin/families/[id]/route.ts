@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { validateSession } from '@/lib/auth';
+import { verifyCsrf } from '@/lib/csrf';
+import { getRequestId } from '@/lib/requestId';
+import { parseBody, familyUpsertSchema } from '@/lib/validation';
+
+export const dynamic = 'force-dynamic';
+
+async function guardMutation(request: NextRequest) {
+  const requestId = getRequestId(request);
+  if (!(await validateSession())) {
+    return NextResponse.json({ error: 'Unauthorized', requestId }, { status: 401 });
+  }
+  const csrf = await verifyCsrf(request);
+  if (csrf) {
+    return NextResponse.json({ error: csrf, requestId }, { status: 403 });
+  }
+  return null;
+}
 
 export async function GET(
   request: NextRequest,
@@ -38,31 +55,32 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await validateSession())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const guard = await guardMutation(request);
+  if (guard) return guard;
 
   try {
     const { id } = await params;
-    const body = await request.json();
-
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    if (!body) {
-      return NextResponse.json({ error: 'Request body is required' }, { status: 400 });
+    let payload: unknown;
+    try { payload = await request.json(); }
+    catch { return NextResponse.json({ error: 'Malformed JSON body' }, { status: 400 }); }
+    const parsed = parseBody(familyUpsertSchema, payload);
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error, issues: parsed.issues }, { status: 400 });
     }
 
-    const updatedFamily = {
-      ...body,
+    const updatedRecord = {
+      ...parsed.data,
       id,
       updatedAt: new Date().toISOString(),
     };
 
     const { error } = await supabase
       .from('families')
-      .update({ data: updatedFamily })
+      .update({ data: updatedRecord })
       .eq('id', id);
 
     if (error) {
@@ -70,10 +88,10 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(updatedFamily);
+    return NextResponse.json(updatedRecord);
   } catch (error) {
-    console.error('Error updating family:', error);
-    return NextResponse.json({ error: 'Failed to update family' }, { status: 500 });
+    console.error('Error updating familie:', error);
+    return NextResponse.json({ error: 'Failed to update familie' }, { status: 500 });
   }
 }
 
@@ -81,9 +99,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await validateSession())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const guard = await guardMutation(request);
+  if (guard) return guard;
 
   try {
     const { id } = await params;
@@ -92,10 +109,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const { error } = await supabase
-      .from('families')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('families').delete().eq('id', id);
 
     if (error) {
       console.error('Supabase error:', error);
@@ -104,7 +118,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting family:', error);
-    return NextResponse.json({ error: 'Failed to delete family' }, { status: 500 });
+    console.error('Error deleting familie:', error);
+    return NextResponse.json({ error: 'Failed to delete familie' }, { status: 500 });
   }
 }

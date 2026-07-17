@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ClipboardList, Plus, Pencil, Trash2, X as XIcon, Check, Users, Calendar } from "lucide-react";
 import type { ActivityRecord, EventType, Family, TeamMember, ScheduleEvent } from "@/types";
 import { useToast } from "@/components/admin/Toast";
+import { adminFetch } from "@/lib/adminFetch";
 
 const typeLabels: Record<EventType, string> = {
   field_trip: "Field Trip",
@@ -62,10 +63,10 @@ export default function AdminActivitiesPage() {
   const fetchData = async () => {
     try {
       const [recRes, famRes, memRes, evRes] = await Promise.all([
-        fetch("/api/admin/activities"),
-        fetch("/api/admin/families"),
-        fetch("/api/admin/team"),
-        fetch("/api/admin/schedule"),
+        adminFetch("/api/admin/activities"),
+        adminFetch("/api/admin/families"),
+        adminFetch("/api/admin/team"),
+        adminFetch("/api/admin/schedule"),
       ]);
       if (recRes.ok) setRecords(await recRes.json());
       if (famRes.ok) setFamilies(await famRes.json());
@@ -135,10 +136,9 @@ export default function AdminActivitiesPage() {
     try {
       const url = editing ? `/api/admin/activities/${editing.id}` : "/api/admin/activities";
       const method = editing ? "PUT" : "POST";
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, photos: editing?.photos || [] }),
+        json: { ...formData, photos: editing?.photos || [] },
       });
       if (res.ok) {
         const saved = await res.json();
@@ -163,7 +163,7 @@ export default function AdminActivitiesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this activity record?")) return;
     try {
-      const res = await fetch(`/api/admin/activities/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/activities/${id}`, { method: "DELETE" });
       if (res.ok) {
         setRecords((prev) => prev.filter((r) => r.id !== id));
         toast.success("Record deleted");

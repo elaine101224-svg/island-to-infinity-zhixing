@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Users, MapPin, Check, X, Plus, Pencil, Trash2, ArrowRight, X as XIcon } from "lucide-react";
 import type { Family } from "@/types";
 import { useToast } from "@/components/admin/Toast";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface PhotoFormData {
   url: string;
@@ -53,6 +54,7 @@ export default function AdminFamiliesPage() {
   const [newHighlight, setNewHighlight] = useState<HighlightFormData>({ date: "", title: "", description: "" });
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoCaption, setPhotoCaption] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   useEffect(() => {
     fetchFamilies();
@@ -60,7 +62,7 @@ export default function AdminFamiliesPage() {
 
   const fetchFamilies = async () => {
     try {
-      const res = await fetch("/api/admin/families");
+      const res = await adminFetch("/api/admin/families");
       if (res.ok) {
         const data = await res.json();
         setFamilies(data);
@@ -138,14 +140,31 @@ export default function AdminFamiliesPage() {
     }));
   };
 
-  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    setIsUploadingPhoto(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      const res = await adminFetch('/api/admin/uploads', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? 'Upload failed. Please try again.');
+        return;
+      }
+      const data = (await res.json()) as { url: string };
+      setPhotoUrl(data.url);
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error('Upload failed. Please try again.');
+    } finally {
+      setIsUploadingPhoto(false);
+      // Reset the input so re-selecting the same file fires onChange again.
+      e.target.value = '';
     }
   };
 
@@ -175,10 +194,9 @@ export default function AdminFamiliesPage() {
         : "/api/admin/families";
       const method = editingFamily ? "PUT" : "POST";
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        json: formData,
       });
 
       if (res.ok) {
@@ -205,7 +223,7 @@ export default function AdminFamiliesPage() {
     if (!confirm("Are you sure you want to delete this family?")) return;
 
     try {
-      const res = await fetch(`/api/admin/families/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/families/${id}`, { method: "DELETE" });
       if (res.ok) {
         setFamilies((prev) => prev.filter((f) => f.id !== id));
         toast.success("Family deleted");
@@ -563,8 +581,12 @@ export default function AdminFamiliesPage() {
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoFileChange}
-                    className="flex-1 px-3 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-mid"
+                    disabled={isUploadingPhoto}
+                    className="flex-1 px-3 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-mid disabled:opacity-60"
                   />
+                  {isUploadingPhoto && (
+                    <span className="self-center text-xs text-earth-mid whitespace-nowrap">Uploading...</span>
+                  )}
                   <input
                     type="text"
                     value={photoCaption}

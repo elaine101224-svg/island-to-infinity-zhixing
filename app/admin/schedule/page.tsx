@@ -17,6 +17,7 @@ import {
 } from "date-fns";
 import type { ScheduleEvent, EventType } from "@/types";
 import { useToast } from "@/components/admin/Toast";
+import { adminFetch } from "@/lib/adminFetch";
 
 const eventTypeColors: Record<EventType, { bg: string; border: string; text: string; dot: string }> = {
   field_trip: { bg: "bg-terracotta/10", border: "border-terracotta/30", text: "text-terracotta-dark", dot: "bg-terracotta" },
@@ -74,7 +75,7 @@ export default function AdminSchedulePage() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/schedule");
+      const res = await adminFetch("/api/admin/schedule");
       if (res.ok) {
         const data = await res.json();
         setEvents(data);
@@ -134,10 +135,9 @@ export default function AdminSchedulePage() {
         : "/api/admin/schedule";
       const method = editingEvent ? "PUT" : "POST";
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        json: formData,
       });
 
       if (res.ok) {
@@ -164,7 +164,7 @@ export default function AdminSchedulePage() {
     if (!confirm("Are you sure you want to delete this event?")) return;
 
     try {
-      const res = await fetch(`/api/admin/schedule/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/schedule/${id}`, { method: "DELETE" });
       if (res.ok) {
         setEvents((prev) => prev.filter((e) => e.id !== id));
         toast.success("Event deleted");

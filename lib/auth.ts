@@ -25,7 +25,7 @@ function signPayload(payload: SessionPayload, secret: string): string {
 }
 
 /** Constant-time string comparison that never throws on length mismatch. */
-function safeEqual(a: string, b: string): boolean {
+export function safeEqual(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
   const bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) {
@@ -37,7 +37,7 @@ function safeEqual(a: string, b: string): boolean {
 export async function createSession(password: string): Promise<string | null> {
   const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (!adminPassword || password !== adminPassword) {
+  if (!adminPassword || !safeEqual(password, adminPassword)) {
     return null;
   }
 
@@ -52,6 +52,19 @@ export async function createSession(password: string): Promise<string | null> {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionString, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: SESSION_EXPIRY_HOURS * 60 * 60,
+    path: '/',
+  });
+
+  // CSRF: a separate, JS-readable cookie that mirrors the session signature.
+  // The admin client sends it as x-csrf-token on every mutation; the server
+  // re-derives the expected value from the httpOnly session cookie. A
+  // cross-origin attacker can't read either cookie (SameSite=strict) and
+  // can't derive the signature without the password.
+  cookieStore.set('admin_csrf', sig, {
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: SESSION_EXPIRY_HOURS * 60 * 60,
@@ -87,8 +100,6 @@ export async function validateSession(): Promise<boolean> {
       return false;
     }
 
-    // Reject any cookie whose signature doesn't match — this is what prevents
-    // forged or tampered sessions from being accepted.
     const expectedSig = signPayload({ expiresAt }, adminPassword);
     return safeEqual(sig, expectedSig);
   } catch {
@@ -99,8 +110,32 @@ export async function validateSession(): Promise<boolean> {
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete('admin_csrf');
 }
 
 export function isAdminModeConfigured(): boolean {
   return !!process.env.ADMIN_PASSWORD;
+}
+
+/**
+ * Cheap fixed-window limiter for the login endpoint. Suitable for single-process
+ * serverless cold-starts; not coordinated across instances. Use a shared store
+ * (Redis, Upstash, Supabase) if you scale horizontally.
+ */
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_WINDOW_MS = 60_000;
+const LOGIN_MAX_ATTEMPTS = 8;
+
+export function checkLoginRate(key: string): boolean {
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+  if (!entry || now > entry.resetAt) {
+    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= LOGIN_MAX_ATTEMPTS) {
+    return false;
+  }
+  entry.count += 1;
+  return true;
 }

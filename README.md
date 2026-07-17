@@ -26,8 +26,8 @@ Island to Infinity Zhixing is a long-term community project that supports underp
 
 - **Framework:** Next.js 16 (App Router)
 - **Styling:** Tailwind CSS
-- **AI:** Anthropic Claude API
-- **Data:** JSON files (no database required)
+- **AI:** Anthropic Claude API (also works with Anthropic-compatible gateways)
+- **Data:** Supabase (Postgres) behind the app's own API routes
 - **Deployment:** Vercel
 
 ## Getting Started
@@ -59,9 +59,17 @@ Create a `.env.local` file in the root directory:
 ```env
 # Required for AI Assistant
 ANTHROPIC_API_KEY=your_anthropic_api_key
+# Optional: use an Anthropic-compatible gateway / different model
+ANTHROPIC_BASE_URL=
+ANTHROPIC_MODEL=
 
 # Required for Admin Access (choose a secure password)
 ADMIN_PASSWORD=your_admin_password
+
+# Required for data storage
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Public site URL
 NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
@@ -89,42 +97,12 @@ npm start
 
 ## Deployment to Vercel
 
-### Option 1: Vercel CLI
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Link project
-vercel link
-
-# Pull environment variables
-vercel env pull
-
-# Deploy
-vercel --prod
-```
-
-### Option 2: Vercel Dashboard
-
 1. Push your code to a GitHub repository
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Import your GitHub repository
-4. Configure environment variables:
-   - `ANTHROPIC_API_KEY` - Your Anthropic API key
-   - `ADMIN_PASSWORD` - Your admin password
-   - `NEXT_PUBLIC_SITE_URL` - Your Vercel deployment URL
-5. Deploy
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository
+3. Add the same environment variables as in `.env.local` above (Project Settings → Environment Variables)
+4. Deploy
 
-### Environment Variables on Vercel
-
-In your Vercel project settings, add these environment variables:
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key | Yes (for AI Assistant) |
-| `ADMIN_PASSWORD` | Admin dashboard password | Yes (for admin access) |
-| `NEXT_PUBLIC_SITE_URL` | Public site URL | Yes |
+Or with the CLI: `npm i -g vercel && vercel link && vercel --prod`.
 
 ## Privacy & Ethics
 
@@ -138,39 +116,26 @@ In your Vercel project settings, add these environment variables:
 
 ```
 ├── app/
-│   ├── api/
-│   │   ├── ai-assistant/     # AI Assistant API
-│   │   └── admin/           # Admin auth API
-│   ├── admin/
-│   │   ├── families/         # Manage families
-│   │   ├── plans/            # Manage plans
-│   │   └── schedule/         # Manage schedule
-│   ├── families/             # Public families listing
-│   │   └── [id]/            # Family detail page
-│   ├── plans/                # Public plans listing
-│   ├── schedule/             # Public schedule
-│   ├── ai-assistant/         # AI Assistant page
+│   ├── (site)/               # Public pages: home, families, plans,
+│   │                         #   schedule, ai-assistant
+│   ├── admin/                # Admin dashboard (families, plans,
+│   │                         #   schedule, team, activities)
 │   ├── login/                # Admin login page
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Home page
-├── components/
-│   ├── layout/              # Navbar, Footer
-│   ├── home/                # Home page sections
-│   ├── families/             # Family components
-│   ├── schedule/             # Schedule components
-│   ├── plans/               # Plan components
-│   ├── ai-assistant/        # AI chat components
-│   └── admin/               # Admin components
-├── data/
-│   ├── families.json
-│   ├── schedule.json
-│   └── plans.json
+│   └── api/
+│       ├── ai-assistant/     # AI Assistant endpoint
+│       ├── schedule/         # Public schedule API
+│       └── admin/            # Auth + CRUD APIs (families, plans,
+│                             #   schedule, team, activities)
+├── components/               # Layout, home, families, schedule,
+│                             #   plans, ai-assistant, admin
+├── data/                     # Seed JSON (families, schedule, plans)
 ├── lib/
-│   ├── anthropic.ts         # Claude API client
-│   ├── auth.ts              # Admin authentication
-│   └── data.ts              # Data fetching
+│   ├── anthropic.ts          # Claude API client (gateway-aware)
+│   ├── auth.ts               # Admin session auth
+│   ├── supabase.ts           # Supabase server client
+│   └── data.ts               # Data fetching via API routes
 └── types/
-    └── index.ts             # TypeScript interfaces
+    └── index.ts              # TypeScript interfaces
 ```
 
 ## License

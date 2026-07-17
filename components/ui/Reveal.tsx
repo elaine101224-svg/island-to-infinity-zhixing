@@ -16,16 +16,17 @@ interface RevealProps {
  */
 export default function Reveal({ children, delay = 0, className = '' }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  // Reveal-on-scroll: derive initial visibility from feature detection so we
+  // don't have to call setState synchronously inside the effect for the
+  // SSR/no-IntersectionObserver fallback.
+  const [visible, setVisible] = useState(
+    () => typeof IntersectionObserver === 'undefined'
+  );
 
   useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
     const node = ref.current;
     if (!node) return;
-
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

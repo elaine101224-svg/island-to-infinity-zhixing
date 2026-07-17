@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { FileText, Plus, Pencil, Trash2, X as XIcon, Check } from "lucide-react";
 import type { SupportPlan, Family, FocusArea, PlanStatus } from "@/types";
 import { useToast } from "@/components/admin/Toast";
+import { adminFetch } from "@/lib/adminFetch";
 
 const focusAreaLabels: Record<FocusArea, string> = {
   social: "Social",
@@ -68,8 +69,8 @@ export default function AdminPlansPage() {
   const fetchData = async () => {
     try {
       const [plansRes, familiesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/admin/plans`),
-        fetch(`${API_BASE}/api/admin/families`),
+        adminFetch(`${API_BASE}/api/admin/plans`),
+        adminFetch(`${API_BASE}/api/admin/families`),
       ]);
       if (plansRes.ok) setPlans(await plansRes.json());
       if (familiesRes.ok) setFamilies(await familiesRes.json());
@@ -129,10 +130,9 @@ export default function AdminPlansPage() {
         ? { ...formData }
         : { ...formData, objectives: [], activities: [] };
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        json: body,
       });
 
       if (res.ok) {
@@ -158,7 +158,7 @@ export default function AdminPlansPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this plan?")) return;
     try {
-      const res = await fetch(`${API_BASE}/api/admin/plans/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`${API_BASE}/api/admin/plans/${id}`, { method: "DELETE" });
       if (res.ok) {
         setPlans((prev) => prev.filter((p) => p.id !== id));
         toast.success("Plan deleted");

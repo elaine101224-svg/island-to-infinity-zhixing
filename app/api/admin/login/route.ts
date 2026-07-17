@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
-import { createSession } from '@/lib/auth';
+import { createSession, checkLoginRate } from '@/lib/auth';
+
+const LOGIN_RATE_KEY = 'global';
 
 export async function POST(request: Request) {
+  // Cheap per-process rate limit — prevents trivial brute-force loops.
+  if (!checkLoginRate(LOGIN_RATE_KEY)) {
+    return NextResponse.json(
+      { error: 'Too many login attempts. Try again in a minute.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const { password } = await request.json();
 
@@ -15,7 +25,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    return NextResponse.json({ success: true });
+    const res = NextResponse.json({ success: true });
+    res.headers.set('Cache-Control', 'no-store');
+    return res;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

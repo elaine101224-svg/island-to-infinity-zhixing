@@ -47,7 +47,9 @@ export default function SchedulePage() {
 
   const fetchEvents = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/schedule");
+      // Use the public, isPublic-filtered endpoint so private events
+      // (those without `isPublic: true`) never leak to anonymous visitors.
+      const res = await fetch("/api/schedule");
       if (res.ok) {
         const data = await res.json();
         setEvents(data);

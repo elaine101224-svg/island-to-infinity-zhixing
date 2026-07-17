@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, Heart, Lock } from 'lucide-react';
+import { Menu, X, Lock } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
 const navLinks = [

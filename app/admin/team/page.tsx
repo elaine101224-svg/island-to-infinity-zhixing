@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Users, Plus, Pencil, Trash2, X as XIcon, Mail, Phone, Check } from "lucide-react";
 import type { TeamMember, MemberRole, MemberStatus, Family } from "@/types";
 import { useToast } from "@/components/admin/Toast";
+import { adminFetch } from "@/lib/adminFetch";
 
 const roleLabels: Record<MemberRole, string> = {
   lead: "Lead",
@@ -56,8 +57,8 @@ export default function AdminTeamPage() {
   const fetchData = async () => {
     try {
       const [membersRes, familiesRes] = await Promise.all([
-        fetch("/api/admin/team"),
-        fetch("/api/admin/families"),
+        adminFetch("/api/admin/team"),
+        adminFetch("/api/admin/families"),
       ]);
       if (membersRes.ok) setMembers(await membersRes.json());
       if (familiesRes.ok) setFamilies(await familiesRes.json());
@@ -112,10 +113,9 @@ export default function AdminTeamPage() {
     try {
       const url = editing ? `/api/admin/team/${editing.id}` : "/api/admin/team";
       const method = editing ? "PUT" : "POST";
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        json: formData,
       });
 
       if (res.ok) {
@@ -141,7 +141,7 @@ export default function AdminTeamPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Remove this team member?")) return;
     try {
-      const res = await fetch(`/api/admin/team/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/team/${id}`, { method: "DELETE" });
       if (res.ok) {
         setMembers((prev) => prev.filter((m) => m.id !== id));
         toast.success("Member removed");
