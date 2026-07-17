@@ -18,8 +18,9 @@ npm run lint     # Run ESLint
 ## Architecture
 
 ### Data Layer
-- **JSON files** in `/data/` serve as the database (families.json, schedule.json, plans.json)
-- `lib/data.ts` provides async functions to read/write these files using Node.js `fs` promises
+- **Supabase (Postgres)** is the database; `lib/supabase.ts` creates the server client (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
+- `lib/data.ts` fetches through the app's own API routes (`app/api/**`), which do the Supabase reads/writes
+- `/data/*.json` files are seed/reference data only, not the live store
 - Types are centralized in `/types/index.ts`
 
 ### Authentication
@@ -28,30 +29,24 @@ npm run lint     # Run ESLint
 - Admin routes under `/app/admin/` check session via `validateSession()` before rendering
 
 ### AI Assistant
-- Uses `@anthropic-ai/sdk` directly (not AI Gateway) via `lib/anthropic.ts`
+- Uses `@anthropic-ai/sdk` via `lib/anthropic.ts`; supports Anthropic-compatible gateways through optional `ANTHROPIC_BASE_URL` / `ANTHROPIC_MODEL` env vars
 - API route at `/app/api/ai-assistant/route.ts` (POST only)
 - System prompt enforces compassionate, non-medical communication guidelines
 
 ### Page Structure
 ```
 app/
-├── page.tsx                    # Home page
-├── families/[id]/page.tsx      # Family detail page (dynamic route)
-├── families/page.tsx           # Families listing
-├── plans/page.tsx             # Support plans listing
-├── schedule/page.tsx           # Public events calendar
-├── ai-assistant/page.tsx      # AI chat interface
-├── admin/
-│   ├── login/page.tsx          # Admin login (no auth required)
-│   ├── page.tsx                # Admin dashboard
-│   ├── families/page.tsx       # Manage families
-│   ├── plans/page.tsx          # Manage plans
-│   └── schedule/page.tsx       # Manage schedule
+├── (site)/                     # Public pages: home, families (+[id]),
+│                               #   plans, schedule, ai-assistant
+├── admin/                      # Admin dashboard: families, plans,
+│                               #   schedule, team, activities
+├── login/                      # Admin login page
 └── api/
     ├── ai-assistant/route.ts   # POST - AI chat endpoint
-    └── admin/
-        ├── login/route.ts       # POST - create session
-        └── logout/route.ts      # POST - destroy session
+    ├── schedule/               # Public schedule API
+    └── admin/                  # login/logout + CRUD routes for
+                                #   families, plans, schedule, team,
+                                #   activities (with [id] variants)
 ```
 
 ### Components
