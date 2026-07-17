@@ -140,6 +140,8 @@ Or with the CLI: `npm i -g vercel && vercel link && vercel --prod`.
 
 ## License
 
+The source code is licensed under the [MIT License](LICENSE). Family stories, photos, and other community content (in `data/` and `public/images/`) are **not** covered by the MIT license — all rights reserved; please do not reuse them without permission.
+
 This project is created for educational and social impact purposes.
 
 ---
