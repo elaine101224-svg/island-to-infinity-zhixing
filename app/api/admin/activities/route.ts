@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     };
 
     const { error } = await supabase
-      .from('activities')
+      .from('activity_records')
       .insert({ id: newRecord.id, data: newRecord });
 
     if (error) {

@@ -150,7 +150,8 @@ export default function AdminActivitiesPage() {
         toast.success(editing ? "Record updated" : "Activity recorded");
         handleCloseModal();
       } else {
-        toast.error("Couldn't save the record. Please try again.");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? `Couldn't save the record (${res.status}).`);
       }
     } catch (error) {
       console.error("Error saving record:", error);

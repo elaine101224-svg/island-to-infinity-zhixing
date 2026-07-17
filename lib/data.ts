@@ -83,7 +83,7 @@ export async function getPublicEvents(): Promise<ScheduleEvent[]> {
 // ---- Team ----
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  return selectAll<TeamMember>('team');
+  return selectAll<TeamMember>('team_members');
 }
 
 // ---- Activity records ----

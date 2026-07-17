@@ -145,7 +145,8 @@ export default function AdminPlansPage() {
         toast.success(editingPlan ? "Plan updated" : "Plan added");
         handleCloseModal();
       } else {
-        toast.error("Couldn't save the plan. Please try again.");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? `Couldn't save the plan (${res.status}).`);
       }
     } catch (error) {
       console.error("Error saving plan:", error);

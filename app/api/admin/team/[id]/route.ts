@@ -49,7 +49,7 @@ export async function PUT(
     };
 
     const { error } = await supabase
-      .from('team')
+      .from('team_members')
       .update({ data: updatedRecord })
       .eq('id', id);
 
@@ -79,7 +79,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
 
-    const { error } = await supabase.from('team').delete().eq('id', id);
+    const { error } = await supabase.from('team_members').delete().eq('id', id);
 
     if (error) {
       console.error('Supabase error:', error);

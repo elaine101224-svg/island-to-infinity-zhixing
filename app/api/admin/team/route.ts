@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     };
 
     const { error } = await supabase
-      .from('team')
+      .from('team_members')
       .insert({ id: newRecord.id, data: newRecord });
 
     if (error) {

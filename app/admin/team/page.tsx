@@ -128,7 +128,8 @@ export default function AdminTeamPage() {
         toast.success(editing ? "Member updated" : "Member added");
         handleCloseModal();
       } else {
-        toast.error("Couldn't save the member. Please try again.");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? `Couldn't save the member (${res.status}).`);
       }
     } catch (error) {
       console.error("Error saving member:", error);

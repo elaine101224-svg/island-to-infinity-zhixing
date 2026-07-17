@@ -209,7 +209,8 @@ export default function AdminFamiliesPage() {
         toast.success(editingFamily ? "Family updated" : "Family added");
         handleCloseModal();
       } else {
-        toast.error("Couldn't save the family. Please try again.");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? `Couldn't save the family (${res.status}).`);
       }
     } catch (error) {
       console.error("Error saving family:", error);

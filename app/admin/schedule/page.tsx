@@ -150,7 +150,8 @@ export default function AdminSchedulePage() {
         toast.success(editingEvent ? "Event updated" : "Event added");
         handleCloseModal();
       } else {
-        toast.error("Couldn't save the event. Please try again.");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error ?? `Couldn't save the event (${res.status}).`);
       }
     } catch (error) {
       console.error("Error saving event:", error);
