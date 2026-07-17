@@ -1,87 +1,93 @@
-import type { Family, ScheduleEvent, SupportPlan, TeamMember, ActivityRecord } from '@/types';
+import { supabase } from '@/lib/supabase';
+import type { ActivityRecord, Family, ScheduleEvent, SupportPlan, TeamMember } from '@/types';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
-  'http://localhost:3000';
+/**
+ * Server-side data accessors for the admin pages.
+ *
+ * Previous implementation routed every call through HTTP self-fetch
+ * (`fetch('/api/admin/...')`), which cost one full request/response
+ * cycle per resource on top of the Supabase round-trip. On a serverless
+ * function that latency is multiplied by N parallel queries — and the
+ *   page that awaits them — producing visible "stutter" right after the
+ * admin login flow redirected here.
+ *
+ * These helpers now hit Supabase directly. Behaviour is unchanged from
+ * the caller's perspective (same types, same shape, same filter rules).
+ */
 
-async function fetchAPI<T>(endpoint: string): Promise<T[]> {
-  try {
-    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
-    if (!res.ok) {
-      console.error(`Error fetching ${endpoint}: ${res.status} ${res.statusText}`);
-      return [];
-    }
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error(`Exception fetching ${endpoint}:`, error);
+interface TableRow {
+  id: string;
+  data: Record<string, unknown>;
+  updated_at?: string;
+}
+
+function unwrap<T>(rows: TableRow[] | null): T[] {
+  if (!rows) return [];
+  return rows.map((r) => r.data as unknown as T).filter(Boolean);
+}
+
+async function selectAll<T>(table: string): Promise<T[]> {
+  const { data, error } = await supabase.from(table).select('*');
+  if (error) {
+    console.error(`[data] select ${table} failed:`, error.message);
     return [];
   }
+  return unwrap<T>(data as TableRow[] | null);
 }
 
-async function fetchAPIOne<T>(endpoint: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${API_BASE}${endpoint}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data || null;
-  } catch (error) {
-    console.error(`Exception fetching ${endpoint}:`, error);
-    return null;
-  }
+async function selectOne<T>(table: string, id: string): Promise<T | null> {
+  const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
+  if (error || !data) return null;
+  return ((data as TableRow).data as unknown as T) ?? null;
 }
 
-// Families
+// ---- Families ----
+
 export async function getFamilies(): Promise<Family[]> {
-  const families = await fetchAPI<Family>('/api/admin/families');
-  return families.filter(Boolean);
+  return selectAll<Family>('families');
 }
 
 export async function getFamilyById(id: string): Promise<Family | null> {
   if (!id) return null;
-  const family = await fetchAPIOne<Family>(`/api/admin/families/${id}`);
-  return family;
+  return selectOne<Family>('families', id);
 }
 
-// Plans
+// ---- Plans ----
+
 export async function getPlans(): Promise<SupportPlan[]> {
-  const plans = await fetchAPI<SupportPlan>('/api/admin/plans');
-  return plans.filter(Boolean);
+  return selectAll<SupportPlan>('plans');
 }
 
 export async function getPlanById(id: string): Promise<SupportPlan | null> {
   if (!id) return null;
-  const plan = await fetchAPIOne<SupportPlan>(`/api/admin/plans/${id}`);
-  return plan;
+  return selectOne<SupportPlan>('plans', id);
 }
 
-// ✅ 新增 export，按家庭过滤计划
 export async function getPlansByFamilyId(familyId: string): Promise<SupportPlan[]> {
   if (!familyId) return [];
   const plans = await getPlans();
-  return plans.filter(p => p && p.familyIds && p.familyIds.includes(familyId));
+  return plans.filter((p) => Array.isArray(p.familyIds) && p.familyIds.includes(familyId));
 }
 
-// Schedule
+// ---- Schedule ----
+
 export async function getScheduleEvents(): Promise<ScheduleEvent[]> {
-  const events = await fetchAPI<ScheduleEvent>('/api/admin/schedule');
-  return events.filter(Boolean);
+  return selectAll<ScheduleEvent>('schedule');
 }
 
 export async function getPublicEvents(): Promise<ScheduleEvent[]> {
   const events = await getScheduleEvents();
-  return events.filter(e => e && e.isPublic);
+  return events.filter((e) => e && e.isPublic);
 }
 
-// Team Members
+// ---- Team ----
+
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const members = await fetchAPI<TeamMember>('/api/admin/team');
-  return members.filter(Boolean);
+  return selectAll<TeamMember>('team');
 }
 
-// Activity Records
+// ---- Activity records ----
+
 export async function getActivityRecords(): Promise<ActivityRecord[]> {
-  const records = await fetchAPI<ActivityRecord>('/api/admin/activities');
-  return records.filter(Boolean);
+  return selectAll<ActivityRecord>('activity_records');
 }
