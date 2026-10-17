@@ -8,6 +8,8 @@ interface PlanCardProps {
 }
 
 const focusAreaConfig = {
+  social_integration: { label: 'Social integration', color: 'bg-sage/10 text-sage border-sage/20', icon: Users },
+  companionship: { label: 'Companionship', color: 'bg-sage/10 text-sage border-sage/20', icon: HandHeart },
   social: {
     label: 'Social',
     color: 'bg-sage/10 text-sage border-sage/20',
