@@ -124,14 +124,13 @@ describe('admin GET auth gating', () => {
     expect(res.status).toBe(401);
   });
 
-  it('GET /api/admin/families remains publicly readable (anonymized data only)', async () => {
+  it('GET /api/admin/families requires admin auth for internal records', async () => {
     mockCookies();
     mockSupabase({ families: [{ id: 'f1', pseudonym: 'Kaiyan', consentGiven: true }] });
     const { GET } = await import('@/app/api/admin/families/route');
     const res = await GET();
-    expect(res.status).toBe(200);
-    const body = (await res.json()) as unknown[];
-    expect(Array.isArray(body)).toBe(true);
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
 });
 
