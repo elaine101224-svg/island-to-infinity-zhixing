@@ -22,8 +22,10 @@ export async function PUT(request: NextRequest) {
     const patch: Record<string, unknown> = { draft: { ...content, members: [] }, revision: revision + 1, updated_at: new Date().toISOString() };
     if (action === 'publish') {
       const [members, activities] = await Promise.all([getTeamMembers(), getActivityRecords()]);
-      const invalid = content.cards.find(c => c.published && c.kind === 'update' && (!c.date || !c.sourceId || !activities.some(a => a.id === c.sourceId && a.date <= new Date().toISOString().slice(0,10))));
+      const invalid = content.cards.find(c => c.published && c.kind === 'update' && (!c.date || !c.sourceId || !activities.some(a => a.id === c.sourceId && a.date === c.date && a.date <= new Date().toISOString().slice(0,10))));
       if (invalid) return NextResponse.json({ error: 'Published updates must link to an existing completed activity and have a date.' }, { status: 400 });
+      if (content.cards.some(c => c.published && !c.summary.trim())) return NextResponse.json({ error: 'Each public entry needs a reviewed public summary.' }, { status: 400 });
+      if (content.groups.some(g => g.visible && !g.name.trim())) return NextResponse.json({ error: 'Each visible group needs a public name.' }, { status: 400 });
       const photos = [content.teamPhoto, ...content.groups.filter(g => g.visible).map(g => g.photo), ...content.history.filter(h => h.visible).map(h => h.photo), ...content.cards.filter(c => c.published).map(c => c.photo)];
       if (photos.some(p => p.url && !photoIsPublic(p))) return NextResponse.json({ error: 'Every published photo needs consent and meaningful alt text.' }, { status: 400 });
       const doc = publicDocument(content);
