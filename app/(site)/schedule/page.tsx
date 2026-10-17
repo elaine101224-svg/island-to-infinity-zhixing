@@ -39,6 +39,7 @@ const eventTypeBgColors: Record<EventType, string> = {
 };
 
 export default function SchedulePage() {
+  const [loadError, setLoadError] = useState("");
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -50,12 +51,13 @@ export default function SchedulePage() {
       // Use the public, isPublic-filtered endpoint so private events
       // (those without `isPublic: true`) never leak to anonymous visitors.
       const res = await fetch("/api/schedule");
+      if (!res.ok) throw new Error("The public schedule could not be loaded.");
       if (res.ok) {
         const data = await res.json();
         setEvents(data);
       }
     } catch (error) {
-      console.error("Error fetching events:", error);
+      setLoadError(error instanceof Error ? error.message : "Schedule unavailable");
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +83,9 @@ export default function SchedulePage() {
   const selectedDateEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
   const renderDaysHeader = () => {
-    return (
+    if (loadError) return <p role="alert" className="max-w-4xl mx-auto p-8">{loadError} Please refresh to retry.</p>;
+
+  return (
       <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
         {weekDays.map((day) => (
           <div
