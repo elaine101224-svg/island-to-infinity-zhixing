@@ -1,401 +1,59 @@
-"use client";
+'use client';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { adminFetch } from '@/lib/adminFetch';
+import { useToast } from '@/components/admin/Toast';
+import PhotoField from '@/components/admin/PhotoField';
+import { currentSchoolYear } from '@/lib/schoolYear';
+import type { TeamMember, Family } from '@/types';
+import type { HomepageContent } from '@/lib/contentSchema';
 
-import { useState, useEffect } from "react";
-import { Users, Plus, Pencil, Trash2, X as XIcon, Mail, Phone, Check } from "lucide-react";
-import type { TeamMember, MemberRole, MemberStatus, Family } from "@/types";
-import { useToast } from "@/components/admin/Toast";
-import { adminFetch } from "@/lib/adminFetch";
-
-const roleLabels: Record<MemberRole, string> = {
-  lead: "Lead",
-  coordinator: "Coordinator",
-  volunteer: "Volunteer",
-};
-
-const roleColors: Record<MemberRole, string> = {
-  lead: "bg-terracotta/10 text-terracotta-dark",
-  coordinator: "bg-amber-warm/10 text-amber-warm",
-  volunteer: "bg-sage/10 text-sage",
-};
-
-interface MemberFormData {
-  name: string;
-  role: MemberRole;
-  email: string;
-  phone: string;
-  status: MemberStatus;
-  assignedFamilyIds: string[];
-  joinedDate: string;
-  notes: string;
-}
-
-const emptyForm: MemberFormData = {
-  name: "",
-  role: "volunteer",
-  email: "",
-  phone: "",
-  status: "active",
-  assignedFamilyIds: [],
-  joinedDate: new Date().toISOString().split("T")[0],
-  notes: "",
-};
-
-export default function AdminTeamPage() {
-  const toast = useToast();
-  const [members, setMembers] = useState<TeamMember[]>([]);
-  const [families, setFamilies] = useState<Family[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<TeamMember | null>(null);
-  const [formData, setFormData] = useState<MemberFormData>(emptyForm);
-  const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [membersRes, familiesRes] = await Promise.all([
-        adminFetch("/api/admin/team"),
-        adminFetch("/api/admin/families"),
-      ]);
-      if (membersRes.ok) setMembers(await membersRes.json());
-      if (familiesRes.ok) setFamilies(await familiesRes.json());
-    } catch (error) {
-      console.error("Error fetching team:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const familyName = (id: string) =>
-    families.find((f) => f.id === id)?.pseudonym || "Unknown";
-
-  const handleOpenModal = (member?: TeamMember) => {
-    if (member) {
-      setEditing(member);
-      setFormData({
-        name: member.name,
-        role: member.role,
-        email: member.email || "",
-        phone: member.phone || "",
-        status: member.status,
-        assignedFamilyIds: [...(member.assignedFamilyIds || [])],
-        joinedDate: member.joinedDate || emptyForm.joinedDate,
-        notes: member.notes || "",
-      });
-    } else {
-      setEditing(null);
-      setFormData(emptyForm);
-    }
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditing(null);
-    setFormData(emptyForm);
-  };
-
-  const toggleFamily = (id: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      assignedFamilyIds: prev.assignedFamilyIds.includes(id)
-        ? prev.assignedFamilyIds.filter((f) => f !== id)
-        : [...prev.assignedFamilyIds, id],
-    }));
-  };
-
-  const handleSave = async () => {
-    if (!formData.name.trim()) return;
-    setIsSaving(true);
-    try {
-      const url = editing ? `/api/admin/team/${editing.id}` : "/api/admin/team";
-      const method = editing ? "PUT" : "POST";
-      const res = await adminFetch(url, {
-        method,
-        json: formData,
-      });
-
-      if (res.ok) {
-        const saved = await res.json();
-        if (editing) {
-          setMembers((prev) => prev.map((m) => (m.id === saved.id ? saved : m)));
-        } else {
-          setMembers((prev) => [...prev, saved]);
-        }
-        toast.success(editing ? "Member updated" : "Member added");
-        handleCloseModal();
-      } else {
-        const body = await res.json().catch(() => ({}));
-        toast.error(body.error ?? `Couldn't save the member (${res.status}).`);
-      }
-    } catch (error) {
-      console.error("Error saving member:", error);
-      toast.error("Something went wrong while saving. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Remove this team member?")) return;
-    try {
-      const res = await adminFetch(`/api/admin/team/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setMembers((prev) => prev.filter((m) => m.id !== id));
-        toast.success("Member removed");
-      } else {
-        toast.error("Couldn't remove the member. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error deleting member:", error);
-      toast.error("Something went wrong while deleting. Please try again.");
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-terracotta border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-6xl mx-auto py-2">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-serif font-bold text-earth-dark tracking-tight">Team</h1>
-          <p className="text-earth-mid text-sm mt-1">Manage volunteers and their assignments</p>
-        </div>
-        <button
-          onClick={() => handleOpenModal()}
-          className="bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Member
-        </button>
-      </div>
-
-      {members.length === 0 ? (
-        <div className="bg-white rounded-xl border border-sand shadow-sm py-16 px-6 text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-terracotta/10 flex items-center justify-center mb-4">
-            <Users className="h-6 w-6 text-terracotta" />
-          </div>
-          <h3 className="text-earth-dark font-semibold mb-1">No team members yet</h3>
-          <p className="text-earth-mid text-sm mb-5">Add your first volunteer to build the roster.</p>
-          <button
-            onClick={() => handleOpenModal()}
-            className="inline-flex items-center gap-2 bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium"
-          >
-            <Plus className="h-4 w-4" />
-            Add Member
-          </button>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-sand shadow-sm overflow-x-auto">
-          <table className="min-w-[720px] w-full">
-            <thead>
-              <tr className="bg-cream border-b border-sand">
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Member</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Role</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Contact</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Assigned</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Status</th>
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-earth-mid uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand/60">
-              {members.map((member) => (
-                <tr key={member.id} className="hover:bg-cream/50 transition-colors">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-terracotta/10 flex items-center justify-center text-terracotta font-semibold text-sm">
-                        {member.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="font-medium text-earth-dark">{member.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${roleColors[member.role]}`}>
-                      {roleLabels[member.role]}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-earth-mid">
-                    <div className="space-y-0.5">
-                      {member.email && (
-                        <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-earth-light" />{member.email}</div>
-                      )}
-                      {member.phone && (
-                        <div className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-earth-light" />{member.phone}</div>
-                      )}
-                      {!member.email && !member.phone && <span className="text-earth-light">—</span>}
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-earth-mid">
-                    {member.assignedFamilyIds?.length
-                      ? `${member.assignedFamilyIds.length} ${member.assignedFamilyIds.length === 1 ? "family" : "families"}`
-                      : <span className="text-earth-light">None</span>}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${member.status === "active" ? "bg-sage/10 text-sage" : "bg-sand text-earth-mid"}`}>
-                      {member.status === "active" && <Check className="h-3 w-3" />}
-                      {member.status === "active" ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-4 text-sm">
-                      <button onClick={() => handleOpenModal(member)} className="text-sage hover:text-sage/80 font-medium flex items-center gap-1">
-                        <Pencil className="h-3.5 w-3.5" /> Edit
-                      </button>
-                      <button onClick={() => handleDelete(member.id)} className="text-red-500 hover:text-red-600 font-medium flex items-center gap-1">
-                        <Trash2 className="h-3.5 w-3.5" /> Remove
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {showModal && (
-        <div className="fixed inset-0 bg-earth-dark/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-sand sticky top-0 bg-white rounded-t-2xl">
-              <h2 className="text-lg font-semibold text-earth-dark">{editing ? "Edit Member" : "Add Member"}</h2>
-              <button onClick={handleCloseModal} className="text-earth-light hover:text-earth-dark p-1.5 rounded-lg hover:bg-sand/50 transition-colors">
-                <XIcon className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="p-5 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-earth-mid mb-1.5">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark"
-                  placeholder="e.g., Wei Chen"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData((p) => ({ ...p, role: e.target.value as MemberRole }))}
-                    className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark bg-white"
-                  >
-                    <option value="lead">Lead</option>
-                    <option value="coordinator">Coordinator</option>
-                    <option value="volunteer">Volunteer</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as MemberStatus }))}
-                    className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark bg-white"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Email</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark"
-                    placeholder="name@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-earth-mid mb-1.5">Phone</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark"
-                    placeholder="Optional"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-earth-mid mb-1.5">Joined date</label>
-                <input
-                  type="date"
-                  value={formData.joinedDate}
-                  onChange={(e) => setFormData((p) => ({ ...p, joinedDate: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-earth-mid mb-1.5">Assigned families</label>
-                {families.length === 0 ? (
-                  <p className="text-sm text-earth-light">No families to assign yet.</p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {families.map((f) => {
-                      const checked = formData.assignedFamilyIds.includes(f.id);
-                      return (
-                        <button
-                          type="button"
-                          key={f.id}
-                          onClick={() => toggleFamily(f.id)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm text-left transition-colors ${checked ? "bg-terracotta/10 border-terracotta/40 text-earth-dark" : "bg-white border-sand text-earth-mid hover:bg-cream/60"}`}
-                        >
-                          <span className={`w-4 h-4 rounded flex items-center justify-center border ${checked ? "bg-terracotta border-terracotta" : "border-sand-dark"}`}>
-                            {checked && <Check className="h-3 w-3 text-white" />}
-                          </span>
-                          {f.pseudonym}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-earth-mid mb-1.5">Notes</label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData((p) => ({ ...p, notes: e.target.value }))}
-                  rows={2}
-                  className="w-full px-4 py-2.5 border border-sand rounded-xl focus:ring-2 focus:ring-terracotta focus:border-terracotta outline-none text-sm text-earth-dark"
-                  placeholder="Skills, availability, etc."
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 p-5 border-t border-sand bg-cream/50 rounded-b-2xl">
-              <button onClick={handleCloseModal} className="px-5 py-2.5 text-earth-mid bg-white border border-sand rounded-xl hover:bg-sand/50 font-medium text-sm shadow-sm transition-colors">
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving || !formData.name.trim()}
-                className="px-5 py-2.5 bg-terracotta text-white rounded-xl hover:bg-terracotta-dark font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSaving ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+type Form = Omit<TeamMember, 'id'|'createdAt'|'updatedAt'>;
+const blank = (year:string):Form => ({ name:'',role:'volunteer',email:'',phone:'',status:'active',assignedFamilyIds:[],joinedDate:'',notes:'',academicYears:[year],publicName:'',publicRole:'',groupId:'',photoUrl:'',photoConsent:false,displayOrder:0,isPublic:false });
+export default function TeamPage() {
+  const toast=useToast();
+  const [members,setMembers]=useState<TeamMember[]>([]);
+  const [families,setFamilies]=useState<Family[]>([]);
+  const [groups,setGroups]=useState<HomepageContent['groups']>([]);
+  const [current,setCurrent]=useState(currentSchoolYear());
+  const [year,setYear]=useState(currentSchoolYear());
+  const [status,setStatus]=useState('active');
+  const [query,setQuery]=useState('');
+  const [group,setGroup]=useState('');
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [editing,setEditing]=useState<TeamMember|null>(null);
+  const [form,setForm]=useState<Form|null>(null);
+  const [busy,setBusy]=useState(false);
+  useEffect(()=>{async function load(){try{
+    const [m,f,c]=await Promise.all([adminFetch('/api/admin/team'),adminFetch('/api/admin/families'),adminFetch('/api/admin/content')]);
+    if(!m.ok||!f.ok||!c.ok) throw new Error('Unable to load the roster. Please reload; no empty roster has been assumed.');
+    setMembers(await m.json());setFamilies(await f.json());const content=await c.json();setGroups(content.draft.groups);setYear(content.draft.schoolYear);setCurrent(content.draft.schoolYear);
+  }catch(e){setError(e instanceof Error?e.message:'Load failed');}finally{setLoading(false);}}void load();},[]);
+  const unassigned=members.filter(m=>!m.academicYears?.length).length;
+  const years=Array.from(new Set([current,...members.flatMap(m=>m.academicYears||[])])).sort().reverse();
+  const visible=members.filter(m=>(year==='all'||(year==='unassigned'?!m.academicYears?.length:m.academicYears?.includes(year)))&&(status==='all'||m.status===status)&&(!group||m.groupId===group)&&`${m.name} ${m.publicName||''}`.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>(a.displayOrder||0)-(b.displayOrder||0)||a.name.localeCompare(b.name));
+  function open(member?:TeamMember){setEditing(member||null);setForm(member?{...blank(current),...member}:blank(current));}
+  async function save(){if(!form)return;setBusy(true);try{
+    const res=await adminFetch(editing?`/api/admin/team/${editing.id}`:'/api/admin/team',{method:editing?'PUT':'POST',json:form});const saved=await res.json();if(!res.ok)throw new Error(saved.error||'Save failed');setMembers(prev=>editing?prev.map(m=>m.id===saved.id?saved:m):[...prev,saved]);toast.success('Member saved. Publish Website Content to update the public team.');setForm(null);
+  }catch(e){toast.error(e instanceof Error?e.message:'Save failed');}finally{setBusy(false);}}
+  async function archive(m:TeamMember){setBusy(true);try{const res=await adminFetch(`/api/admin/team/${m.id}`,{method:'PUT',json:{...m,status:m.status==='active'?'inactive':'active'}});if(!res.ok)throw new Error('Archive change failed');const saved=await res.json();setMembers(prev=>prev.map(x=>x.id===m.id?saved:x));toast.success('Status updated. History retained; republish Website Content to update the public team.');}catch(e){toast.error(e instanceof Error?e.message:'Update failed');}finally{setBusy(false);}}
+  function field<K extends keyof Form>(key:K,value:Form[K]){setForm(prev=>prev?{...prev,[key]:value}:prev);}
+  if(loading)return <p role="status">Loading members…</p>;
+  if(error)return <p role="alert">{error}</p>;
+  return <div className="max-w-6xl mx-auto space-y-6"><header className="flex flex-wrap justify-between gap-4"><div><h1 className="font-serif text-3xl">Team</h1><p className="text-earth-mid mt-2">Keep annual membership history. Internal roles never grant additional login permissions.</p></div><button className="editor-button" onClick={()=>open()}>Add member</button></header>
+    {unassigned>0&&<div className="bg-amber-light/40 p-4 rounded-xl">{unassigned} existing members have no confirmed school year. <button className="underline font-medium" onClick={()=>{setYear('unassigned');setStatus('all');}}>Review unassigned members</button>. Nothing has been inferred from old names or roles.</div>}
+    <div className="editor-panel grid sm:grid-cols-2 lg:grid-cols-4 gap-4"><label>School year<select className="editor-input" value={year} onChange={e=>setYear(e.target.value)}>{years.map(y=><option key={y}>{y}</option>)}<option value="unassigned">Unassigned year</option><option value="all">All years</option></select></label><label>Status<select className="editor-input" value={status} onChange={e=>setStatus(e.target.value)}><option value="active">Active</option><option value="inactive">Archived</option><option value="all">All statuses</option></select></label><label>Search names<input className="editor-input" type="search" value={query} onChange={e=>setQuery(e.target.value)} /></label><label>Family group<select className="editor-input" value={group} onChange={e=>setGroup(e.target.value)}><option value="">All groups</option>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label></div>
+    <p role="status" className="text-earth-mid">{visible.length} members match these filters. <Link className="underline" href="/admin/content">Publish public team changes in Website Content</Link>.</p>
+    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">{visible.map(m=><article key={m.id} className="editor-panel"><h2 className="font-semibold text-lg">{m.name}</h2><p className="text-earth-mid mt-2">Internal: {m.role} · {m.status==='active'?'Active':'Archived'}</p><p className="text-sm mt-2">{m.academicYears?.join(', ')||'School year unassigned'}</p><p className="text-sm text-earth-mid mt-2">{m.isPublic?'Selected for next public snapshot':'Private profile'}{m.publicRole?` · ${m.publicRole}`:''}</p><div className="flex gap-4 mt-4"><button className="underline" onClick={()=>open(m)}>Edit</button><button disabled={busy} className="underline" onClick={()=>void archive(m)}>{m.status==='active'?'Archive':'Reactivate'}</button></div></article>)}</div>{!visible.length&&<p className="editor-panel">No members match these filters. Check the unassigned-year list before creating duplicates.</p>}
+    {form&&<div className="fixed inset-0 z-50 bg-earth-dark/50 p-3 flex items-center justify-center" onKeyDown={e=>{if(e.key==='Escape'&&!busy)setForm(null);}}><section role="dialog" aria-modal="true" aria-labelledby="member-title" className="bg-cream rounded-xl p-5 max-w-2xl w-full max-h-[92vh] overflow-auto"><div className="flex justify-between mb-5"><h2 id="member-title" className="font-serif text-2xl">{editing?'Edit member':'Add member'}</h2><button aria-label="Close member editor" onClick={()=>setForm(null)}>Close ×</button></div><div className="space-y-5">
+      <label className="block">Internal name<input autoFocus className="editor-input" value={form.name} onChange={e=>field('name',e.target.value)} /></label>
+      <div className="grid sm:grid-cols-2 gap-4"><label>Internal management role<select className="editor-input" value={form.role} onChange={e=>field('role',e.target.value as Form['role'])}><option value="lead">Lead</option><option value="coordinator">Coordinator</option><option value="volunteer">Volunteer</option></select></label><label>Status<select className="editor-input" value={form.status} onChange={e=>field('status',e.target.value as Form['status'])}><option value="active">Active</option><option value="inactive">Archived</option></select></label></div>
+      <label className="block">Confirmed school years (comma separated; retain previous years)<input className="editor-input" value={form.academicYears?.join(', ')||''} placeholder="2026–27, 2025–26" onChange={e=>field('academicYears',e.target.value.split(',').map(v=>v.trim().replace('-','–')).filter(Boolean))} /></label>
+      <label className="block">Family group<select className="editor-input" value={form.groupId||''} onChange={e=>field('groupId',e.target.value)}><option value="">Unassigned</option>{groups.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
+      <fieldset className="editor-panel space-y-4"><legend className="font-semibold">Public profile · independent from internal records</legend><label className="block">Public display name<input className="editor-input" value={form.publicName||''} onChange={e=>field('publicName',e.target.value)} /></label><label className="block">Public role (e.g. Group coordinator)<input className="editor-input" value={form.publicRole||''} onChange={e=>field('publicRole',e.target.value)} /></label><label className="block">Display order<input type="number" min={0} max={9999} className="editor-input" value={form.displayOrder||0} onChange={e=>field('displayOrder',Number(e.target.value))} /></label><PhotoField portrait label="Member portrait (optional)" value={{url:form.photoUrl||'',alt:form.publicName||'',caption:'',consent:form.photoConsent||false}} onChange={p=>setForm(prev=>prev?{...prev,photoUrl:p.url,photoConsent:p.consent}:prev)} /><label className="flex gap-2"><input type="checkbox" checked={!!form.isPublic} onChange={e=>field('isPublic',e.target.checked)} />Approve this profile for public display in its confirmed school year</label><p className="text-sm text-earth-mid">Save, then preview and publish Website Content. Email, phone, notes and family assignments stay private.</p></fieldset>
+      <div className="grid sm:grid-cols-2 gap-4"><label>Private email<input type="email" className="editor-input" value={form.email} onChange={e=>field('email',e.target.value)} /></label><label>Private phone<input className="editor-input" value={form.phone} onChange={e=>field('phone',e.target.value)} /></label></div><label className="block">Joined date (optional)<input type="date" className="editor-input" value={form.joinedDate} onChange={e=>field('joinedDate',e.target.value)} /></label>
+      <fieldset><legend>Private family assignments</legend>{families.map(f=><label key={f.id} className="block mt-2"><input type="checkbox" checked={form.assignedFamilyIds.includes(f.id)} onChange={e=>field('assignedFamilyIds',e.target.checked?[...form.assignedFamilyIds,f.id]:form.assignedFamilyIds.filter(id=>id!==f.id))} /> {f.pseudonym}</label>)}</fieldset><label className="block">Private notes<textarea className="editor-input" value={form.notes} onChange={e=>field('notes',e.target.value)} /></label><button className="editor-button w-full" disabled={busy||!form.name.trim()} onClick={()=>void save()}>{busy?'Saving…':'Save member'}</button>
+    </div></section></div>}
+  </div>;
 }

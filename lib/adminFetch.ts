@@ -69,6 +69,8 @@ export async function adminFetch(
     ...rest,
     method,
     headers,
+    credentials: 'same-origin',
+    cache: 'no-store',
   };
   if (json !== undefined) {
     init.body = typeof json === 'string' ? json : JSON.stringify(json);

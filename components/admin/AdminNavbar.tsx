@@ -7,11 +7,13 @@ import Logo from '@/components/ui/Logo';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/content', label: 'Website Content', icon: LayoutDashboard },
   { href: '/admin/team', label: 'Team', icon: UserCog },
   { href: '/admin/families', label: 'Families', icon: Users },
   { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
   { href: '/admin/activities', label: 'Activity Log', icon: ClipboardList },
   { href: '/admin/plans', label: 'Plans', icon: FileText },
+  { href: '/admin/sewing', label: 'Sewing · 缝纫队', icon: ClipboardList },
 ];
 
 export default function AdminSidebar() {
@@ -25,7 +27,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-earth-dark text-white flex flex-col min-h-screen shadow-xl">
+    <aside className="w-full md:w-64 md:shrink-0 bg-earth-dark text-white flex flex-col md:min-h-screen shadow-xl">
       {/* Logo */}
       <div className="p-5 border-b border-earth-mid/30">
         <Link href="/admin" className="flex items-center gap-3 group">
@@ -41,7 +43,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4">
-        <ul className="space-y-1.5">
+        <ul className="flex flex-wrap md:block md:space-y-1.5">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (

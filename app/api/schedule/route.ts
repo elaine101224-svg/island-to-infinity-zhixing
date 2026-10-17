@@ -1,32 +1,11 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import type { ScheduleEvent } from '@/types';
-
+import { readPublishedContent } from '@/lib/websiteContent';
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
-    const { data, error } = await supabase
-      .from('schedule')
-      .select('*');
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    if (!data || !Array.isArray(data)) {
-      return NextResponse.json([]);
-    }
-
-    const events = data
-      .map((row) => (row.data ?? row))
-      .filter((event): event is ScheduleEvent => {
-        return event != null && typeof event === 'object' && 'isPublic' in event;
-      })
-      .filter((event) => event.isPublic);
-
-    return NextResponse.json(events);
-  } catch (error) {
-    console.error('Error reading schedule:', error);
-    return NextResponse.json({ error: 'Failed to read schedule' }, { status: 500 });
-  }
+    const content = await readPublishedContent();
+    // Compatibility shape for the calendar, deliberately excluding internal IDs,
+    // addresses, contacts, family assignments and private descriptions.
+    return NextResponse.json(content.cards.filter(c => c.kind === 'event' && c.published && c.date).map(c => ({ id:c.id,title:c.title,type:'event',date:c.date,startTime:'',endTime:'',location:'Changshu',description:c.summary,isPublic:true })), { headers: { 'Cache-Control':'no-store' } });
+  } catch { return NextResponse.json({error:'Schedule unavailable'}, {status:503}); }
 }

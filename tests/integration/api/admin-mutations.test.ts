@@ -13,7 +13,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'srk';
 
 type Result = { data: unknown; error: null };
 type Query = {
-  select: () => Result;
+  select: () => Result & { eq: () => { single: () => Result } };
   insert: (data?: unknown) => { select: () => Result };
   update: (data?: unknown) => { eq: () => Result };
   delete: () => { eq: () => Result };
@@ -25,7 +25,7 @@ function makeResult(data: unknown = []): Result {
 
 function mockSupabase(inserted: { lastInsert?: unknown } = {}) {
   const q: Query = {
-    select: () => makeResult([]),
+    select: () => ({ ...makeResult([]), eq: () => ({ single: () => makeResult({ data: { notes: 'retained private note', createdAt: '2025-01-01' } }) }) }),
     insert: (data?: unknown) => {
       inserted.lastInsert = data;
       return { select: () => makeResult([data ?? {}]) };

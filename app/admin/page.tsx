@@ -1,6 +1,8 @@
 import { getFamilies, getPlans, getScheduleEvents, getTeamMembers, getActivityRecords } from '@/lib/data';
 import { Users, Calendar, FileText, UserCog, Clock, ClipboardList, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { readContentState } from '@/lib/websiteContent';
+import { inSchoolYear, needsRecording as eventNeedsRecording } from '@/lib/schoolYear';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +13,10 @@ const typeEmoji: Record<string, string> = {
   meeting: '📋',
 };
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ history?: string }> }) {
+  const [{ draft }, filters] = await Promise.all([readContentState(), searchParams]);
+  const schoolYear = draft.schoolYear;
+  const showHistory = filters.history === '1';
   const [families, plans, events, members, activities] = await Promise.all([
     getFamilies(),
     getPlans(),
@@ -21,7 +26,8 @@ export default async function AdminDashboardPage() {
   ]);
 
   const activePlans = plans.filter((p) => p.status === 'active').length;
-  const activeMembers = members.filter((m) => m.status === 'active').length;
+  const unassignedMembers = members.filter(m => !m.academicYears?.length).length;
+  const activeMembers = members.filter((m) => m.status === 'active' && m.academicYears?.includes(schoolYear)).length;
 
   // ---- Reminders (computed) ----
   const todayStr = new Date().toISOString().split('T')[0];
@@ -30,20 +36,20 @@ export default async function AdminDashboardPage() {
   const in7Str = in7.toISOString().split('T')[0];
 
   const upcoming = events
-    .filter((e) => e.date >= todayStr && e.date <= in7Str)
+    .filter((e) => e.date >= todayStr && e.date <= in7Str && e.status !== 'cancelled')
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 
   const recordedEventIds = new Set(activities.map((a) => a.eventId).filter(Boolean));
   const needsRecording = events
-    .filter((e) => e.date < todayStr && !recordedEventIds.has(e.id))
+    .filter((e) => eventNeedsRecording(e, recordedEventIds as Set<string>, schoolYear, todayStr, showHistory))
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 8);
 
   const stats = [
-    { label: 'Team Members', value: activeMembers, icon: UserCog, href: '/admin/team', color: 'bg-terracotta/10 border-terracotta/20 text-terracotta-dark hover:bg-terracotta/20' },
+    { label: `Confirmed active members · ${schoolYear}`, value: unassignedMembers && !activeMembers ? '—' : activeMembers, icon: UserCog, href: '/admin/team', color: 'bg-terracotta/10 border-terracotta/20 text-terracotta-dark hover:bg-terracotta/20' },
     { label: 'Families', value: families.length, icon: Users, href: '/admin/families', color: 'bg-sage/10 border-sage/20 text-sage hover:bg-sage/20' },
-    { label: 'Active Plans', value: activePlans, icon: FileText, href: '/admin/plans', color: 'bg-amber-warm/10 border-amber-warm/20 text-amber-warm hover:bg-amber-warm/20' },
-    { label: 'Sessions Logged', value: activities.length, icon: ClipboardList, href: '/admin/activities', color: 'bg-earth-mid/10 border-earth-mid/20 text-earth-mid hover:bg-earth-mid/20' },
+    { label: 'Active Plans · all years', value: activePlans, icon: FileText, href: '/admin/plans', color: 'bg-amber-warm/10 border-amber-warm/20 text-amber-warm hover:bg-amber-warm/20' },
+    { label: `Recorded sessions · ${schoolYear}`, value: activities.filter(a => inSchoolYear(a.date, schoolYear) && a.date <= todayStr).length, icon: ClipboardList, href: '/admin/activities', color: 'bg-earth-mid/10 border-earth-mid/20 text-earth-mid hover:bg-earth-mid/20' },
   ];
 
   const familyName = (id: string) => families.find((f) => f.id === id)?.pseudonym;
@@ -61,6 +67,7 @@ export default async function AdminDashboardPage() {
         <p className="text-earth-mid text-sm mt-1.5">Welcome back. Here&apos;s what needs your attention.</p>
       </div>
 
+      {unassignedMembers > 0 && <p className="mb-6 bg-amber-light/30 border border-sand rounded-xl p-4 text-earth-mid">{unassignedMembers} members have no confirmed school year. <Link href="/admin/team" className="underline">Review the roster</Link> before treating this year’s count as complete.</p>}
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat) => (
@@ -116,9 +123,9 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-amber-warm" />
-              <h2 className="text-base font-semibold text-earth-dark">Needs recording</h2>
+              <h2 className="text-base font-semibold text-earth-dark">Needs recording · {showHistory ? "all years" : schoolYear}</h2>
             </div>
-            <Link href="/admin/activities" className="text-sm text-amber-warm hover:text-amber-warm/80 font-medium">Activity Log</Link>
+            <Link href={showHistory ? "/admin" : "/admin?history=1"} className="text-sm text-amber-warm hover:text-amber-warm/80 font-medium">{showHistory ? "Current year" : "View history"}</Link>
           </div>
           {needsRecording.length === 0 ? (
             <p className="px-5 py-8 text-sm text-earth-light text-center">All past events have been recorded. 🎉</p>

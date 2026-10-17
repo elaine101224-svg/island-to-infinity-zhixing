@@ -30,7 +30,7 @@ async function selectAll<T>(table: string): Promise<T[]> {
   const { data, error } = await supabase.from(table).select('*');
   if (error) {
     console.error(`[data] select ${table} failed:`, error.message);
-    return [];
+    throw new Error(`Unable to load ${table}. Please retry.`);
   }
   return unwrap<T>(data as TableRow[] | null);
 }
@@ -55,7 +55,8 @@ export async function getFamilyById(id: string): Promise<Family | null> {
 // ---- Plans ----
 
 export async function getPlans(): Promise<SupportPlan[]> {
-  return selectAll<SupportPlan>('plans');
+  const plans = await selectAll<SupportPlan & { familyId?: string }>('plans');
+  return plans.map(p => ({ ...p, familyIds: p.familyIds || (p.familyId ? [p.familyId] : []), objectives: p.objectives || [], activities: p.activities || [] }));
 }
 
 export async function getPlanById(id: string): Promise<SupportPlan | null> {

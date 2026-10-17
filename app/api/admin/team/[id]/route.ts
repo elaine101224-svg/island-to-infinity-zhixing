@@ -19,7 +19,9 @@ async function guardMutation(request: NextRequest) {
   return null;
 }
 
-export async function GET() { return NextResponse.json({}); }
+export async function GET() {
+  if (!(await validateSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+ return NextResponse.json({}); }
 
 export async function PUT(
   request: NextRequest,
@@ -42,7 +44,10 @@ export async function PUT(
       return NextResponse.json({ error: parsed.error, issues: parsed.issues }, { status: 400 });
     }
 
+    const { data: existing, error: readError } = await supabase.from('team_members').select('data').eq('id', id).single();
+    if (readError || !existing) return NextResponse.json({ error: 'Record not found' }, { status: 404 });
     const updatedRecord = {
+      ...existing.data,
       ...parsed.data,
       id,
       updatedAt: new Date().toISOString(),

@@ -138,7 +138,7 @@ export default function AdminActivitiesPage() {
       const method = editing ? "PUT" : "POST";
       const res = await adminFetch(url, {
         method,
-        json: { ...formData, photos: editing?.photos || [] },
+        json: { ...formData, eventId: formData.eventId || undefined, photos: editing?.photos || [] },
       });
       if (res.ok) {
         const saved = await res.json();

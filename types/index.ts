@@ -46,12 +46,14 @@ export interface ScheduleEvent {
   familiesInvolved?: string[];
   maxParticipants?: number;
   isPublic: boolean;
+  status?: 'scheduled' | 'completed' | 'cancelled';
+  requiresRecord?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 // Plan Types
-export type FocusArea = 'social' | 'financial' | 'academic';
+export type FocusArea = 'social' | 'financial' | 'academic' | 'social_integration' | 'companionship';
 export type PlanStatus = 'active' | 'completed' | 'on_hold';
 
 export interface SupportPlan {
@@ -89,6 +91,14 @@ export type MemberRole = 'lead' | 'coordinator' | 'volunteer';
 export type MemberStatus = 'active' | 'inactive';
 
 export interface TeamMember {
+  academicYears?: string[];
+  publicName?: string;
+  publicRole?: string;
+  groupId?: string;
+  photoUrl?: string;
+  photoConsent?: boolean;
+  displayOrder?: number;
+  isPublic?: boolean;
   id: string;
   name: string;
   role: MemberRole;
