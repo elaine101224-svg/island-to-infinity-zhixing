@@ -20,6 +20,8 @@ async function guardMutation(request: NextRequest) {
 }
 
 export async function GET() {
+  if (!(await validateSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { data, error } = await supabase
       .from('families')
