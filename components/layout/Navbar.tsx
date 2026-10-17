@@ -10,7 +10,8 @@ const navLinks = [
   { href: '/schedule', label: 'Schedule' },
   { href: '/families', label: 'Families' },
   { href: '/plans', label: 'Plans' },
-  { href: '/ai-assistant', label: 'AI Assistant' },
+  { href: '/sewing', label: 'Sewing · 服装定制' },
+  { href: '/#team', label: 'Our Team' },
 ];
 
 export default function Navbar() {
@@ -33,7 +34,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -57,7 +58,7 @@ export default function Navbar() {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-earth-mid hover:text-earth-dark p-2 rounded-lg hover:bg-sand/50 transition-colors"
-              aria-label="Toggle menu"
+              aria-label="Toggle menu" aria-expanded={isOpen}
             >
               {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
