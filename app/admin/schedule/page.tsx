@@ -49,6 +49,8 @@ interface EventFormData {
   location: string;
   description: string;
   isPublic: boolean;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  requiresRecord: boolean;
 }
 
 const emptyForm: EventFormData = {
@@ -60,6 +62,8 @@ const emptyForm: EventFormData = {
   location: "",
   description: "",
   isPublic: false,
+  status: "scheduled",
+  requiresRecord: true,
 };
 
 export default function AdminSchedulePage() {
@@ -109,6 +113,8 @@ export default function AdminSchedulePage() {
         location: event.location,
         description: event.description,
         isPublic: event.isPublic,
+        status: event.status || "scheduled",
+        requiresRecord: event.requiresRecord !== false,
       });
     } else {
       setEditingEvent(null);
@@ -485,7 +491,8 @@ export default function AdminSchedulePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-earth-mid mb-1.5">Public</label>
-                  <div className="flex items-center h-full px-3 py-2.5 bg-sand/30 rounded-xl">
+                  <div className="space-y-3 mb-4"><label className="block">Event status<select className="editor-input" value={formData.status} onChange={e=>setFormData(p=>({...p,status:e.target.value as EventFormData['status']}))}><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></label><label><input type="checkbox" checked={formData.requiresRecord} onChange={e=>setFormData(p=>({...p,requiresRecord:e.target.checked}))} /> Requires an activity record</label><p className="text-sm text-earth-mid">Public summaries are reviewed and published under Website Content; this internal flag does not publish private event details.</p></div>
+              <div className="flex items-center h-full px-3 py-2.5 bg-sand/30 rounded-xl">
                     <input
                       type="checkbox"
                       checked={formData.isPublic}
