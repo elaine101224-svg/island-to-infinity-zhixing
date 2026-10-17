@@ -1,5 +1,5 @@
 import FamilyCard from '@/components/families/FamilyCard';
-import type { Family } from '@/types';
+import { getFamilies } from '@/lib/data';
 import { Users, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Reveal from '@/components/ui/Reveal';
@@ -7,9 +7,7 @@ import Reveal from '@/components/ui/Reveal';
 export const dynamic = 'force-dynamic';
 
 export default async function FamiliesPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/admin/families`);
-  const families: Family[] = await res.json();
+  const families = await getFamilies();
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -48,7 +46,7 @@ export default async function FamiliesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {families.map((family: Family, i: number) => (
+          {families.map((family, i) => (
             <Reveal key={family.id} delay={i * 90}>
               <Link href={`/families/${family.id}`}>
                 <FamilyCard family={family} />
