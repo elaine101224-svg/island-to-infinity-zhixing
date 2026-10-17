@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, Users as UsersIcon, Calendar, Shield } from 'lucide-
 import PhotoGallery from '@/components/families/PhotoGallery';
 import PlanCard from '@/components/plans/PlanCard';
 import { format } from 'date-fns';
-import type { Family, SupportPlan } from '@/types';
+import { getFamilyById, getPlansByFamilyId } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,19 +14,12 @@ interface FamilyPageProps {
 
 export default async function FamilyPage({ params }: FamilyPageProps) {
   const { id } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
-  const [familyRes, plansRes] = await Promise.all([
-    fetch(`${baseUrl}/api/admin/families/${id}`, { cache: 'no-store' }),
-    fetch(`${baseUrl}/api/admin/plans?familyId=${id}`, { cache: 'no-store' }),
+  const [family, plans] = await Promise.all([
+    getFamilyById(id),
+    getPlansByFamilyId(id),
   ]);
 
-  if (!familyRes.ok) {
-    notFound();
-  }
-
-  const family: Family = await familyRes.json();
-  const plans: SupportPlan[] = plansRes.ok ? await plansRes.json() : [];
+  if (!family) notFound();
 
   const totalMembers =
     family.familyComposition.adults +
