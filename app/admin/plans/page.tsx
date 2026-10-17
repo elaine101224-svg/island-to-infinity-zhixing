@@ -7,12 +7,16 @@ import { useToast } from "@/components/admin/Toast";
 import { adminFetch } from "@/lib/adminFetch";
 
 const focusAreaLabels: Record<FocusArea, string> = {
+  social_integration: "Social integration",
+  companionship: "Companionship",
   social: "Social",
   financial: "Financial",
   academic: "Academic",
 };
 
 const focusAreaColors: Record<FocusArea, string> = {
+  social_integration: "bg-sage/10 text-sage border-sage/20",
+  companionship: "bg-sage/10 text-sage border-sage/20",
   social: "bg-sage/10 text-sage border-sage/20",
   financial: "bg-terracotta/10 text-terracotta border-terracotta/20",
   academic: "bg-amber-warm/10 text-amber-warm border-amber-warm/20",
@@ -54,13 +58,14 @@ export default function AdminPlansPage() {
   const toast = useToast();
   const [plans, setPlans] = useState<SupportPlan[]>([]);
   const [families, setFamilies] = useState<Family[]>([]);
+  const [loadError, setLoadError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SupportPlan | null>(null);
   const [formData, setFormData] = useState<PlanFormData>(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
 
-  const API_BASE = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const API_BASE = "";
 
   useEffect(() => {
     fetchData();
@@ -72,10 +77,11 @@ export default function AdminPlansPage() {
         adminFetch(`${API_BASE}/api/admin/plans`),
         adminFetch(`${API_BASE}/api/admin/families`),
       ]);
-      if (plansRes.ok) setPlans(await plansRes.json());
+      if (!plansRes.ok || !familiesRes.ok) throw new Error("Unable to load plans. Reload to retry.");
+      setPlans(await plansRes.json());
       if (familiesRes.ok) setFamilies(await familiesRes.json());
     } catch (error) {
-      console.error("Error fetching data:", error);
+      setLoadError(error instanceof Error ? error.message : "Unable to load plans");
     } finally {
       setIsLoading(false);
     }
@@ -127,8 +133,8 @@ export default function AdminPlansPage() {
       const method = editingPlan ? "PUT" : "POST";
 
       const body = editingPlan
-        ? { ...formData }
-        : { ...formData, objectives: [], activities: [] };
+        ? { ...formData, targetEndDate: formData.targetEndDate || undefined, objectives: editingPlan.objectives || [], activities: editingPlan.activities || [] }
+        : { ...formData, targetEndDate: formData.targetEndDate || undefined, objectives: [], activities: [] };
 
       const res = await adminFetch(url, {
         method,
@@ -174,8 +180,10 @@ export default function AdminPlansPage() {
 
   const getFamilyNames = (familyIds: string[]) => {
     if (!familyIds || familyIds.length === 0) return "None";
-    return familyIds.map((id) => familyMap.get(id) || "Unknown").join(", ");
+    return familyIds.map((id) => familyMap.get(id) || "Archived or missing family").join(", ");
   };
+
+  if (loadError) return <p role="alert" className="text-red-800">{loadError}</p>;
 
   if (isLoading) {
     return (
