@@ -23,6 +23,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!(await validateSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { id } = await params;
 
@@ -72,7 +74,10 @@ export async function PUT(
       return NextResponse.json({ error: parsed.error, issues: parsed.issues }, { status: 400 });
     }
 
+    const { data: existing, error: readError } = await supabase.from('plans').select('data').eq('id', id).single();
+    if (readError || !existing) return NextResponse.json({ error: 'Record not found' }, { status: 404 });
     const updatedRecord = {
+      ...existing.data,
       ...parsed.data,
       id,
       updatedAt: new Date().toISOString(),
