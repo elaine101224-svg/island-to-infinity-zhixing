@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getPlans } from '@/lib/data';
 import { supabase } from '@/lib/supabase';
 import { validateSession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
@@ -20,21 +21,10 @@ async function guardMutation(request: NextRequest) {
 }
 
 export async function GET() {
+  if (!(await validateSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
-    const { data, error } = await supabase
-      .from('plans')
-      .select('*');
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    if (!data || !Array.isArray(data)) {
-      return NextResponse.json([]);
-    }
-
-    const plans = data.map((row) => (row.data ?? row));
+    const plans = await getPlans();
 
     return NextResponse.json(plans);
   } catch (error) {
