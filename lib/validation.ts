@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { imageUrl } from '@/lib/contentSchema';
 
 /**
  * Single source of truth for admin-request shapes. Route handlers parse with
@@ -25,7 +26,7 @@ const photoSchema = z.object({
     .string()
     .max(2_500_000)
     .refine(
-      (v) => v.startsWith('data:image/') || /^https?:\/\//i.test(v),
+      (v) => v.startsWith('data:image/') || /^https?:\/\//i.test(v) || /^\/api\/uploads\/[a-f0-9]{32}\.webp$/.test(v),
       'photo url must be http(s) or data:image/'
     ),
   caption: z.string().max(500).default(''),
@@ -69,6 +70,14 @@ export const familyUpsertSchema = familySchema;
 // ───────────────────────── team members ─────────────────────────
 
 export const teamMemberSchema = z.object({
+  academicYears: z.array(z.string().regex(/^\d{4}–\d{2}$/)).max(20).default([]),
+  publicName: z.string().trim().max(120).default(''),
+  publicRole: z.string().max(120).default(''),
+  groupId: z.string().max(120).default(''),
+  photoUrl: imageUrl.default(''),
+  photoConsent: z.boolean().default(false),
+  displayOrder: z.number().int().min(0).max(9999).default(0),
+  isPublic: z.boolean().default(false),
   name: nonEmpty(120),
   role: z.enum(['lead', 'coordinator', 'volunteer']),
   email: z.string().email().max(254).or(z.literal('')).default(''),
@@ -81,7 +90,7 @@ export const teamMemberSchema = z.object({
     .default(''),
   status: z.enum(['active', 'inactive']),
   assignedFamilyIds: z.array(z.string().min(1)).max(200).default([]),
-  joinedDate: isoDate,
+  joinedDate: isoDate.or(z.literal('')),
   notes: z.string().max(2000).default(''),
 });
 
@@ -107,7 +116,7 @@ const plannedActivitySchema = z.object({
 export const supportPlanSchema = z.object({
   familyIds: z.array(z.string().min(1)).min(1).max(50),
   title: nonEmpty(200),
-  focusArea: z.enum(['social', 'financial', 'academic']),
+  focusArea: z.enum(['social', 'financial', 'academic', 'social_integration', 'companionship']),
   status: z.enum(['active', 'completed', 'on_hold']),
   startDate: isoDate,
   targetEndDate: isoDate.optional(),
@@ -131,6 +140,8 @@ export const scheduleEventSchema = z.object({
   familiesInvolved: z.array(z.string().min(1)).max(50).default([]),
   maxParticipants: z.number().int().min(1).max(10_000).optional(),
   isPublic: z.boolean(),
+  status: z.enum(['scheduled', 'completed', 'cancelled']).default('scheduled'),
+  requiresRecord: z.boolean().default(true),
 });
 
 export const scheduleEventUpsertSchema = scheduleEventSchema;
