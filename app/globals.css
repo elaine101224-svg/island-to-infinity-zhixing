@@ -100,3 +100,16 @@ body {
 .animate-toast-in {
   animation: toast-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Editorial surfaces share the existing warm palette. */
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+.editor-input { display: block; width: 100%; padding: .65rem .8rem; border: 1px solid #D4C8B8; border-radius: .5rem; background: white; color: #3D2E24; margin-top: .35rem; }
+.editor-input:focus { outline: 2px solid #A8624A; outline-offset: 2px; }
+.editor-panel { background: white; border: 1px solid #E8E0D5; border-radius: 1rem; padding: clamp(1rem,3vw,1.75rem); }
+.editor-button { padding: .65rem 1rem; border-radius: .5rem; background: #3D2E24; color: white; font-weight: 500; }
+.editor-button:disabled { opacity: .5; cursor: wait; }
+.photo-dialog { margin: auto; padding: 3.5rem 1rem 1rem; max-width: 96vw; max-height: 96vh; background: #FAF7F2; border-radius: 12px; }
+.photo-dialog::backdrop { background: rgb(20 16 12 / .85); }
+.reveal { opacity: 1; transform: none; will-change: auto; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.editor-button.bg-terracotta-dark { background: #A8624A; }
