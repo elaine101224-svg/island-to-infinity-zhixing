@@ -1,9 +1,10 @@
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { validateSession } from '@/lib/auth';
 import { guardMutation } from '@/lib/apiGuard';
 import { homepageSchema, publicDocument, photoIsPublic, publicMembers } from '@/lib/contentSchema';
-import { CONTENT_ID, readContentState } from '@/lib/websiteContent';
+import { CONTENT_ID, CONTENT_CACHE_TAG, readContentState } from '@/lib/websiteContent';
 import { supabase } from '@/lib/supabase';
 import { getTeamMembers, getActivityRecords } from '@/lib/data';
 
@@ -39,6 +40,7 @@ export async function PUT(request: NextRequest) {
     const { data, error } = await supabase.from('website_content').update(patch).eq('id', CONTENT_ID).eq('revision', revision).select('revision').maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: 'Another editor saved changes. Reload before saving again.' }, { status: 409 });
+    if (action !== 'save') revalidateTag(CONTENT_CACHE_TAG, { expire: 0 });
     return NextResponse.json({ revision: data.revision, published: action === 'publish', message: action === 'save' ? 'Draft saved' : action === 'publish' ? 'Website published' : 'Website unpublished' });
   } catch { return NextResponse.json({ error: 'Save failed. Your changes have not been confirmed; please retry.' }, { status: 503 }); }
 }

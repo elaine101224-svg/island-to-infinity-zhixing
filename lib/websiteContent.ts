@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { defaultHomepage, homepageSchema, type HomepageContent } from '@/lib/contentSchema';
 
@@ -9,9 +10,18 @@ export async function readContentState() {
   return { ...data, draft: Object.keys(data.draft || {}).length ? homepageSchema.parse(data.draft) : defaultHomepage } as { id: string; draft: HomepageContent; published: HomepageContent | null; revision: number; updated_at: string };
 }
 
-export async function readPublishedContent(): Promise<HomepageContent> {
+async function loadPublished(): Promise<HomepageContent> {
   const state = await readContentState();
   return state.published ? homepageSchema.parse(state.published) : { ...defaultHomepage, members: [] };
+}
+
+export const CONTENT_CACHE_TAG = `published-website-content:${CONTENT_ID}`;
+const cachedPublished = unstable_cache(loadPublished, ['published-website-content', CONTENT_ID], { tags: [CONTENT_CACHE_TAG], revalidate: 300 });
+
+// Only the editorial public snapshot is cached. Photo authorization uses a
+// fresh read so withdrawing consent cannot leave a cached public grant.
+export async function readPublishedContent(fresh = false): Promise<HomepageContent> {
+  return fresh ? loadPublished() : cachedPublished();
 }
 
 export function contentPhotoUrls(content: HomepageContent): Set<string> {
