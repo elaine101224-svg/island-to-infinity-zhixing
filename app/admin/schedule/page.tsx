@@ -14,6 +14,7 @@ import {
   isSameMonth,
   isToday,
   isSameDay,
+  parseISO,
 } from "date-fns";
 import type { ScheduleEvent, EventType } from "@/types";
 import { useToast } from "@/components/admin/Toast";
@@ -70,6 +71,7 @@ export default function AdminSchedulePage() {
   const toast = useToast();
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
@@ -78,14 +80,16 @@ export default function AdminSchedulePage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const fetchEvents = useCallback(async () => {
+    setLoadError("");
+    setIsLoading(true);
     try {
       const res = await adminFetch("/api/admin/schedule");
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data);
-      }
+      if (!res.ok) throw new Error("The calendar could not be loaded.");
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("The calendar could not be loaded.");
+      setEvents(data);
     } catch (error) {
-      console.error("Error fetching events:", error);
+      setLoadError(error instanceof Error ? error.message : "The calendar could not be loaded.");
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +101,7 @@ export default function AdminSchedulePage() {
 
   const getEventsForDate = (date: Date) => {
     return events
-      .filter((event) => isSameDay(new Date(event.date), date))
+      .filter((event) => isSameDay(parseISO(event.date), date))
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   };
 
@@ -290,6 +294,8 @@ export default function AdminSchedulePage() {
       </div>
     );
   }
+
+  if (loadError) return <div role="alert" className="p-6"><p>{loadError}</p><button className="mt-4 underline" onClick={fetchEvents}>Retry loading schedule</button></div>;
 
   return (
     <div className="min-h-screen bg-cream">
