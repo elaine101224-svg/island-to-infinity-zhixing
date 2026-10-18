@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, X as XIcon, Calendar, Clock, MapPin } from "lucide-react";
 import {
   format,
@@ -14,7 +14,9 @@ import {
   isSameMonth,
   isToday,
   isSameDay,
+  parseISO,
 } from "date-fns";
+import { eventTimeLabel } from "@/lib/calendar";
 import type { ScheduleEvent, EventType } from "@/types";
 
 const eventTypeColors: Record<EventType, { bg: string; border: string; text: string }> = {
@@ -46,16 +48,23 @@ export default function SchedulePage() {
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (selectedEvent) dialogRef.current?.showModal();
+  }, [selectedEvent]);
+
   const fetchEvents = useCallback(async () => {
+    setLoadError("");
+    setIsLoading(true);
     try {
       // Use the public, isPublic-filtered endpoint so private events
       // (those without `isPublic: true`) never leak to anonymous visitors.
       const res = await fetch("/api/schedule");
       if (!res.ok) throw new Error("The public schedule could not be loaded.");
-      if (res.ok) {
-        const data = await res.json();
-        setEvents(data);
-      }
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("The public schedule could not be loaded.");
+      setEvents(data);
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : "Schedule unavailable");
     } finally {
@@ -69,7 +78,7 @@ export default function SchedulePage() {
 
   const getEventsForDate = (date: Date) => {
     return events
-      .filter((event) => isSameDay(new Date(event.date), date))
+      .filter((event) => isSameDay(parseISO(event.date), date))
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   };
 
@@ -83,8 +92,6 @@ export default function SchedulePage() {
   const selectedDateEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
   const renderDaysHeader = () => {
-    if (loadError) return <p role="alert" className="max-w-4xl mx-auto p-8">{loadError} Please refresh to retry.</p>;
-
   return (
       <div className="grid grid-cols-7 gap-1.5 sm:gap-3">
         {weekDays.map((day) => (
@@ -115,8 +122,13 @@ export default function SchedulePage() {
         days.push(
           <div
             key={day.toString()}
+            role="button"
+            tabIndex={0}
+            aria-label={format(currentDay, "EEEE, MMMM d, yyyy")}
+            aria-pressed={!!isSelected}
+            onKeyDown={(e) => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setSelectedDate(currentDay); } }}
             onClick={() => setSelectedDate(currentDay)}
-            className={`min-h-[68px] sm:min-h-[100px] p-1.5 sm:p-3 rounded-lg border flex flex-col cursor-pointer transition-all ${
+            className={`min-w-0 min-h-[68px] sm:min-h-[100px] p-1.5 sm:p-3 rounded-lg border flex flex-col cursor-pointer transition-all ${
               !isCurrentMonth
                 ? "bg-sand/30 border-sand"
                 : isSelected
@@ -137,18 +149,19 @@ export default function SchedulePage() {
             </div>
             <div className="mt-2 flex-1 overflow-y-auto">
               {dayEvents.slice(0, 4).map((event) => (
-                <div
+                <button
+                  type="button"
                   key={event.id}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedEvent(event);
                   }}
-                  className={`px-2 py-1 rounded-md text-xs mb-1 cursor-pointer hover:opacity-80 transition-opacity ${eventTypeBgColors[event.type]} border ${eventTypeColors[event.type].text} truncate`}
-                  title={`${event.startTime} - ${event.endTime}: ${event.title}`}
+                  className={`block w-full text-left px-2 py-1 rounded-md text-xs mb-1 cursor-pointer hover:opacity-80 transition-opacity ${eventTypeBgColors[event.type]} border ${eventTypeColors[event.type].text} truncate`}
+                  title={`${eventTimeLabel(event)}: ${event.title}`}
                 >
                   <span className="mr-1">{eventTypeEmoji[event.type]}</span>
                   {event.title}
-                </div>
+                </button>
               ))}
               {dayEvents.length > 4 && (
                 <div className="text-xs text-earth-mid px-2 font-medium">
@@ -181,6 +194,8 @@ export default function SchedulePage() {
     );
   }
 
+  if (loadError) return <div role="alert" className="max-w-4xl mx-auto p-8"><p>{loadError}</p><button className="mt-4 underline" onClick={fetchEvents}>Retry loading schedule</button></div>;
+
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
@@ -200,11 +215,12 @@ export default function SchedulePage() {
         {/* Calendar + Event List Layout */}
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Calendar */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand">
               {/* Calendar Header */}
               <div className="bg-cream px-6 py-4 flex items-center justify-between border-b border-sand">
                 <button
+                  aria-label="Previous month"
                   onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
                   className="p-2 hover:bg-sand/50 rounded-lg transition-colors text-earth-mid"
                 >
@@ -223,6 +239,7 @@ export default function SchedulePage() {
                     Today
                   </button>
                   <button
+                    aria-label="Next month"
                     onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
                     className="p-2 hover:bg-sand/50 rounded-lg transition-colors text-earth-mid"
                   >
@@ -280,10 +297,11 @@ export default function SchedulePage() {
                   selectedDateEvents.length > 0 ? (
                     <div className="divide-y divide-sand/60">
                       {selectedDateEvents.map((event) => (
-                        <div
+                        <button
+                          type="button"
                           key={event.id}
                           onClick={() => setSelectedEvent(event)}
-                          className={`p-3 hover:bg-cream/50 cursor-pointer transition-colors border-l-4 ${eventTypeColors[event.type].border}`}
+                          className={`block w-full text-left p-3 hover:bg-cream/50 cursor-pointer transition-colors border-l-4 ${eventTypeColors[event.type].border}`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -292,7 +310,7 @@ export default function SchedulePage() {
                               </h4>
                               <div className="flex items-center gap-1 text-xs text-earth-mid mt-1">
                                 <Clock className="h-3 w-3" />
-                                {event.startTime} - {event.endTime}
+                                {eventTimeLabel(event)}
                               </div>
                               <div className="flex items-center gap-1 text-xs text-earth-mid">
                                 <MapPin className="h-3 w-3" />
@@ -301,7 +319,7 @@ export default function SchedulePage() {
                             </div>
                             <span className="text-lg">{eventTypeEmoji[event.type]}</span>
                           </div>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   ) : (
@@ -324,14 +342,15 @@ export default function SchedulePage() {
 
       {/* Event Detail Modal */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-earth-dark/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <dialog ref={dialogRef} aria-labelledby="event-detail-title" onCancel={() => setSelectedEvent(null)} onClick={e => { if (e.target === e.currentTarget) setSelectedEvent(null); }} className="fixed inset-0 m-auto p-0 w-[calc(100%-2rem)] max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white backdrop:bg-earth-dark/50">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-sand">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-sand bg-cream">
-                <h2 className="heading-display text-lg font-semibold text-earth-dark flex items-center gap-2">
+                <h2 id="event-detail-title" className="heading-display text-lg font-semibold text-earth-dark flex items-center gap-2">
                 {eventTypeEmoji[selectedEvent.type]} {selectedEvent.title}
               </h2>
               <button
+                aria-label="Close event details"
                 onClick={() => setSelectedEvent(null)}
                 className="p-1.5 hover:bg-sand/50 rounded-lg transition-colors text-earth-mid"
               >
@@ -344,13 +363,13 @@ export default function SchedulePage() {
                 <div className="w-8 h-8 rounded-full bg-terracotta/10 flex items-center justify-center">
                   <Calendar className="h-4 w-4 text-terracotta" />
                 </div>
-                <span className="text-sm font-medium">{format(new Date(selectedEvent.date), "EEEE, MMMM d, yyyy")}</span>
+                <span className="text-sm font-medium">{format(parseISO(selectedEvent.date), "EEEE, MMMM d, yyyy")}</span>
               </div>
               <div className="flex items-center gap-3 text-earth-dark">
                 <div className="w-8 h-8 rounded-full bg-amber-warm/10 flex items-center justify-center">
                   <Clock className="h-4 w-4 text-amber-warm" />
                 </div>
-                <span className="text-sm font-medium">{selectedEvent.startTime} - {selectedEvent.endTime}</span>
+                <span className="text-sm font-medium">{eventTimeLabel(selectedEvent)}</span>
               </div>
               <div className="flex items-center gap-3 text-earth-dark">
                 <div className="w-8 h-8 rounded-full bg-sand flex items-center justify-center">
@@ -374,7 +393,7 @@ export default function SchedulePage() {
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       {/* Note about private events */}
