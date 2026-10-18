@@ -11,6 +11,10 @@ export const publicCardSchema = z.object({
   id: z.string().min(1).max(120), sourceId: z.string().max(120).default(''),
   kind: z.enum(['family', 'plan', 'event', 'update']), title: z.string().trim().min(1).max(200),
   summary: z.string().max(2000).default(''), date: z.string().regex(/^$|^\d{4}-\d{2}-\d{2}$/).default(''),
+  eventType: z.enum(['field_trip', 'visit', 'event', 'meeting']).optional(),
+  startTime: z.string().regex(/^$|^(?:[01]\d|2[0-3]):[0-5]\d$/).optional(),
+  endTime: z.string().regex(/^$|^(?:[01]\d|2[0-3]):[0-5]\d$/).optional(),
+  venue: z.string().trim().max(300).optional(),
   photo: contentPhotoSchema, published: z.boolean().default(false),
 });
 export const publicMemberSchema = z.object({
