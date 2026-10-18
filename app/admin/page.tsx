@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns';
 import { getFamilies, getPlans, getScheduleEvents, getTeamMembers, getActivityRecords } from '@/lib/data';
 import { Users, Calendar, FileText, UserCog, Clock, ClipboardList, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -56,7 +57,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
 
   const dayLabel = (dateStr: string) => {
     if (dateStr === todayStr) return 'Today';
-    const d = new Date(dateStr);
+    const d = parseISO(dateStr);
     return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   };
 
@@ -141,7 +142,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
                     <p className="font-medium text-earth-dark text-sm truncate">
                       <span className="mr-1.5">{typeEmoji[e.type] || '📅'}</span>{e.title}
                     </p>
-                    <p className="text-xs text-earth-mid mt-0.5">{new Date(e.date).toLocaleDateString()}</p>
+                    <p className="text-xs text-earth-mid mt-0.5">{parseISO(e.date).toLocaleDateString()}</p>
                   </div>
                   <span className="text-xs text-amber-warm font-medium flex items-center gap-1 flex-shrink-0 ml-3">
                     Record <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
