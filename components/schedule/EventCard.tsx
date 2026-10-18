@@ -1,6 +1,7 @@
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import type { ScheduleEvent } from '@/types';
-import { format } from 'date-fns';
+import { eventTimeLabel } from '@/lib/calendar';
+import { format, parseISO } from 'date-fns';
 
 interface EventCardProps {
   event: ScheduleEvent;
@@ -31,7 +32,7 @@ const eventTypeConfig = {
 
 export default function EventCard({ event }: EventCardProps) {
   const config = eventTypeConfig[event.type];
-  const eventDate = new Date(event.date);
+  const eventDate = parseISO(event.date);
 
   return (
     <div className="bg-white border border-sand rounded-2xl p-5 hover:shadow-lg hover:border-terracotta-light transition-all duration-300">
@@ -58,7 +59,7 @@ export default function EventCard({ event }: EventCardProps) {
         </div>
         <div className="flex items-center gap-2.5">
           <Clock className="h-4 w-4 text-terracotta" />
-          <span>{event.startTime} - {event.endTime}</span>
+          <span>{eventTimeLabel(event)}</span>
         </div>
         <div className="flex items-center gap-2.5">
           <MapPin className="h-4 w-4 text-terracotta" />
