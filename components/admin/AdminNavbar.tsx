@@ -13,6 +13,7 @@ const navItems = [
   { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
   { href: '/admin/activities', label: 'Activity Log', icon: ClipboardList },
   { href: '/admin/plans', label: 'Plans', icon: FileText },
+  { href: '/admin/sewing', label: 'Sewing · 缝纫队', icon: ClipboardList },
 ];
 
 export default function AdminSidebar() {
