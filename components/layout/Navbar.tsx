@@ -10,7 +10,6 @@ const navLinks = [
   { href: '/schedule', label: 'Schedule' },
   { href: '/families', label: 'Families' },
   { href: '/plans', label: 'Plans' },
-  { href: '/sewing', label: 'Sewing · 服装定制' },
   { href: '/#team', label: 'Our Team' },
 ];
 
