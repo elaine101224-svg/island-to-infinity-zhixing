@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { parseISO } from "date-fns";
 import { ClipboardList, Plus, Pencil, Trash2, X as XIcon, Check, Users, Calendar } from "lucide-react";
 import type { ActivityRecord, EventType, Family, TeamMember, ScheduleEvent } from "@/types";
 import { useToast } from "@/components/admin/Toast";
@@ -51,6 +52,7 @@ export default function AdminActivitiesPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<ActivityRecord | null>(null);
   const [formData, setFormData] = useState<RecordFormData>(emptyForm);
@@ -61,6 +63,8 @@ export default function AdminActivitiesPage() {
   }, []);
 
   const fetchData = async () => {
+    setLoadError("");
+    setIsLoading(true);
     try {
       const [recRes, famRes, memRes, evRes] = await Promise.all([
         adminFetch("/api/admin/activities"),
@@ -68,12 +72,13 @@ export default function AdminActivitiesPage() {
         adminFetch("/api/admin/team"),
         adminFetch("/api/admin/schedule"),
       ]);
+      if (![recRes, famRes, memRes, evRes].every(res => res.ok)) throw new Error("Activity data could not be loaded. Please retry.");
       if (recRes.ok) setRecords(await recRes.json());
       if (famRes.ok) setFamilies(await famRes.json());
       if (memRes.ok) setMembers(await memRes.json());
       if (evRes.ok) setEvents(await evRes.json());
     } catch (error) {
-      console.error("Error fetching activities:", error);
+      setLoadError(error instanceof Error ? error.message : "Activity data could not be loaded.");
     } finally {
       setIsLoading(false);
     }
@@ -187,6 +192,8 @@ export default function AdminActivitiesPage() {
     );
   }
 
+  if (loadError) return <div role="alert" className="p-6"><p>{loadError}</p><button className="mt-4 underline" onClick={fetchData}>Retry loading activities</button></div>;
+
   return (
     <div className="max-w-6xl mx-auto py-2">
       <div className="flex items-center justify-between mb-8">
@@ -230,7 +237,7 @@ export default function AdminActivitiesPage() {
                     <span className="text-xs bg-sand/60 text-earth-mid px-2 py-0.5 rounded-full">{typeLabels[rec.type]}</span>
                   </div>
                   <div className="flex items-center gap-4 mt-1.5 text-xs text-earth-mid">
-                    <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{new Date(rec.date).toLocaleDateString()}</span>
+                    <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{parseISO(rec.date).toLocaleDateString()}</span>
                     <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{rec.familyIds?.length || 0} families · {rec.memberIds?.length || 0} members</span>
                   </div>
                   {rec.summary && <p className="text-sm text-earth-mid mt-2.5 leading-relaxed line-clamp-2">{rec.summary}</p>}
@@ -274,7 +281,7 @@ export default function AdminActivitiesPage() {
                     <option value="">— None (standalone) —</option>
                     {events.map((ev) => (
                       <option key={ev.id} value={ev.id}>
-                        {new Date(ev.date).toLocaleDateString()} · {ev.title}
+                        {parseISO(ev.date).toLocaleDateString()} · {ev.title}
                       </option>
                     ))}
                   </select>
