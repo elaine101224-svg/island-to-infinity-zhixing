@@ -51,7 +51,14 @@ export default function SchedulePage() {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    if (selectedEvent) dialogRef.current?.showModal();
+    if (!selectedEvent) return;
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => {
+      if (dialog?.open) dialog.close();
+      trigger?.focus();
+    };
   }, [selectedEvent]);
 
   const fetchEvents = useCallback(async () => {
@@ -342,7 +349,7 @@ export default function SchedulePage() {
 
       {/* Event Detail Modal */}
       {selectedEvent && (
-        <dialog ref={dialogRef} aria-labelledby="event-detail-title" onCancel={() => setSelectedEvent(null)} onClick={e => { if (e.target === e.currentTarget) setSelectedEvent(null); }} className="fixed inset-0 m-auto p-0 w-[calc(100%-2rem)] max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white backdrop:bg-earth-dark/50">
+        <dialog ref={dialogRef} aria-labelledby="event-detail-title" onCancel={e => { e.preventDefault(); setSelectedEvent(null); }} onClick={e => { if (e.target === e.currentTarget) setSelectedEvent(null); }} className="fixed inset-0 m-auto p-0 w-[calc(100%-2rem)] max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white backdrop:bg-earth-dark/50">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-sand">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-sand bg-cream">
