@@ -1,6 +1,6 @@
 {
-  "deployment": "https://island-to-infinity-zhixing-hairni6y9.vercel.app",
-  "checkedAt": "2026-10-24T03:22:19.774Z",
+  "deployment": "https://island-to-infinity-zhixing-hw9t6n56x.vercel.app",
+  "checkedAt": "2026-10-24T03:46:51.671Z",
   "passed": [
     "Public pages, existing sewing page and closed member page render",
     "Admin data denied anonymously and member launch gate closed",

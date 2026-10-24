@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-10-24T04:24:10.354Z",
+  "completed": true,
+  "environment": "Disposable local PostgreSQL + GoTrue + PostgREST + SMTP catcher + real Next.js server",
+  "realMailSent": false,
+  "productionTouched": false,
+  "checks": [
+    "Native public signup and anonymous signup disabled",
+    "Actual CSRF and cross-origin rejection before provisioning or sending",
+    "Next.js invitations preprovision OTP-ready identities without email, session or active membership",
+    "Uninvited, expired and non-school identities cannot receive usable member access",
+    "Complete first-invite → catch-only SMTP numeric OTP → Next.js verify → cookie session → activation; invalid/reused codes rejected",
+    "Actual Next.js workspace and access-management routes enforce admin/coordinator/member scopes and ignore forged metadata",
+    "Persistent task update/reload, stale conflict, cross-group denial, coordinator assignment and required completion evidence",
+    "Reflection persistence, privacy and coordinator review through real Next.js routes",
+    "Expired SSR access cookie refreshes through native Auth and preserves permitted progress",
+    "Admin revocation blocks an already-signed-in member immediately",
+    "Database emergency stop blocks existing administrator cookies"
+  ],
+  "limits": "HTTP application end-to-end; no browser UI interaction or visual acceptance is claimed."
+}

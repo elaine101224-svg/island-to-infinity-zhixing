@@ -1,0 +1,31 @@
+{
+  "project": "iqqdkmlmumosqltgtvjk",
+  "checkedAt": "2026-10-24T03:48:30.816Z",
+  "results": [
+    {
+      "role": "admin",
+      "scopedRows": 4,
+      "passed": true
+    },
+    {
+      "role": "coordinator",
+      "scopedRows": 1,
+      "passed": true
+    },
+    {
+      "role": "a",
+      "scopedRows": 1,
+      "passed": true
+    },
+    {
+      "role": "b",
+      "scopedRows": 1,
+      "passed": true
+    },
+    {
+      "role": "uninvited",
+      "scopedRows": 0,
+      "passed": true
+    }
+  ]
+}
