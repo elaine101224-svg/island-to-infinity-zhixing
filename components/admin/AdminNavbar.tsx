@@ -11,7 +11,6 @@ const groups = [
   { label: 'Semester work', items: [
     { href: '/admin/term', label: 'Term 1 Workspace', icon: ClipboardList },
     { href: '/admin/schedule', label: 'Schedule', icon: Calendar },
-    { href: '/admin/activities', label: 'Activity Log', icon: ClipboardList },
     { href: '/admin/families', label: 'Families', icon: Users },
     { href: '/admin/plans', label: 'Plans', icon: FileText },
   ] },

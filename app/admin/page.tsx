@@ -1,9 +1,8 @@
 import { parseISO } from 'date-fns';
-import { getFamilies, getPlans, getScheduleEvents, getTeamMembers, getActivityRecords } from '@/lib/data';
-import { Clock, AlertCircle, ArrowRight } from 'lucide-react';
+import { getFamilies, getPlans, getScheduleEvents, getTeamMembers } from '@/lib/data';
+import { Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { readContentState } from '@/lib/websiteContent';
-import { inSchoolYear, needsRecording as eventNeedsRecording } from '@/lib/schoolYear';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,16 +13,14 @@ const typeEmoji: Record<string, string> = {
   meeting: '📋',
 };
 
-export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ history?: string }> }) {
-  const [{ draft }, filters] = await Promise.all([readContentState(), searchParams]);
+export default async function AdminDashboardPage() {
+  const { draft } = await readContentState();
   const schoolYear = draft.schoolYear;
-  const showHistory = filters.history === '1';
-  const [families, plans, events, members, activities] = await Promise.all([
+  const [families, plans, events, members] = await Promise.all([
     getFamilies(),
     getPlans(),
     getScheduleEvents(),
     getTeamMembers(),
-    getActivityRecords(),
   ]);
 
   const activePlans = plans.filter((p) => p.status === 'active').length;
@@ -40,17 +37,10 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     .filter((e) => e.date >= todayStr && e.date <= in7Str && e.status !== 'cancelled')
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 
-  const recordedEventIds = new Set(activities.map((a) => a.eventId).filter(Boolean));
-  const needsRecording = events
-    .filter((e) => eventNeedsRecording(e, recordedEventIds as Set<string>, schoolYear, todayStr, showHistory))
-    .sort((a, b) => (a.date < b.date ? 1 : -1))
-    .slice(0, 8);
-
   const stats = [
     { label: `Confirmed active members · ${schoolYear}`, value: unassignedMembers && !activeMembers ? '—' : activeMembers, href: '/admin/team' },
     { label: 'Families', value: families.length, href: '/admin/families' },
     { label: 'Active Plans · all years', value: activePlans, href: '/admin/plans' },
-    { label: `Recorded sessions · ${schoolYear}`, value: activities.filter(a => inSchoolYear(a.date, schoolYear) && a.date <= todayStr).length, href: '/admin/activities' },
   ];
 
   const familyName = (id: string) => families.find((f) => f.id === id)?.pseudonym;
@@ -75,18 +65,17 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           {[
             { href: '/admin/content', label: 'Edit website & photos', description: 'Homepage, Our Journey, documentary and public updates' },
             { href: '/admin/term', label: 'Manage semester work', description: 'Calendar, family groups, assignments and progress' },
-            { href: '/admin/activities', label: 'Record an activity', description: 'Visits, session notes and follow-up' },
           ].map(action => <Link key={action.href} href={action.href} className="flex items-center justify-between gap-4 py-4 px-2 rounded-lg hover:bg-white focus-visible:outline-2 focus-visible:outline-terracotta-dark">
             <div><span className="font-medium text-earth-dark">{action.label}</span><p className="text-sm text-earth-mid mt-1">{action.description}</p></div><ArrowRight size={20} aria-hidden="true" className="shrink-0 text-earth-mid" />
           </Link>)}
         </div>
       </section>
-      <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 mb-8">
+      <dl className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 mb-8">
         {stats.map(stat => <div key={stat.label}><dt className="text-sm text-earth-mid">{stat.label}</dt><dd className="mt-1"><Link href={stat.href} className="text-xl font-semibold tabular-nums underline decoration-sand underline-offset-4 hover:decoration-earth-mid focus-visible:outline-2 focus-visible:outline-terracotta-dark">{stat.value}</Link></dd></div>)}
       </dl>
 
       {/* Reminders */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="max-w-3xl">
         {/* Upcoming */}
         <div className="bg-white rounded-xl border border-sand overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
@@ -120,39 +109,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           )}
         </div>
 
-        {/* Needs recording */}
-        <div className="bg-white rounded-xl border border-sand overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-amber-warm" />
-              <h2 className="text-base font-semibold text-earth-dark">Needs recording · {showHistory ? "all years" : schoolYear}</h2>
-            </div>
-            <Link href={showHistory ? "/admin" : "/admin?history=1"} className="text-sm text-amber-warm hover:text-amber-warm/80 font-medium">{showHistory ? "Current year" : "View history"}</Link>
-          </div>
-          {needsRecording.length === 0 ? (
-            <p className="px-5 py-8 text-sm text-earth-light text-center">All past events have been recorded. 🎉</p>
-          ) : (
-            <div className="divide-y divide-sand/60">
-              {needsRecording.map((e) => (
-                <Link
-                  key={e.id}
-                  href="/admin/activities"
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-cream/50 transition-colors group"
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-earth-dark text-sm truncate">
-                      <span className="mr-1.5">{typeEmoji[e.type] || '📅'}</span>{e.title}
-                    </p>
-                    <p className="text-xs text-earth-mid mt-0.5">{parseISO(e.date).toLocaleDateString()}</p>
-                  </div>
-                  <span className="text-xs text-amber-warm font-medium flex items-center gap-1 flex-shrink-0 ml-3">
-                    Record <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+
       </div>
     </div>
   );
