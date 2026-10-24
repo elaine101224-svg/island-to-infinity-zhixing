@@ -583,8 +583,8 @@
   }
 }
 
-.sw-contact-qr { margin: 24px auto; width: min(280px, 100%); }
-.sw-contact-qr img { display: block; width: 100%; height: auto; background: white; }
-.sw-contact-qr a:focus-visible { outline: 2px solid #3d2e24; outline-offset: 4px; }
-.sw-contact-qr figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; }
+.sewing .sw-contact-qr { margin: 24px auto; width: min(280px, 100%); }
+.sewing .sw-contact-qr img { display: block; width: 100%; height: auto; object-fit: contain; background: white; }
+.sewing .sw-contact-qr a:focus-visible { outline: 2px solid #3d2e24; outline-offset: 4px; }
+.sewing .sw-contact-qr figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; }
 .sw-qr-save { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; }
