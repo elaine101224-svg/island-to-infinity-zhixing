@@ -1,0 +1,8 @@
+docs/
+tests/
+scripts/
+.env*
+.vercel/.env*
+coverage/
+test-results/
+playwright-report/

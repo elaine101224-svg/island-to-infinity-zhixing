@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   test: {
@@ -13,5 +13,5 @@ export default defineConfig({
       exclude: ['lib/supabase.ts', 'lib/anthropic.ts'],
     },
   },
-  resolve: { alias: { '@': path.resolve(__dirname) } },
+  resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
 });

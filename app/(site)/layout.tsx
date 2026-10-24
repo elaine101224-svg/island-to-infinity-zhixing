@@ -8,8 +8,9 @@ export default function SiteLayout({
 }) {
   return (
     <>
+      <a href="#main-content" className="skip-link">Skip to content</a>
       <Navbar />
-      <main className="flex-grow">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-grow">{children}</main>
       <Footer />
     </>
   );

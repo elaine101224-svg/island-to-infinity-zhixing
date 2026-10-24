@@ -57,3 +57,6 @@ next-env.d.ts
 
 # local upload scratch directory; production uses Supabase Storage
 /.uploads/
+
+# Owner planning reference contains private interest lists; retain locally only.
+/docs/island_to_infinity_codex_term1_brief.md

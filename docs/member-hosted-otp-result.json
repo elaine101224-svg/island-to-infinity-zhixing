@@ -1,0 +1,14 @@
+{
+  "project": "iqqdkmlmumosqltgtvjk",
+  "checkedAt": "2026-10-24T03:33:02.059Z",
+  "checks": [
+    "admin: native OTP, scoped rows, replay rejection, refresh",
+    "coordinator: native OTP, scoped rows, replay rejection, refresh",
+    "a: native OTP, scoped rows, replay rejection, refresh",
+    "b: native OTP, scoped rows, replay rejection, refresh",
+    "uninvited: native OTP, scoped rows, replay rejection, refresh"
+  ],
+  "signedOut": true,
+  "noMailSent": true,
+  "limits": "Hash-seeded dummy OTP fixtures test native verification, sessions and hosted RLS. They do not test SMTP delivery, first-code request or Next.js browser onboarding."
+}

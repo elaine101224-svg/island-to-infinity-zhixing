@@ -1,0 +1,36 @@
+{
+  "project": "iqqdkmlmumosqltgtvjk",
+  "checkedAt": "2026-10-24T03:37:12.928Z",
+  "completed": true,
+  "evidence": [
+    {
+      "name": "Five dummy identities sign in through hosted native Auth",
+      "passed": true
+    },
+    {
+      "name": "Hosted RLS isolates groups and ignores forged user metadata",
+      "passed": true
+    },
+    {
+      "name": "Anonymous, master-document and direct role-write access denied",
+      "passed": true
+    },
+    {
+      "name": "Task persistence, stale-edit detection and cross-group denial over HTTP",
+      "passed": true
+    },
+    {
+      "name": "Reflection author binding, group privacy and coordinator review over HTTP",
+      "passed": true
+    },
+    {
+      "name": "Native session refresh preserves permitted persistent data",
+      "passed": true
+    },
+    {
+      "name": "Native sign-out completes for all test sessions",
+      "passed": true
+    }
+  ],
+  "limits": "Password-auth fixtures verify native sessions and HTTP/RLS. Email OTP and Next.js browser onboarding require separate validation."
+}

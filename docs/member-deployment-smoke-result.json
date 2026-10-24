@@ -1,0 +1,12 @@
+{
+  "deployment": "https://island-to-infinity-zhixing-hairni6y9.vercel.app",
+  "checkedAt": "2026-10-24T03:22:19.774Z",
+  "passed": [
+    "Public pages, existing sewing page and closed member page render",
+    "Admin data denied anonymously and member launch gate closed",
+    "Real admin session loads initialized semester calendar and four groups",
+    "Admin authorization dashboard works with zero actual member accounts",
+    "Non-school invitation rejected before provisioning",
+    "Deployed readiness and Supabase connectivity pass"
+  ]
+}

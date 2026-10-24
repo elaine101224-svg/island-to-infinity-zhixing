@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-24T03:13:34.993Z",
+  "nativeProvisioning": true,
+  "sessionRequiresOtp": true,
+  "noMembershipGranted": true,
+  "expiredAfterElevenMinutes": true,
+  "noMailSent": true,
+  "memberGateClosed": true,
+  "dummyIdentityRemoved": true
+}

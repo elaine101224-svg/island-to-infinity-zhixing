@@ -67,11 +67,7 @@ export default function AdminPlansPage() {
 
   const API_BASE = "";
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  async function fetchData() {
     try {
       const [plansRes, familiesRes] = await Promise.all([
         adminFetch(`${API_BASE}/api/admin/plans`),
@@ -86,6 +82,10 @@ export default function AdminPlansPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const familyMap = new Map(families.map((f) => [f.id, f.pseudonym]));
 

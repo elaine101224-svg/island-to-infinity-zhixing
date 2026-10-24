@@ -7,6 +7,8 @@ import Logo from '@/components/ui/Logo';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/member-access', label: 'Member Access', icon: UserCog },
+  { href: '/admin/term', label: 'Term 1 Workspace', icon: ClipboardList },
   { href: '/admin/content', label: 'Website Content', icon: LayoutDashboard },
   { href: '/admin/team', label: 'Team', icon: UserCog },
   { href: '/admin/families', label: 'Families', icon: Users },

@@ -56,11 +56,7 @@ export default function AdminFamiliesPage() {
   const [photoCaption, setPhotoCaption] = useState("");
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  useEffect(() => {
-    fetchFamilies();
-  }, []);
-
-  const fetchFamilies = async () => {
+  async function fetchFamilies() {
     try {
       const res = await adminFetch("/api/admin/families");
       if (res.ok) {
@@ -73,6 +69,10 @@ export default function AdminFamiliesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchFamilies();
+  }, []);
 
   const handleOpenModal = (family?: Family) => {
     if (family) {

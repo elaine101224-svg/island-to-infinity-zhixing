@@ -206,12 +206,12 @@ export default function SchedulePage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm border-b border-sand px-6 py-4">
+      <div className="bg-white/95 border-b border-sand px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
           <div className="bg-gradient-to-br from-terracotta to-terracotta-dark p-2.5 rounded-lg">
             <Calendar className="h-6 w-6 text-white" />
           </div>
-          <div className="text-center">
+          <div className="text-left">
             <h1 className="heading-display text-xl font-semibold text-earth-dark">Event Calendar</h1>
             <p className="text-earth-mid text-xs">Join us for our activities</p>
           </div>
@@ -267,7 +267,7 @@ export default function SchedulePage() {
             </div>
 
             {/* Event Type Legend */}
-            <div className="mt-4 bg-white rounded-xl shadow-md p-4 border border-sand">
+            <div className="mt-4 bg-white rounded-xl p-4 border border-sand">
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-terracotta" />
@@ -291,7 +291,7 @@ export default function SchedulePage() {
 
           {/* Event List Side Panel */}
           <div className="w-full lg:w-80 lg:flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sand sticky top-24">
+            <div className="bg-white rounded-2xl overflow-hidden border border-sand sticky top-24">
               <div className="bg-cream px-4 py-3 border-b border-sand">
                 <h3 className="text-earth-dark font-semibold text-sm">
                   {selectedDate

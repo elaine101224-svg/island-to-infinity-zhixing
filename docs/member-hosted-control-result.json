@@ -1,0 +1,24 @@
+{
+  "project": "iqqdkmlmumosqltgtvjk",
+  "checkedAt": "2026-10-23T18:11:20.653Z",
+  "completed": true,
+  "evidence": [
+    {
+      "name": "Five dummy identities sign in through hosted native Auth",
+      "passed": true
+    },
+    {
+      "name": "Revocation blocks an already-issued native access token",
+      "passed": true
+    },
+    {
+      "name": "Database emergency stop blocks existing administrator tokens",
+      "passed": true
+    },
+    {
+      "name": "Native sign-out completes for all test sessions",
+      "passed": true
+    }
+  ],
+  "limits": "Password-auth fixtures verify native sessions and HTTP/RLS. Email OTP and Next.js browser onboarding require separate validation."
+}

@@ -24,11 +24,11 @@ export default function AIAssistantPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function AIAssistantPage() {
 
     const userMessage = input.trim();
     setInput('');
-    setError(null);
 
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
@@ -69,7 +68,6 @@ export default function AIAssistantPage() {
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
-      setError(errorMessage);
       setMessages(prev => [...prev, { role: 'assistant', content: `I apologize, but I encountered an error: ${errorMessage}. Please try again.` }]);
     } finally {
       setIsLoading(false);
@@ -80,8 +78,8 @@ export default function AIAssistantPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <div className="bg-gradient-to-br from-terracotta/10 to-sage/10 p-4 rounded-full">
-            <Heart className="h-8 w-8 text-terracotta" />
+          <div className="bg-terracotta/10 p-4 rounded-full">
+            <Heart aria-hidden="true" className="h-8 w-8 text-terracotta" />
           </div>
         </div>
         <h1 className="text-3xl font-serif font-bold text-earth-dark mb-3 tracking-wide">
@@ -95,7 +93,7 @@ export default function AIAssistantPage() {
 
       {/* Disclaimer */}
       <div className="bg-amber-light/30 border border-sand rounded-lg p-4 mb-6 flex items-start gap-3">
-        <AlertCircle className="h-5 w-5 text-amber-warm mt-0.5 flex-shrink-0" />
+        <AlertCircle aria-hidden="true" className="h-5 w-5 text-amber-warm mt-0.5 flex-shrink-0" />
         <div className="text-sm text-earth-mid">
           <strong>Important:</strong> This is not professional counseling or medical advice.
           If you or someone you know is in crisis, please seek help from a qualified professional.
@@ -104,9 +102,9 @@ export default function AIAssistantPage() {
       </div>
 
       {/* Chat Container */}
-      <div className="bg-white border border-sand rounded-xl shadow-md overflow-hidden">
+      <div className="bg-white border border-sand rounded-xl overflow-hidden">
         {/* Messages */}
-        <div className="h-[400px] overflow-y-auto p-4 space-y-4 bg-cream/50">
+        <div role="log" aria-label="Conversation" aria-live="polite" className="h-[400px] overflow-y-auto p-4 space-y-4 bg-cream/50">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -121,7 +119,7 @@ export default function AIAssistantPage() {
               >
                 {message.role === 'assistant' && index > 0 && (
                   <div className="flex items-center gap-2 mb-2 text-xs text-earth-mid">
-                    <Sparkles className="h-3 w-3" />
+                    <Sparkles aria-hidden="true" className="h-3 w-3" />
                     <span>AI Assistant</span>
                   </div>
                 )}
@@ -136,8 +134,8 @@ export default function AIAssistantPage() {
             <div className="flex justify-start">
               <div className="bg-white border border-sand rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2 text-earth-mid">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">Thinking...</span>
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Thinking…</span>
                 </div>
               </div>
             </div>
@@ -151,18 +149,22 @@ export default function AIAssistantPage() {
           <div className="flex gap-3">
             <input
               type="text"
+              aria-label="Your message"
+              name="message"
+              autoComplete="off"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Describe a situation you're facing..."
-              className="flex-1 px-4 py-2 border border-sand rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/50 focus:border-transparent text-earth-dark"
+              placeholder="Describe a situation you're facing…"
+              className="min-w-0 flex-1 px-4 py-3 border border-sand rounded-lg focus:outline-none focus:ring-2 focus:ring-terracotta/50 focus:border-transparent text-earth-dark"
               disabled={isLoading}
             />
             <button
               type="submit"
+              aria-label="Send message"
               disabled={!input.trim() || isLoading}
-              className="bg-gradient-to-r from-terracotta to-terracotta-dark text-white px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="bg-terracotta-dark text-white px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              <Send className="h-4 w-4" />
+              <Send aria-hidden="true" className="h-4 w-4" />
               <span className="hidden sm:inline">Send</span>
             </button>
           </div>
@@ -171,7 +173,7 @@ export default function AIAssistantPage() {
 
       {/* Example Prompts */}
       <div className="mt-6">
-        <h3 className="text-sm font-medium text-earth-dark mb-3">Example situations you could ask about:</h3>
+        <h2 className="text-sm font-medium text-earth-dark mb-3">Example situations you could ask about:</h2>
         <div className="flex flex-wrap gap-2">
           {[
             "An elderly person in my neighborhood seems lonely",

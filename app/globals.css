@@ -113,3 +113,8 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .reveal { opacity: 1; transform: none; will-change: auto; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 .editor-button.bg-terracotta-dark { background: #A8624A; }
+
+/* Keyboard-only access; preserves the established visual design. */
+.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 100; background: white; padding: .75rem 1rem; }
+.skip-link:focus { top: 1rem; }
+:where(a, button, input, textarea, select):focus-visible { outline: 2px solid #A8624A; outline-offset: 3px; }

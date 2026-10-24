@@ -58,11 +58,7 @@ export default function AdminActivitiesPage() {
   const [formData, setFormData] = useState<RecordFormData>(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  async function fetchData() {
     setLoadError("");
     setIsLoading(true);
     try {
@@ -83,6 +79,10 @@ export default function AdminActivitiesPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenModal = (record?: ActivityRecord) => {
     if (record) {

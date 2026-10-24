@@ -5,6 +5,8 @@ import { log } from '@/lib/logger';
 export const dynamic = 'force-dynamic';
 
 const APP_START = Date.now();
+// Public build identity lets release checks prove which commit serves the domain.
+const release = process.env.APP_COMMIT_SHA || process.env.VERCEL_GIT_COMMIT_SHA || null;
 
 /**
  * Health checks.
@@ -17,7 +19,7 @@ export async function GET(request: Request) {
   const mode = url.searchParams.get('mode') ?? 'ready';
 
   if (mode === 'live') {
-    return NextResponse.json({ status: 'live', uptimeMs: Date.now() - APP_START });
+    return NextResponse.json({ status: 'live', release, uptimeMs: Date.now() - APP_START });
   }
 
   const checks: Record<string, { ok: boolean; detail?: string }> = {};
@@ -42,7 +44,7 @@ export async function GET(request: Request) {
 
   const ok = Object.values(checks).every((c) => c.ok);
   return NextResponse.json(
-    { status: ok ? 'ready' : 'degraded', uptimeMs: Date.now() - APP_START, checks },
+    { status: ok ? 'ready' : 'degraded', release, uptimeMs: Date.now() - APP_START, checks },
     { status: ok ? 200 : 503 }
   );
 }
