@@ -13,9 +13,7 @@ const primary = [
  {href:'/admin/content',label:'Website',icon:Globe},
 ];
 const secondary = [
- {href:'/admin/families',label:'Restricted family records',icon:Users},
  {href:'/admin/sewing',label:'Sewing · 缝纫队',icon:ClipboardList},
- {href:'/admin/schedule',label:'Previous calendar',icon:Calendar},
 ];
 
 export default function AdminSidebar() {
@@ -49,7 +47,7 @@ export default function AdminSidebar() {
     <div id="admin-navigation" className={`${open ? 'block' : 'hidden'} md:block`}>
       <nav aria-label="Admin navigation" className="p-3 space-y-5">
         <ul className="space-y-1">{primary.map(item=>{const active=pathname===item.href||(item.href!=='/admin'&&pathname.startsWith(item.href+'/'))||(item.href==='/admin/members'&&['/admin/team','/admin/member-access'].includes(pathname));return <li key={item.href}><Link href={item.href} aria-current={active?'page':undefined} onClick={()=>setOpen(false)} className={`flex min-h-11 items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cream ${active?'bg-cream text-earth-dark':'text-sand hover:text-white hover:bg-earth-mid/50'}`}><item.icon size={18} aria-hidden="true"/>{item.label}</Link></li>;})}</ul>
-        <details className="border-t border-cream/15 pt-3"><summary className="cursor-pointer min-h-11 px-3 py-3 text-sm text-sand">More & previous records</summary><ul className="mt-1 space-y-1">{secondary.map(item=><li key={item.href}><Link href={item.href} onClick={()=>setOpen(false)} aria-current={pathname===item.href?'page':undefined} className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sand hover:bg-earth-mid/50 focus-visible:outline-2 focus-visible:outline-cream"><item.icon size={17} aria-hidden="true"/>{item.label}</Link></li>)}</ul></details>
+        <details className="border-t border-cream/15 pt-3"><summary className="cursor-pointer min-h-11 px-3 py-3 text-sm text-sand">More</summary><ul className="mt-1 space-y-1">{secondary.map(item=><li key={item.href}><Link href={item.href} onClick={()=>setOpen(false)} aria-current={pathname===item.href?'page':undefined} className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sand hover:bg-earth-mid/50 focus-visible:outline-2 focus-visible:outline-cream"><item.icon size={17} aria-hidden="true"/>{item.label}</Link></li>)}</ul></details>
       </nav>
       <div className="p-3 mt-2 border-t border-cream/15 space-y-1">
         <Link href="/" target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm text-sand hover:bg-earth-mid/50 focus-visible:outline-2 focus-visible:outline-cream">View website <ArrowUpRight size={18} aria-hidden="true" /><span className="sr-only">(opens in a new tab)</span></Link>
