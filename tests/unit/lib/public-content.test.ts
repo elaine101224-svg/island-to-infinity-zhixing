@@ -28,3 +28,8 @@ describe('member publication',()=>{
   expect(needsRecording({...event,date:'2026-05-01'},ids,'2026–27','2026-10-18',true)).toBe(true);
  });
 });
+
+ describe('documentary editorial consent',()=>{
+ it('keeps an unapproved documentary out of the public snapshot',()=>{const d=publicDocument({...defaultHomepage,documentary:{url:'/api/media/'+'a'.repeat(32),title:'Film',caption:'',consent:false}});expect(d.documentary.url).toBe('');});
+ it('accepts old documents and rejects external video URLs',()=>{const {documentary: _omitted,...legacy}=defaultHomepage;expect(homepageSchema.parse(legacy).documentary.url).toBe('');expect(homepageSchema.safeParse({...defaultHomepage,documentary:{...defaultHomepage.documentary,url:'https://external.test/movie.mp4'}}).success).toBe(false);});
+ });

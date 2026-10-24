@@ -20,10 +20,16 @@ export const publicCardSchema = z.object({
 export const publicMemberSchema = z.object({
   id: z.string(), name: z.string(), role: z.string(), groupId: z.string(), photoUrl: imageUrl,
 });
+export const emptyDocumentary = { url: '', title: 'Island to Infinity · Zhixing documentary', caption: '', consent: false };
+export const documentarySchema = z.object({
+  url: z.string().regex(/^$|^\/api\/media\/[a-f0-9]{32}$/),
+  title: z.string().trim().min(1).max(150), caption: z.string().max(500), consent: z.boolean(),
+});
 export const homepageSchema = z.object({
   title: z.string().trim().min(1).max(150), intro: z.string().trim().min(1).max(800),
   schoolYear: z.string().regex(/^\d{4}–\d{2}$/), foundingYear: z.string().regex(/^\d{4}$/),
   about: z.string().max(1500), teamPhoto: contentPhotoSchema,
+  documentary: documentarySchema.default(emptyDocumentary),
   photoPosition: z.enum(['hero', 'team']),
   groups: z.array(z.object({ id: z.string().min(1), name: z.string().max(120), description: z.string().max(1000), photo: contentPhotoSchema, visible: z.boolean() })).max(4),
   history: z.array(z.object({ id: z.string().min(1), year: z.string().max(20), title: z.string().max(150), photo: contentPhotoSchema, visible: z.boolean() })).max(40),
@@ -38,7 +44,7 @@ export const defaultHomepage: HomepageContent = {
   title: 'Island to Infinity', schoolYear: '2026–27', foundingYear: '2024',
   intro: 'A student-led project at UWC Changshu. Through regular visits and shared activities, we build lasting connections with local families.',
   about: "We are a student-led project at UWC Changshu, working with the Changshu Women’s Federation. Through sustained companionship, home visits, and activities we plan together, we support local families and learn from one another.",
-  teamPhoto: emptyPhoto, photoPosition: 'hero', members: [],
+  documentary: emptyDocumentary, teamPhoto: emptyPhoto, photoPosition: 'hero', members: [],
   groups: [1,2,3,4].map(n => ({ id: `group-${n}`, name: `Family group ${n}`, description: '', photo: emptyPhoto, visible: false })),
   history: [
     { id: 'history-2024', year: '2024', title: 'Our founding year', photo: { url: '/images/members/2024.jpg', alt: 'Island to Infinity team in 2024', caption: 'The team in our founding year.', consent: true }, visible: true },
@@ -50,7 +56,7 @@ export function photoIsPublic(photo: ContentPhoto) { return !!photo.url && photo
 
 export function publicDocument(content: HomepageContent): HomepageContent {
   return {
-    ...content, teamPhoto: photoIsPublic(content.teamPhoto) ? content.teamPhoto : { ...emptyPhoto },
+    ...content, documentary: content.documentary?.consent ? content.documentary : { ...emptyDocumentary }, teamPhoto: photoIsPublic(content.teamPhoto) ? content.teamPhoto : { ...emptyPhoto },
     groups: content.groups.filter(g => g.visible).map(g => ({ ...g, photo: photoIsPublic(g.photo) ? g.photo : { ...emptyPhoto } })),
     history: content.history.filter(h => h.visible && photoIsPublic(h.photo)),
     cards: content.cards.filter(c => c.published).map(c => ({ ...c, photo: photoIsPublic(c.photo) ? c.photo : { ...emptyPhoto } })),

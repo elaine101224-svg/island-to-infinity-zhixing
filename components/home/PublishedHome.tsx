@@ -19,6 +19,7 @@ export default function PublishedHome({ content }: { content: HomepageContent })
       {heroPhoto && <PhotoViewer photo={content.teamPhoto} eager />}
     </section>
     <section id="about" className="bg-white border-y border-sand"><div className="max-w-6xl mx-auto px-5 py-9 grid md:grid-cols-[1fr_3fr] gap-5"><h2 className="font-serif text-3xl">About</h2><p className="text-lg leading-relaxed text-earth-mid max-w-3xl">{content.about}</p></div></section>
+    {content.documentary?.url && content.documentary.consent && <section className="max-w-6xl mx-auto px-5 py-10 sm:py-14" aria-labelledby="documentary-title"><h2 id="documentary-title" className="font-serif text-3xl sm:text-4xl mb-6">{content.documentary.title}</h2><figure><video controls playsInline preload="none" aria-label={content.documentary.title} className="w-full aspect-video rounded-xl bg-black object-contain"><source src={content.documentary.url} type="video/mp4" /><a href={content.documentary.url}>Watch the documentary</a></video>{content.documentary.caption && <figcaption className="text-earth-mid mt-3 leading-relaxed">{content.documentary.caption}</figcaption>}</figure></section>}
     <section id="team" className="max-w-6xl mx-auto px-5 py-10 sm:py-14">
       <p className="text-sm uppercase tracking-widest text-terracotta-dark mb-2">The people behind the visits</p><h2 className="font-serif text-3xl sm:text-4xl mb-6">Our Team · {content.schoolYear}</h2>
       {content.photoPosition === 'team' && photoIsPublic(content.teamPhoto) && <PhotoViewer photo={content.teamPhoto} />}

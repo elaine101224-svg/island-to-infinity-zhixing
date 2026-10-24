@@ -29,6 +29,7 @@ export async function PUT(request: NextRequest) {
       if (content.groups.some(g => g.visible && !g.name.trim())) return NextResponse.json({ error: 'Each visible group needs a public name.' }, { status: 400 });
       const photos = [content.teamPhoto, ...content.groups.filter(g => g.visible).map(g => g.photo), ...content.history.filter(h => h.visible).map(h => h.photo), ...content.cards.filter(c => c.published).map(c => c.photo)];
       if (photos.some(p => p.url && !photoIsPublic(p))) return NextResponse.json({ error: 'Every published photo needs consent and meaningful alt text.' }, { status: 400 });
+      if (content.documentary.url && !content.documentary.consent) return NextResponse.json({ error: 'Confirm public-display authorization for the complete documentary before publishing.' }, { status: 400 });
       const doc = publicDocument(content);
       doc.members = publicMembers(members, content.schoolYear);
       // Save an immutable historical snapshot before updating the live pointer.

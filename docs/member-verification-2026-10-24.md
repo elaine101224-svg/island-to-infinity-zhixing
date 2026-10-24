@@ -8,7 +8,7 @@ Five disposable native Auth identities represent admin, group-A coordinator, mem
 
 ## Verified
 
-- 133 local tests pass, including real PostgreSQL RLS via PGlite and API regression tests. Type checking passes. Production build passes with network access for the existing Google Fonts dependencies.
+- 139 local tests pass, including real PostgreSQL RLS via PGlite and API regression tests. Type checking passes. Production build passes with network access for the existing Google Fonts dependencies.
 - Hosted native Auth accepts all five dummy identities, and hosted PostgREST enforces member/coordinator/admin scopes. Uninvited identities see no member tasks. Forged metadata does not grant admin access.
 - Anonymous table access, direct role changes and reading the confidential master workspace are rejected.
 - Task RPC saves persist across identities. Stale edits and cross-group writes are rejected.
@@ -54,7 +54,7 @@ Owner-provided documentary and current group photo are pending **after launch**;
 
 Owner confirmed the requested console settings on 24 October 2026. Native provider probes independently returned `signup_disabled` for a deliberately invalid empty-password email signup and `anonymous_provider_disabled` for an empty signup request; neither created an identity or sent email. OTP expiry was set by the owner to 600 seconds. A disposable Auth-only fixture was verified using an admin-generated OTP in process memory (no email, no member account). After backdating only its recovery timestamp by eleven minutes, native verification rejected it with `otp_expired`. The fixture was removed, its session signed out and the member database gate verified closed. The sanitized evidence is in `member-invite-auth-result.json`.
 
-A first-invitation incompatibility was found: native OTP routes unconfirmed identities into the signup handler, which fails when public signups are disabled. The server now precreates an OTP-ready identity with `email_confirm:true`, without a password, session or email. The member row remains `invited`, and only a successful native OTP verification activates it. Invalid verification is explicitly tested to leave membership unactivated. The local suite now has 133 passing tests; type checking and production build pass.
+A first-invitation incompatibility was found: native OTP routes unconfirmed identities into the signup handler, which fails when public signups are disabled. The server now precreates an OTP-ready identity with `email_confirm:true`, without a password, session or email. The member row remains `invited`, and only a successful native OTP verification activates it. Invalid verification is explicitly tested to leave membership unactivated. The local suite now has 139 passing tests; type checking and production build pass.
 
 ## Final release review
 
@@ -65,3 +65,5 @@ A separate five-identity hosted native OTP fixture check now verifies code entry
 Media derivatives have been prepared without altering originals. Uploads are private pending public-photo authorization; the storage readback and anonymous-denial receipt is kept outside the repository in the private media folder.
 
 Hosted retesting exposed a real stale-edit timeout: raising SQLSTATE `40001` for an optimistic conflict triggered PostgREST automatic transaction retries. Business conflicts now raise `PT409`, while the app preserves HTTP 409 handling and supports older database error codes during rollout. The narrow function-only migration was applied to the isolated project first; the complete hosted task/reflection/persistence/refresh/sign-out check then passed, including stale and cross-group denial. The same migration was applied to production without changing data, grants or policies. The test gate was reset closed. Earlier timed-out runs are superseded by `member-hosted-final-result.json`; they are not counted as passes.
+
+The remote main branch contained newer calendar/accessibility/admin fixes. They were integrated by rebasing; calendar focus restoration and load-error handling were retained. Final checks are rerun on the merged release, including the media authorization boundary.
