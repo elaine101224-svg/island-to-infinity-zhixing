@@ -4,6 +4,7 @@ import { verifyCsrf } from '@/lib/csrf';
 import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
+import { canEditRoster } from '@/lib/members/roster';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:privateHeaders});}
 function failure(error:unknown){return response({error:error instanceof MemberError?error.message:'The request could not be completed. Please retry.'},error instanceof MemberError?error.status:503);}
@@ -23,7 +24,7 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  let rosterQuery=memberService().from('member_accounts').select('person_id,name,group_id').eq('state','active');
  if(account.role!=='admin')rosterQuery=rosterQuery.eq('group_id',account.group_id??'none');
  const roster=dbResult(await rosterQuery);
- return response({me:{name:account.name,role:account.role,personId:account.person_id,groupId:account.group_id},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
+ return response({me:{name:account.name,role:account.role,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
  }catch(e){return failure(e);}
 }
 export async function POST(request:NextRequest,{params}:{params:Promise<{action:string}>}){

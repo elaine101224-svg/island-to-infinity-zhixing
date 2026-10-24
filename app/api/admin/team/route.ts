@@ -5,10 +5,16 @@ import { verifyCsrf } from '@/lib/csrf';
 import { getRequestId } from '@/lib/requestId';
 import { parseBody, teamMemberUpsertSchema } from '@/lib/validation';
 
+import { rosterEditors, requireRosterEditor } from '@/lib/members/roster';
+import { MemberError, sameOrigin } from '@/lib/members/auth';
 export const dynamic = 'force-dynamic';
 
 async function guardMutation(request: NextRequest) {
   const requestId = getRequestId(request);
+  if (rosterEditors().length) {
+    try { sameOrigin(request); await requireRosterEditor(); return null; }
+    catch (error) { return NextResponse.json({ error: error instanceof MemberError ? error.message : 'Roster authorization unavailable' }, { status: error instanceof MemberError ? error.status : 503 }); }
+  }
   if (!(await validateSession())) {
     return NextResponse.json({ error: 'Unauthorized', requestId }, { status: 401 });
   }

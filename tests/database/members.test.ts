@@ -3,7 +3,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { readFile } from 'node:fs/promises';
 import { createTermSeed } from '@/lib/term/seed';
 let db:PGlite;
-const ids={admin:'00000000-0000-4000-8000-000000000001',coordinator:'00000000-0000-4000-8000-000000000002',a:'00000000-0000-4000-8000-000000000003',b:'00000000-0000-4000-8000-000000000004',uninvited:'00000000-0000-4000-8000-000000000005'};
+const ids={admin:'00000000-0000-4000-8000-000000000001',coordinator:'00000000-0000-4000-8000-000000000002',a:'00000000-0000-4000-8000-000000000003',b:'00000000-0000-4000-8000-000000000004',uninvited:'00000000-0000-4000-8000-000000000005',unassigned:'00000000-0000-4000-8000-000000000006'};
 async function asUser(who:keyof typeof ids,sql:string,params:unknown[]=[]){
  await db.exec('begin; set local role authenticated;');
  try {await db.query("select set_config('request.jwt.claims',$1,true)",[JSON.stringify({sub:ids[who],email:who+'@uwcchina.org',user_metadata:{role:'admin'}})]);const result=await db.query(sql,params);await db.exec('commit');return result.rows;}
@@ -18,13 +18,21 @@ beforeAll(async()=>{
  await db.exec(await readFile('scripts/member-platform-schema.sql','utf8'));
  const term=createTermSeed();term.people=[{id:'a',name:'Alex (dummy)',groupId:'A',availability:''},{id:'b',name:'Bailey (dummy)',groupId:'B',availability:''},{id:'coordinator',name:'Coordinator (dummy)',groupId:'A',availability:''},{id:'admin',name:'Admin (dummy)',groupId:null,availability:''}];term.tasks[0].ownerId='a';term.tasks[1].ownerId='b';
  await db.query("insert into public.term_workspaces(id,document,revision) values('2026-27-T1',$1,1)",[JSON.stringify(term)]);
- for(const [who,id] of Object.entries(ids)){await db.query('insert into auth.users values($1)',[id]);if(who!=='uninvited')await db.query("insert into member_accounts(user_id,email,person_id,name,role,group_id,state) values($1,$2,$3,$4,$5,$6,'active')",[id,who+'@uwcchina.org',who,who,who==='admin'?'admin':who==='coordinator'?'coordinator':'member',who==='admin'?null:who==='b'?'B':'A']);}
+ for(const [who,id] of Object.entries(ids)){await db.query('insert into auth.users values($1)',[id]);if(who!=='uninvited')await db.query("insert into member_accounts(user_id,email,person_id,name,role,group_id,state) values($1,$2,$3,$4,$5,$6,'active')",[id,who+'@uwcchina.org',who,who,who==='admin'?'admin':who==='coordinator'?'coordinator':'member',who==='admin'||who==='unassigned'?null:who==='b'?'B':'A']);}
  await db.exec('update member_settings set enabled=true');
 },30000);
 afterAll(async()=>{await db?.close();});
 describe('real PostgreSQL RLS and transactional member workflows',()=>{
  it('denies anonymous access to private tables and RPC',async()=>{await db.exec('begin;set local role anon');await expect(db.query('select * from member_tasks')).rejects.toThrow();await db.exec('rollback');await db.exec('begin;set local role anon');await expect(db.query("select member_change('reflect','{}')")).rejects.toThrow();await db.exec('rollback');});
  it('limits member/coordinator/admin rows and ignores spoofed metadata',async()=>{expect(await asUser('a','select id from member_tasks')).toEqual([{id:'roles-A'}]);expect(await asUser('b','select id from member_tasks')).toEqual([{id:'roles-B'}]);expect(await asUser('coordinator','select id from member_tasks')).toEqual([{id:'roles-A'}]);expect(await asUser('admin','select id from member_tasks')).toHaveLength(4);expect(await asUser('uninvited','select id from member_tasks')).toEqual([]);expect(await asUser('a','select email from member_accounts')).toEqual([{email:'a@uwcchina.org'}]);});
+ it('allows unassigned members to sign in without exposing group records',async()=>{
+  expect(await asUser('unassigned','select * from member_groups')).toEqual([]);
+  expect(await asUser('unassigned','select * from member_tasks')).toEqual([]);
+  expect(await asUser('unassigned','select * from member_reflections')).toEqual([]);
+  expect(await asUser('unassigned','select * from member_events')).toHaveLength(13);
+  expect(await asUser('unassigned','select * from member_projects')).toHaveLength(9);
+  await expect(asUser('unassigned',"select member_change('reflect',$1)",[{summary:'Not assigned'}])).rejects.toThrow();
+ });
  it('blocks direct writes, legacy case tables and master documents',async()=>{await expect(asUser('a',"update member_accounts set role='admin'")).rejects.toThrow();await expect(asUser('a','select document from term_workspaces')).rejects.toThrow();await expect(asUser('a',"update member_tasks set owner_id='a'")).rejects.toThrow();});
  it('persists own task edits across identities and rejects stale edits',async()=>{const payload={id:'roles-A',expectedUpdatedAt:'2026-10-23T00:00:00.000Z',status:'In progress',update:'Dummy progress',nextStep:'Agree roles',evidence:''};await asUser('a',"select member_change('task',$1)",[payload]);const rows=await asUser('coordinator',"select data from member_tasks where id='roles-A'") as {data:{update:string;updatedAt:string}}[];expect(rows[0].data.update).toBe('Dummy progress');expect(rows[0].data.updatedAt).not.toBe(payload.expectedUpdatedAt);await expect(asUser('a',"select member_change('task',$1)",[payload])).rejects.toThrow(/Stale/);const audit=await db.query('select actor from member_access_audit');expect(audit.rows).toContainEqual({actor:ids.a});});
  it('blocks cross-group, unassigned and assignment escalation attacks',async()=>{for(const who of ['a','b','uninvited'] as const)await expect(asUser(who,"select member_change('assign',$1)",[{id:'roles-C',expectedUpdatedAt:'2026-10-23T00:00:00.000Z',ownerId:who}])).rejects.toThrow();await expect(asUser('b',"select member_change('task',$1)",[{id:'roles-C',expectedUpdatedAt:'2026-10-23T00:00:00.000Z',status:'Completed',evidence:'fake'}])).rejects.toThrow();const task=await db.query<{data:{updatedAt:string}}>("select data from member_tasks where id='roles-A'");await expect(asUser('coordinator',"select member_change('assign',$1)",[{id:'roles-A',expectedUpdatedAt:task.rows[0].data.updatedAt,ownerId:'b'}])).rejects.toThrow(/group/);});

@@ -4,6 +4,8 @@ import { guardMutation } from '@/lib/apiGuard';
 import { supabase } from '@/lib/supabase';
 import { createTermSeed } from '@/lib/term/seed';
 import { saveTermSchema, termSchema } from '@/lib/term/schema';
+import { rosterEditors, requireRosterEditor } from '@/lib/members/roster';
+import { MemberError } from '@/lib/members/auth';
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'private, no-store' };
 export async function GET(request?: NextRequest) {
@@ -22,6 +24,14 @@ export async function PUT(request: NextRequest) {
  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({error:'Server storage is not configured.'},{status:503,headers});
  const {document,revision} = guard.data;
  try {
+  if (rosterEditors().length) {
+   const existing = await supabase.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle();
+   if (existing.error) throw existing.error;
+   if (JSON.stringify(existing.data?.document.people ?? []) !== JSON.stringify(document.people)) {
+    try { await requireRosterEditor(); }
+    catch (error) { return NextResponse.json({ error: error instanceof MemberError ? error.message : 'Roster authorization unavailable' }, { status: error instanceof MemberError ? error.status : 503, headers }); }
+   }
+  }
   const query = revision === 0
    ? supabase.from('term_workspaces').insert({id:'2026-27-T1',document,revision:1})
    : supabase.from('term_workspaces').update({document,revision:revision+1}).eq('id','2026-27-T1').eq('revision',revision);

@@ -6,10 +6,9 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, Lock } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
-// Follow the visitor's path: introduction, people, families, work, then dates.
+// Follow the visitor’s path from the photo archive into families, plans and dates.
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/#team', label: 'Our Team' },
   { href: '/families', label: 'Families' },
   { href: '/plans', label: 'Plans' },
   { href: '/schedule', label: 'Schedule' },

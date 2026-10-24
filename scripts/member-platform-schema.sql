@@ -15,7 +15,7 @@ create table if not exists public.member_accounts(
  group_id text check(group_id in ('A','B','C','D')),
  state text not null default 'invited' check(state in ('invited','active','revoked')),
  expires_at timestamptz not null default now()+interval '7 days',
- created_at timestamptz not null default now(), check(role='admin' or group_id is not null)
+ created_at timestamptz not null default now(), constraint member_accounts_check check(role<>'coordinator' or group_id is not null)
 );
 create table if not exists public.member_tasks(id text primary key, owner_id text, group_id text, data jsonb not null);
 create table if not exists public.member_reflections(id text primary key, owner_id text not null, group_id text not null, data jsonb not null);
@@ -144,7 +144,7 @@ declare a public.member_accounts; begin
  if not found or a.state<>expected_state then raise exception 'Access changed; reload' using errcode='PT409'; end if;
  if next_state not in ('active','revoked','invited') or next_role not in ('admin','coordinator','member') then raise exception 'Invalid access state'; end if;
  if a.state='invited' and next_state='active' then raise exception 'Email verification required'; end if;
- if next_role<>'admin' and a.group_id is null then raise exception 'A reviewed group binding is required'; end if;
+ if next_role='coordinator' and a.group_id is null then raise exception 'A reviewed group binding is required'; end if;
  if actor_id=target::text then raise exception 'Another admin must change this account'; end if;
  update public.member_accounts set state=next_state,role=next_role,expires_at=case when next_state='invited' then now()+interval '7 days' else expires_at end where user_id=target;
  insert into public.member_access_audit(actor,action,target) values(actor_id,'access:'||next_state||':'||next_role,target::text);

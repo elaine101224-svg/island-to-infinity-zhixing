@@ -1,0 +1,21 @@
+import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { NextRequest } from 'next/server';
+const m=vi.hoisted(()=>({account:{email:'editor@uwcchina.org',state:'active',user_id:'editor-id'},enabled:true,legacy:true,cas:true,saved:null as unknown,row:{name:'Alex (dummy)',status:'active',academicYears:['2026–27'],updatedAt:'v1',phone:'private',notes:'private',assignedFamilyIds:['secret']}}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.legacy}));
+vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>null}));
+vi.mock('@/lib/members/auth',async original=>{const real=await original<typeof import('@/lib/members/auth')>();return {...real,requireMember:async()=>{if(!m.enabled)throw new real.MemberError('Paused',503);return {account:m.account};},memberService:()=>({from:(table:string)=>{let updating=false;const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),update:vi.fn(value=>{updating=true;m.saved=value;return q;}),insert:vi.fn(async()=>({error:null})),maybeSingle:vi.fn(async()=>({data:updating?(m.cas?{id:'alex'}:null):{data:m.row},error:null})),then:(resolve:(value:unknown)=>void)=>resolve({data:table==='team_members'?[{id:'alex',data:m.row}]:[],error:null})};return q;}})};});
+import { GET, POST } from '@/app/api/members/roster/route';
+import { POST as legacyWrite } from '@/app/api/admin/team/route';
+import { inviteSchema } from '@/lib/members/validation';
+const payload={id:'alex',expectedUpdatedAt:'v1',name:'Alex revised',status:'active',academicYears:['2025–26','2026–27']};
+const request=(body:unknown=payload,origin='https://islandtoinfinity.online')=>new NextRequest('https://islandtoinfinity.online/api/members/roster',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});
+beforeEach(()=>{process.env.MEMBER_ROSTER_EDITORS='editor@uwcchina.org,second-editor@uwcchina.org';process.env.NEXT_PUBLIC_SITE_URL='https://islandtoinfinity.online';m.account={email:'editor@uwcchina.org',state:'active',user_id:'editor-id'};m.enabled=true;m.cas=true;m.saved=null;});
+afterEach(()=>{delete process.env.MEMBER_ROSTER_EDITORS;});
+describe('designated roster editors',()=>{
+ it('returns only roster fields and never private contact/family information',async()=>{const res=await GET();expect(res.status).toBe(200);const text=JSON.stringify(await res.json());expect(text).not.toMatch(/private|phone|notes|assignedFamilyIds|secret/);expect(res.headers.get('cache-control')).toContain('no-store');});
+ it('saves the designated editor’s change while retaining confidential fields and history',async()=>{expect((await POST(request())).status).toBe(200);expect(m.saved).toMatchObject({data:{name:'Alex revised',phone:'private',notes:'private',academicYears:['2025–26','2026–27']}});});
+ it('denies ordinary members even with a legacy admin cookie or forged role',async()=>{m.account.email='ordinary@uwcchina.org';expect((await GET()).status).toBe(403);expect((await POST(request({...payload,role:'admin'}))).status).toBe(403);expect((await legacyWrite(request())).status).toBe(403);expect(m.saved).toBeNull();});
+ it('permits the second designated editor, but not invited or paused identities',async()=>{m.account.email='second-editor@uwcchina.org';expect((await GET()).status).toBe(200);m.account.state='invited';expect((await GET()).status).toBe(403);m.enabled=false;expect((await GET()).status).toBe(503);});
+ it('blocks cross-origin writes, privilege fields, and stale edits',async()=>{expect((await POST(request(payload,'https://evil.example'))).status).toBe(403);expect((await POST(request({...payload,email:'changed@uwcchina.org'}))).status).toBe(400);expect((await POST(request({...payload,expectedUpdatedAt:'old'}))).status).toBe(409);m.cas=false;expect((await POST(request())).status).toBe(409);});
+ it('allows unassigned regular invitations but never unassigned coordinators',()=>{const input={email:'alex@uwcchina.org',personId:'alex',groupId:null,role:'member'};expect(inviteSchema.safeParse(input).success).toBe(true);expect(inviteSchema.safeParse({...input,role:'coordinator'}).success).toBe(false);});
+});
