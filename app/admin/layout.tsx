@@ -16,10 +16,10 @@ export default async function AdminLayout({
 
   return (
     <ToastProvider>
-      <div className="flex flex-col md:flex-row min-h-screen bg-sand/40 font-sans">
+      <div className="flex flex-col md:flex-row admin-shell min-h-screen bg-cream font-sans">
         <AdminSidebar />
         <main id="admin-main" tabIndex={-1} className="flex-1 min-w-0">
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+          <div className="p-5 sm:p-7 lg:p-8">{children}</div>
         </main>
       </div>
     </ToastProvider>

@@ -118,3 +118,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .skip-link { position: fixed; top: -100px; left: 1rem; z-index: 100; background: white; padding: .75rem 1rem; }
 .skip-link:focus { top: 1rem; }
 :where(a, button, input, textarea, select):focus-visible { outline: 2px solid #A8624A; outline-offset: 3px; }
+
+/* Admin is a working surface; keep public editorial typography unchanged. */
+.admin-shell :is(h1,h2,h3,h4) { font-family: var(--font-sans); }
+.admin-shell ::selection { background: var(--color-terracotta-light); color: var(--color-earth-dark); }
