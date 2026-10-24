@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import Garment from "./Garment";
 import { Notice, useSewing } from "./shared";
 import { names, type Content, type Gallery } from "@/lib/sewing/types";
@@ -295,13 +296,14 @@ export default function PublicContent({
           <p>
             <strong>{t("微信", "WeChat")}</strong>
           </p>
-          <p>
-            {content.wechat ||
-              t(
-                "微信联系方式待确认。暂不展示未经确认的个人联系方式。",
-                "WeChat contact to be confirmed. Unverified personal details are not displayed.",
-              )}
-          </p>
+          {content.wechat && <p>{content.wechat}</p>}
+          <figure className="sw-contact-qr">
+            <a href="/images/sewing/elaine-wechat.png" target="_blank" rel="noopener noreferrer" aria-label={t("查看 Elaine 的微信二维码原图", "Open Elaine’s original WeChat QR code")}>
+              <Image unoptimized src="/images/sewing/elaine-wechat.png" width={888} height={1206} loading={view === "wechat" ? "eager" : "lazy"} alt={t("Elaine 的微信好友二维码，用于缝纫定制咨询", "Elaine’s WeChat friend QR code for sewing customization enquiries")} />
+            </a>
+            <figcaption>{t("扫码添加 Elaine，咨询服装定制", "Scan to add Elaine for sewing enquiries")}</figcaption>
+            <a className="sw-qr-save" href="/images/sewing/elaine-wechat.png" download="Elaine-WeChat.png">{t("保存二维码", "Save QR code")}</a>
+          </figure>
           {content.teams && (
             <p>
               <strong>Teams</strong>

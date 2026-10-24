@@ -22,8 +22,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
+
+      # Keep npm's lockfile/override handling identical to local release checks.
+      - name: Use matching npm version
+        run: npm install --global npm@11.11.0 --no-audit --no-fund
 
       - name: Install
         run: npm ci --no-audit --no-fund
