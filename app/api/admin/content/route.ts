@@ -8,6 +8,8 @@ import { CONTENT_ID, CONTENT_CACHE_TAG, readContentState } from '@/lib/websiteCo
 import { supabase } from '@/lib/supabase';
 import { getTeamMembers, getActivityRecords } from '@/lib/data';
 
+import {withReviewedCalendar,calendarSnapshotMatches} from '@/lib/term/publication';
+import {termSchema} from '@/lib/term/schema';
 export const dynamic = 'force-dynamic';
 export async function GET() {
   if (!(await validateSession())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -30,12 +32,15 @@ export async function PUT(request: NextRequest) {
       const photos = [content.teamPhoto, ...content.groups.filter(g => g.visible).map(g => g.photo), ...content.history.filter(h => h.visible).map(h => h.photo), ...content.cards.filter(c => c.published).map(c => c.photo)];
       if (photos.some(p => p.url && !photoIsPublic(p))) return NextResponse.json({ error: 'Every published photo needs consent and meaningful alt text.' }, { status: 400 });
       if (content.documentary.url && !content.documentary.consent) return NextResponse.json({ error: 'Confirm public-display authorization for the complete documentary before publishing.' }, { status: 400 });
-      const doc = publicDocument(content);
+      let reviewed=content;
+      if(content.cards.some(card=>card.published&&card.kind==='event'&&card.calendarEventId)){const term=await supabase.from('term_workspaces').select('document').eq('id','2026-27-T1').single();if(term.error)throw term.error;reviewed=withReviewedCalendar(content,termSchema.parse(term.data.document).events);if(!calendarSnapshotMatches(content,reviewed))return NextResponse.json({error:'The calendar changed since this draft was reviewed. Reload Website, review the updated dates and save again.'},{status:409});}
+      const doc = publicDocument(reviewed);
       doc.members = publicMembers(members, content.schoolYear);
       // Save an immutable historical snapshot before updating the live pointer.
       const { error: historyError } = await supabase.from('website_content_versions').insert({ content_id: CONTENT_ID, document: doc });
       if (historyError) throw historyError;
       patch.published = doc;
+      patch.draft = {...reviewed,members:[]};
     }
     if (action === 'unpublish') patch.published = null;
     const { data, error } = await supabase.from('website_content').update(patch).eq('id', CONTENT_ID).eq('revision', revision).select('revision').maybeSingle();

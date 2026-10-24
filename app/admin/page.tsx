@@ -1,116 +1,24 @@
-import { parseISO } from 'date-fns';
-import { getFamilies, getPlans, getScheduleEvents, getTeamMembers } from '@/lib/data';
-import { Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { readContentState } from '@/lib/websiteContent';
-
-export const dynamic = 'force-dynamic';
-
-const typeEmoji: Record<string, string> = {
-  field_trip: '🏝️',
-  visit: '🫂',
-  event: '🎉',
-  meeting: '📋',
-};
-
-export default async function AdminDashboardPage() {
-  const { draft } = await readContentState();
-  const schoolYear = draft.schoolYear;
-  const [families, plans, events, members] = await Promise.all([
-    getFamilies(),
-    getPlans(),
-    getScheduleEvents(),
-    getTeamMembers(),
-  ]);
-
-  const activePlans = plans.filter((p) => p.status === 'active').length;
-  const unassignedMembers = members.filter(m => !m.academicYears?.length).length;
-  const activeMembers = members.filter((m) => m.status === 'active' && m.academicYears?.includes(schoolYear)).length;
-
-  // ---- Reminders (computed) ----
-  const todayStr = new Date().toISOString().split('T')[0];
-  const in7 = new Date();
-  in7.setDate(in7.getDate() + 7);
-  const in7Str = in7.toISOString().split('T')[0];
-
-  const upcoming = events
-    .filter((e) => e.date >= todayStr && e.date <= in7Str && e.status !== 'cancelled')
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
-
-  const stats = [
-    { label: `Confirmed active members · ${schoolYear}`, value: unassignedMembers && !activeMembers ? '—' : activeMembers, href: '/admin/team' },
-    { label: 'Families', value: families.length, href: '/admin/families' },
-    { label: 'Active Plans · all years', value: activePlans, href: '/admin/plans' },
-  ];
-
-  const familyName = (id: string) => families.find((f) => f.id === id)?.pseudonym;
-
-  const dayLabel = (dateStr: string) => {
-    if (dateStr === todayStr) return 'Today';
-    const d = parseISO(dateStr);
-    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-  };
-
-  return (
-    <div className="max-w-6xl mx-auto py-2">
-      <div className="mb-8">
-        <h1 className="text-2xl font-serif font-bold text-earth-dark tracking-tight">Dashboard</h1>
-        <p className="text-earth-mid text-sm mt-1.5">Welcome back. Here&apos;s what needs your attention.</p>
-      </div>
-
-      {unassignedMembers > 0 && <p className="mb-6 bg-amber-light/30 border border-sand rounded-xl p-4 text-earth-mid">{unassignedMembers} members have no confirmed school year. <Link href="/admin/team" className="underline">Review the roster</Link> before treating this year’s count as complete.</p>}
-      <section aria-labelledby="admin-actions-title" className="mb-8">
-        <h2 id="admin-actions-title" className="text-lg font-semibold mb-3">What would you like to do?</h2>
-        <div className="divide-y divide-sand border-y border-sand">
-          {[
-            { href: '/admin/content', label: 'Edit website & photos', description: 'Homepage, Our Journey, documentary and public updates' },
-            { href: '/admin/term', label: 'Manage semester work', description: 'Calendar, family groups, assignments and progress' },
-          ].map(action => <Link key={action.href} href={action.href} className="flex items-center justify-between gap-4 py-4 px-2 rounded-lg hover:bg-white focus-visible:outline-2 focus-visible:outline-terracotta-dark">
-            <div><span className="font-medium text-earth-dark">{action.label}</span><p className="text-sm text-earth-mid mt-1">{action.description}</p></div><ArrowRight size={20} aria-hidden="true" className="shrink-0 text-earth-mid" />
-          </Link>)}
-        </div>
-      </section>
-      <dl className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 mb-8">
-        {stats.map(stat => <div key={stat.label}><dt className="text-sm text-earth-mid">{stat.label}</dt><dd className="mt-1"><Link href={stat.href} className="text-xl font-semibold tabular-nums underline decoration-sand underline-offset-4 hover:decoration-earth-mid focus-visible:outline-2 focus-visible:outline-terracotta-dark">{stat.value}</Link></dd></div>)}
-      </dl>
-
-      {/* Reminders */}
-      <div className="max-w-3xl">
-        {/* Upcoming */}
-        <div className="bg-white rounded-xl border border-sand overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-terracotta" />
-              <h2 className="text-base font-semibold text-earth-dark">Upcoming this week</h2>
-            </div>
-            <Link href="/admin/schedule" className="text-sm text-terracotta hover:text-terracotta-dark font-medium">Schedule</Link>
-          </div>
-          {upcoming.length === 0 ? (
-            <p className="px-5 py-8 text-sm text-earth-light text-center">Nothing scheduled in the next 7 days.</p>
-          ) : (
-            <div className="divide-y divide-sand/60">
-              {upcoming.map((e) => (
-                <div key={e.id} className="flex items-center justify-between px-5 py-3.5">
-                  <div className="min-w-0">
-                    <p className="font-medium text-earth-dark text-sm truncate">
-                      <span className="mr-1.5">{typeEmoji[e.type] || '📅'}</span>{e.title}
-                    </p>
-                    <p className="text-xs text-earth-mid mt-0.5">
-                      {e.startTime && `${e.startTime} · `}{e.location || 'No location'}
-                      {e.familiesInvolved?.length ? ` · ${e.familiesInvolved.map(familyName).filter(Boolean).join(', ')}` : ''}
-                    </p>
-                  </div>
-                  <span className={`text-xs px-2.5 py-1 rounded-full flex-shrink-0 ml-3 ${e.date === todayStr ? 'bg-terracotta text-white' : 'bg-terracotta/10 text-terracotta-dark'}`}>
-                    {dayLabel(e.date)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-
-      </div>
-    </div>
-  );
+import {isDeepStrictEqual} from 'node:util';
+import {getTeamMembers} from '@/lib/data';
+import {supabase} from '@/lib/supabase';
+import {readContentState} from '@/lib/websiteContent';
+import {publicDocument,publicMembers,homepageSchema} from '@/lib/contentSchema';
+import {withReviewedCalendar} from '@/lib/term/publication';
+import {termSchema} from '@/lib/term/schema';
+export const dynamic='force-dynamic';
+export default async function Page(){
+ const [term,content,members]=await Promise.all([supabase.from('term_workspaces').select('document').eq('id','2026-27-T1').single(),readContentState(),getTeamMembers()]);
+ if(term.error)return <p role="alert">Today’s work could not be loaded. Please reload.</p>;
+ const doc=termSchema.parse(term.data.document),today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const week=new Date();week.setDate(week.getDate()+7);const until=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(week);
+ const events=doc.events.filter(event=>(event.endDate??event.date)>=today&&event.date<=until&&event.status!=='Cancelled').sort((a,b)=>a.date.localeCompare(b.date));
+ const tasks=doc.tasks.filter(task=>task.status!=='Completed'&&(task.status==='Blocked'||!!task.due&&task.due<today));
+ const pending=doc.events.filter(event=>event.date>=today&&['Awaiting approval','Proposed','Tentative'].includes(event.status));
+ const publicDraft=publicDocument(content.draft);let calendarChanged=false;try{calendarChanged=!isDeepStrictEqual(publicDraft.cards,withReviewedCalendar(publicDraft,doc.events).cards);}catch{calendarChanged=true;}
+ const websiteChanged=!content.published||!isDeepStrictEqual({...publicDraft,members:publicMembers(members,content.draft.schoolYear)},homepageSchema.parse(content.published))||calendarChanged;
+ return <div className="max-w-4xl mx-auto space-y-8"><header><h1 className="font-serif text-3xl">Today</h1><p className="text-earth-mid mt-2">{today} · Start with what needs attention.</p></header>
+ {(tasks.length>0||pending.length>0||websiteChanged)&&<section className="space-y-3"><h2 className="text-xl font-semibold">Needs attention</h2><ul className="divide-y divide-sand border-y border-sand">{tasks.length>0&&<li><Link href="/admin/term#tasks" className="block py-4 underline">{tasks.length} overdue or blocked tasks</Link></li>}{pending.length>0&&<li><Link href="/admin/term#events" className="block py-4 underline">{pending.length} plans awaiting confirmation</Link></li>}{websiteChanged&&<li><Link href="/admin/content" className="block py-4 underline">Review website changes before publishing</Link></li>}</ul></section>}
+ <section><div className="flex justify-between gap-4 mb-3"><h2 className="text-xl font-semibold">This week</h2><Link href="/admin/term" className="underline">Open semester</Link></div>{events.length?<ul className="divide-y divide-sand border-y border-sand">{events.map(event=><li key={event.id} className="py-4"><p className="font-medium">{event.title}</p><p className="text-sm text-earth-mid mt-1">{event.date} · {event.startTime||'Time TBC'} · {event.status}</p></li>)}</ul>:<p className="text-earth-mid">No activities scheduled in the next seven days.</p>}</section>
+ <section className="flex flex-wrap gap-3 border-t border-sand pt-6"><Link className="editor-button" href="/admin/term">Manage semester</Link><Link className="min-h-11 px-4 py-3 underline" href="/admin/members">Members</Link><Link className="min-h-11 px-4 py-3 underline" href="/admin/content">Edit website</Link></section></div>;
 }

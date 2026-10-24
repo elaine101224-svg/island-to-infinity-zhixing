@@ -1,0 +1,8 @@
+import {describe,it,expect} from 'vitest';
+import {defaultHomepage,emptyPhoto} from '@/lib/contentSchema';
+import {createTermSeed} from '@/lib/term/seed';
+import {withReviewedCalendar} from '@/lib/term/publication';
+describe('reviewed public calendar projection',()=>{
+ it('updates linked dates once without copying private title, notes or location',()=>{const events=createTermSeed().events;events[0]={...events[0],date:'2026-10-23',location:'Private household location',notes:'Private family details'};const source={...defaultHomepage,cards:[{id:'public-card',sourceId:'',kind:'event' as const,title:'Reviewed public title',summary:'Reviewed public wording',date:'2026-10-22',venue:'Public venue TBC',photo:emptyPhoto,published:true,calendarEventId:events[0].id}]};const published=withReviewedCalendar(source,events);expect(published.cards[0]).toMatchObject({date:'2026-10-23',title:'Reviewed public title',venue:'Public venue TBC',planningStatus:'Proposed'});expect(JSON.stringify(published)).not.toContain('Private household');expect(JSON.stringify(published)).not.toContain('Private family');expect(source.cards[0].date).toBe('2026-10-22');});
+ it('fails publication for a removed linked event while preserving unlinked historical cards',()=>{const source={...defaultHomepage,cards:[{id:'card',sourceId:'',kind:'event' as const,title:'Public event',summary:'Reviewed',date:'2026-10-22',photo:emptyPhoto,published:true,calendarEventId:'missing'}]};expect(()=>withReviewedCalendar(source,[])).toThrow(/no longer exists/);expect(withReviewedCalendar({...source,cards:source.cards.map(card=>({...card,calendarEventId:undefined}))},[]).cards[0].date).toBe('2026-10-22');});
+});

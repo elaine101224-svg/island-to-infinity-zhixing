@@ -1,5 +1,6 @@
 "use client";
 
+import {useRouter} from 'next/navigation';
 import { useState, useEffect, useCallback } from "react";
 import { Plus, ChevronLeft, ChevronRight, X as XIcon, Calendar, Clock, MapPin } from "lucide-react";
 import {
@@ -68,6 +69,7 @@ const emptyForm: EventFormData = {
 };
 
 export default function AdminSchedulePage() {
+  const router=useRouter();
   const toast = useToast();
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,30 +107,7 @@ export default function AdminSchedulePage() {
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   };
 
-  const handleOpenModal = (date?: Date, event?: ScheduleEvent) => {
-    if (event) {
-      setEditingEvent(event);
-      setFormData({
-        title: event.title,
-        type: event.type,
-        date: event.date,
-        startTime: event.startTime,
-        endTime: event.endTime,
-        location: event.location,
-        description: event.description,
-        isPublic: event.isPublic,
-        status: event.status || "scheduled",
-        requiresRecord: event.requiresRecord !== false,
-      });
-    } else {
-      setEditingEvent(null);
-      setFormData({
-        ...emptyForm,
-        date: date ? format(date, "yyyy-MM-dd") : emptyForm.date,
-      });
-    }
-    setShowModal(true);
-  };
+  const handleOpenModal: (date?:Date,event?:ScheduleEvent)=>void = () => { router.push('/admin/term'); };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -307,7 +286,7 @@ export default function AdminSchedulePage() {
               <Calendar className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-serif font-bold text-earth-dark">Event Calendar</h1>
+              <h1 className="text-xl font-serif font-bold text-earth-dark">Previous calendar</h1>
               <p className="text-earth-mid text-xs">Manage your activities</p>
             </div>
           </div>
@@ -316,7 +295,7 @@ export default function AdminSchedulePage() {
             className="bg-terracotta text-white px-4 py-2.5 rounded-xl hover:bg-terracotta-dark transition-colors text-sm font-medium flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            Add Event
+            Edit in Semester
           </button>
         </div>
       </div>

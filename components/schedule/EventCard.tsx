@@ -48,6 +48,7 @@ export default function EventCard({ event }: EventCardProps) {
         )}
       </div>
 
+      {event.planningStatus&&<p className="text-sm font-medium text-earth-mid mb-2">{event.schoolEvent?'Event: ':''}{event.planningStatus}{event.schoolEvent&&` · Our participation: ${event.participationStatus||'TBC'}`}</p>}
       <h3 className="text-lg font-serif font-semibold text-earth-dark mb-3 tracking-wide">
         {event.title}
       </h3>

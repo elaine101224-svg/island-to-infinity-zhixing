@@ -8,6 +8,8 @@ export const contentPhotoSchema = z.object({
   caption: z.string().max(500).default(''), consent: z.boolean().default(false),
 });
 export const publicCardSchema = z.object({
+  schoolEvent:z.boolean().optional(),participationStatus:z.enum(['TBC','Confirmed','Not participating']).optional(),
+  calendarEventId:z.string().max(100).optional(), planningStatus:z.enum(['Confirmed','Proposed','Tentative','Available slot','Awaiting approval','Completed','Cancelled']).optional(),
   id: z.string().min(1).max(120), sourceId: z.string().max(120).default(''),
   kind: z.enum(['family', 'plan', 'event', 'update']), title: z.string().trim().min(1).max(200),
   summary: z.string().max(2000).default(''), date: z.string().regex(/^$|^\d{4}-\d{2}-\d{2}$/).default(''),
@@ -64,5 +66,5 @@ export function publicDocument(content: HomepageContent): HomepageContent {
 }
 
 export function publicMembers(members: import('@/types').TeamMember[], year: string) {
-  return members.filter(m => m.isPublic && m.status === 'active' && m.academicYears?.includes(year) && m.publicName?.trim()).sort((a,b)=>(a.displayOrder||0)-(b.displayOrder||0)).map(m=>({id:m.id,name:m.publicName!,role:m.publicRole||'',groupId:m.groupId||'',photoUrl:m.photoConsent?(m.photoUrl||''):''}));
+  return members.filter(m => m.isPublic && m.status === 'active' && m.academicYears?.includes(year) && m.publicName?.trim()).sort((a,b)=>(a.displayOrder||0)-(b.displayOrder||0)).map(m=>({id:m.id,name:m.publicName!,role:m.publicRole||'',groupId:({'A':'group-1','B':'group-2','C':'group-3','D':'group-4'} as Record<string,string>)[m.groupId||'']||m.groupId||'',photoUrl:m.photoConsent?(m.photoUrl||''):''}));
 }

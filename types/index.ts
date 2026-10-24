@@ -35,6 +35,9 @@ export interface Photo {
 export type EventType = 'field_trip' | 'visit' | 'event' | 'meeting';
 
 export interface ScheduleEvent {
+  planningStatus?: string;
+  schoolEvent?: boolean;
+  participationStatus?: string;
   id: string;
   title: string;
   type: EventType;

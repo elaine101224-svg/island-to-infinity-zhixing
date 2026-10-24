@@ -8,7 +8,7 @@ import { rosterEditorsConfigured, requireRosterEditor } from '@/lib/members/rost
 import { MemberError } from '@/lib/members/auth';
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'private, no-store' };
-export async function GET(request?: NextRequest) {
+export async function GET(request: NextRequest) {
  if (!await validateSession()) return NextResponse.json({error:'Unauthorized'},{status:401,headers});
  if(request?.nextUrl.searchParams.get('preview')==='true')return NextResponse.json({document:createTermSeed(),revision:0,initialized:false},{headers});
  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({error:'Term storage needs a server-only service role key. No data was loaded.'},{status:503,headers});

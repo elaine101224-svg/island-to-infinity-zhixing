@@ -19,7 +19,7 @@ export default function PhotoField({ label, value, onChange, portrait = false }:
   }
   return <fieldset className="space-y-3 rounded-xl border border-sand p-4">
     <legend className="px-2 font-medium">{label}</legend>
-    {value.url ? <><img src={value.url} alt={value.alt || 'Uploaded photo preview'} className="max-h-56 w-full object-contain" /><button type="button" className="underline" onClick={() => onChange({ ...emptyPhoto })}>Remove photo from this content</button></> : <p className="text-earth-mid">No photo uploaded. This photo is hidden on the public website.</p>}
+    {value.url ? <><img loading="lazy" decoding="async" src={value.url} alt={value.alt || 'Uploaded photo preview'} className="max-h-56 w-full object-contain" /><button type="button" className="underline" onClick={() => onChange({ ...emptyPhoto })}>Remove photo from this content</button></> : <p className="text-earth-mid">No photo uploaded. This photo is hidden on the public website.</p>}
     <label className="block">{busy ? 'Uploading…' : value.url ? 'Replace photo' : 'Upload photo'}<input aria-label={`Upload ${label}`} type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e => void upload(e.target.files?.[0])} className="block w-full mt-2" /></label>
     <p className="text-sm text-earth-mid">JPEG, PNG or WebP · up to 4 MB. Photos are resized without cropping and stored securely.</p>
     <label className="block">Alt text<input className="editor-input" readOnly={portrait} value={value.alt} onChange={e => onChange({ ...value, alt: e.target.value })} /></label>

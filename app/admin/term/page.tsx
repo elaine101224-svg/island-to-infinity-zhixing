@@ -1,2 +1,2 @@
-import TermDashboard from '@/components/term/TermDashboard';
-export default function Page() {return <TermDashboard />;}
+import SemesterDashboard from '@/components/term/SemesterDashboard';
+export default function Page(){return <SemesterDashboard/>;}
