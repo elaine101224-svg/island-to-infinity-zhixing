@@ -26,8 +26,9 @@ export default function ContentEditor() {
     async function load() {
       try {
         const res = await adminFetch('/api/admin/content'); if (!res.ok) throw new Error('Unable to load saved content. Retry this page.');
-        const state = await res.json(); setContent(state.draft); setRevision(state.revision); setPublished(!!state.published); setLoaded(true);
-        const termRes=await adminFetch('/api/admin/term');if(termRes.ok){const events=(await termRes.json()).document.events;setEvents(events);const reviewed=withReviewedCalendar(state.draft,events);if(JSON.stringify(reviewed.cards)!==JSON.stringify(state.draft.cards)){setContent(reviewed);setDirty(true);setCalendarUpdates(true);}}
+        const state = await res.json(); setContent(state.draft); setRevision(state.revision); setPublished(!!state.published);
+        const termRes=await adminFetch('/api/admin/term');if(termRes.ok){const events=(await termRes.json()).document.events;setEvents(events);try{const reviewed=withReviewedCalendar(state.draft,events);if(JSON.stringify(reviewed.cards)!==JSON.stringify(state.draft.cards)){setContent(reviewed);setDirty(true);setCalendarUpdates(true);}}catch{setError('A public calendar entry needs a valid semester event. Choose its source below before publishing.');}}else{setError('Calendar dates could not be loaded. Reload before publishing calendar changes.');}
+        setLoaded(true);
         const activityRes = await adminFetch('/api/admin/activities'); if (activityRes.ok) setActivities(await activityRes.json());
       } catch (e) { setError(e instanceof Error ? e.message : 'Load failed'); }
     } void load();
