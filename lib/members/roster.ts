@@ -1,5 +1,6 @@
 import { MemberError, requireMember, allowedMemberEmail, type MemberAccount } from './auth';
 
+export function rosterEditorsConfigured() { return process.env.MEMBER_ROSTER_EDITORS !== undefined; }
 export function rosterEditors() {
   return (process.env.MEMBER_ROSTER_EDITORS ?? '').split(',').map(email => email.trim().toLowerCase()).filter(allowedMemberEmail);
 }

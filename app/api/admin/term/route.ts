@@ -4,7 +4,7 @@ import { guardMutation } from '@/lib/apiGuard';
 import { supabase } from '@/lib/supabase';
 import { createTermSeed } from '@/lib/term/seed';
 import { saveTermSchema, termSchema } from '@/lib/term/schema';
-import { rosterEditors, requireRosterEditor } from '@/lib/members/roster';
+import { rosterEditorsConfigured, requireRosterEditor } from '@/lib/members/roster';
 import { MemberError } from '@/lib/members/auth';
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'private, no-store' };
@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest) {
  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({error:'Server storage is not configured.'},{status:503,headers});
  const {document,revision} = guard.data;
  try {
-  if (rosterEditors().length) {
+  if (rosterEditorsConfigured()) {
    const existing = await supabase.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle();
    if (existing.error) throw existing.error;
    if (JSON.stringify(existing.data?.document.people ?? []) !== JSON.stringify(document.people)) {

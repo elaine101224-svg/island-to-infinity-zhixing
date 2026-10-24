@@ -4,7 +4,7 @@ import { verifyCsrf } from '@/lib/csrf';
 import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
-import { canEditRoster } from '@/lib/members/roster';
+import { canEditRoster, rosterEditors } from '@/lib/members/roster';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:privateHeaders});}
 function failure(error:unknown){return response({error:error instanceof MemberError?error.message:'The request could not be completed. Please retry.'},error instanceof MemberError?error.status:503);}
@@ -16,7 +16,7 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  try{
  const {action}=await params;
  if(action==='access'){
- await manager();const db=memberService();const accounts=dbResult(await db.from('member_accounts').select('user_id,email,name,role,group_id,state,expires_at').order('created_at'));const term=dbResult(await db.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle());return response({accounts,people:term?termSchema.parse(term.document).people:[]});
+ await manager();const db=memberService();const accounts=dbResult(await db.from('member_accounts').select('user_id,email,name,role,group_id,state,expires_at').order('created_at'));const term=dbResult(await db.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle());return response({accounts,rosterEditors:rosterEditors(),people:term?termSchema.parse(term.document).people:[]});
  }
  if(action!=='workspace')return response({error:'Not found'},404);
  const {client,account}=await requireMember();
