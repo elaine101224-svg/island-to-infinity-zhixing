@@ -27,7 +27,7 @@ export default function AdminSidebar({member=false,canEditRoster=false,canManage
   async function handleLogout() {
     setBusy(true); setError('');
     try {
-      const response = await fetch('/api/members/logout', { method: 'POST' });
+      const response = await fetch('/api/members/logout', { method: 'POST', headers: {'Content-Type':'application/json'}, body:'{}' });
       if (!response.ok) throw new Error('Unable to log out. Please retry.');
       // Clear authenticated client state as well as cookies after signing out.
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
