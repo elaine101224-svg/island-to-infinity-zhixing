@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { Users, Calendar, FileText, LayoutDashboard, LogOut, ClipboardList, Globe, ArrowUpRight, Menu, X } from 'lucide-react';
+import { Users, Calendar, LayoutDashboard, LogOut, ClipboardList, Globe, ArrowUpRight, Menu, X } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
 const primary = [
@@ -16,7 +16,6 @@ const secondary = [
  {href:'/admin/families',label:'Restricted family records',icon:Users},
  {href:'/admin/sewing',label:'Sewing · 缝纫队',icon:ClipboardList},
  {href:'/admin/schedule',label:'Previous calendar',icon:Calendar},
- {href:'/admin/plans',label:'Previous support plans',icon:FileText},
 ];
 
 export default function AdminSidebar() {
