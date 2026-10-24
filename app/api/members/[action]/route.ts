@@ -1,5 +1,5 @@
 import { NextRequest,NextResponse } from 'next/server';
-import { validateSession } from '@/lib/auth';
+import { validateSession, createSession, destroySession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
 import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
@@ -9,7 +9,7 @@ export const dynamic='force-dynamic';
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:privateHeaders});}
 function failure(error:unknown){return response({error:error instanceof MemberError?error.message:'The request could not be completed. Please retry.'},error instanceof MemberError?error.status:503);}
 async function manager(request?:Request){
- if(await validateSession()){if(request){const csrf=await verifyCsrf(request);if(csrf)throw new MemberError('Admin CSRF check failed.',403);}return {id:'legacy-core-admin'};}
+ if(await validateSession()){if(request){const csrf=await verifyCsrf(request);if(csrf)throw new MemberError('Admin CSRF check failed.',403);}try{const {account}=await requireMember();if(account.role==='admin')return {id:account.user_id};}catch{/* Existing shared-password session remains independent. */}return {id:'legacy-core-admin'};}
  const {account}=await requireMember();if(account.role!=='admin')throw new MemberError('Administrator required.',403);return {id:account.user_id};
 }
 export async function GET(_request:NextRequest,{params}:{params:Promise<{action:string}>}){
@@ -20,11 +20,13 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  }
  if(action!=='workspace')return response({error:'Not found'},404);
  const {client,account}=await requireMember();
+ const profile=dbResult(await memberService().from('team_members').select('data').eq('id',account.person_id).maybeSingle());
+ const position=profile?.data?.role==='lead'?'Leader':profile?.data?.role==='coordinator'?'Core team':'Member';
  const [tasks,reflections,groups,projects,events]=await Promise.all(['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data')));
  let rosterQuery=memberService().from('member_accounts').select('person_id,name,group_id').eq('state','active');
  if(account.role!=='admin')rosterQuery=rosterQuery.eq('group_id',account.group_id??'none');
  const roster=dbResult(await rosterQuery);
- return response({me:{name:account.name,role:account.role,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
+ return response({me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
  }catch(e){return failure(e);}
 }
 export async function POST(request:NextRequest,{params}:{params:Promise<{action:string}>}){
@@ -62,7 +64,8 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  if(error)throw new MemberError('Access was not changed. Reload and check the invitation or group binding.',(error.code==='PT409'||error.code==='40001')?409:400);
  return response({message:'Access updated. Existing sessions are checked against this state on every request.'});
  }
- if(action==='logout'){const client=await memberClient();await client.auth.signOut();return response({message:'Signed out.'});}
+ if(action==='logout'){const client=await memberClient();const result=await client.auth.signOut();if(result?.error)throw new MemberError('Sign-out failed. Please retry.',503);await destroySession();return response({message:'Signed out.'});}
+ if(action==='admin-session'){const {account}=await requireMember();if(account.role!=='admin')throw new MemberError('Administrator required.',403);if(!await createSession(process.env.ADMIN_PASSWORD??'',account.user_id))throw new MemberError('Admin workspace is not configured.',503);return response({redirect:'/admin'});}
  if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
  if(action==='request-code'){
  const parsed=loginSchema.safeParse(raw);if(!parsed.success)throw new MemberError('Enter your school email.');const {email}=parsed.data;

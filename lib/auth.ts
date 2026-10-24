@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { requireMember } from '@/lib/members/auth';
 import { createHmac, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'admin_session';
@@ -6,6 +7,7 @@ const SESSION_EXPIRY_HOURS = 24;
 
 interface SessionPayload {
   expiresAt: number;
+  memberId?: string;
 }
 
 interface SignedSession extends SessionPayload {
@@ -34,7 +36,7 @@ export function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(bufA, bufB);
 }
 
-export async function createSession(password: string): Promise<string | null> {
+export async function createSession(password: string, memberId?: string): Promise<string | null> {
   const adminPassword = process.env.ADMIN_PASSWORD;
 
   if (!adminPassword || !safeEqual(password, adminPassword)) {
@@ -43,6 +45,7 @@ export async function createSession(password: string): Promise<string | null> {
 
   const payload: SessionPayload = {
     expiresAt: Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000,
+    ...(memberId ? {memberId} : {}),
   };
   const sig = signPayload(payload, adminPassword);
 
@@ -88,7 +91,7 @@ export async function validateSession(): Promise<boolean> {
   }
 
   try {
-    const { expiresAt, sig }: SignedSession = JSON.parse(
+    const { expiresAt, sig, memberId }: SignedSession = JSON.parse(
       Buffer.from(sessionCookie.value, 'base64').toString('utf-8')
     );
 
@@ -100,8 +103,14 @@ export async function validateSession(): Promise<boolean> {
       return false;
     }
 
-    const expectedSig = signPayload({ expiresAt }, adminPassword);
-    return safeEqual(sig, expectedSig);
+    if (memberId !== undefined && typeof memberId !== 'string') return false;
+    const expectedSig = signPayload({ expiresAt, ...(memberId ? {memberId} : {}) }, adminPassword);
+    if (!safeEqual(sig, expectedSig)) return false;
+    if (memberId) {
+      const {account} = await requireMember();
+      return account.user_id === memberId && account.role === 'admin';
+    }
+    return true;
   } catch {
     return false;
   }

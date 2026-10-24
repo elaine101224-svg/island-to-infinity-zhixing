@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createHmac } from 'node:crypto';
 import { makeCookieStore } from '../../helpers/cookies';
 
+const personal=vi.hoisted(()=>({account:{user_id:'dummy-leader',role:'admin'},error:false}));
+vi.mock('@/lib/members/auth',()=>({requireMember:async()=>{if(personal.error)throw Error('revoked');return {account:personal.account};}}));
 const ADMIN_PASSWORD = 'test-secret-password';
 
 function unsetEnv(name: string) {
@@ -24,9 +26,16 @@ async function loadAuth() {
 
 describe('auth helpers', () => {
   beforeEach(() => {
+    personal.account={user_id:'dummy-leader',role:'admin'};personal.error=false;
     unsetEnv('ADMIN_PASSWORD');
     unsetEnv('NODE_ENV');
     vi.resetModules();
+  });
+
+  it('binds personal admin sessions to the verified school identity and live role',async()=>{
+    process.env.ADMIN_PASSWORD=ADMIN_PASSWORD;const store=mockCookies();const auth=await loadAuth();await auth.createSession(ADMIN_PASSWORD,'dummy-leader');expect(await auth.validateSession()).toBe(true);
+    personal.account.role='member';expect(await auth.validateSession()).toBe(false);personal.account.role='admin';personal.account.user_id='other-user';expect(await auth.validateSession()).toBe(false);personal.account.user_id='dummy-leader';personal.error=true;expect(await auth.validateSession()).toBe(false);
+    personal.error=false;const payload=JSON.parse(Buffer.from(store._store.admin_session,'base64').toString());payload.memberId='other-user';store._store.admin_session=Buffer.from(JSON.stringify(payload)).toString('base64');expect(await auth.validateSession()).toBe(false);
   });
 
   describe('safeEqual', () => {

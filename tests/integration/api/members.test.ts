@@ -1,7 +1,7 @@
 import {beforeEach,describe,it,expect,vi} from 'vitest';
 import {NextRequest} from 'next/server';
-const m=vi.hoisted(()=>({enabled:true,authorized:false,csrf:null as string|null,memberError:null as Error|null,result:{data:null as unknown,error:null as unknown},verify:{data:{user:{id:'dummy-id',email:'alex@uwcchina.org',email_confirmed_at:'2026-10-23'}},error:null as unknown},createUser:vi.fn(async()=>({data:{user:{id:'new-dummy-id'}},error:null})),signIn:vi.fn(async()=>({error:null})),signOut:vi.fn(async()=>({error:null})),limit:vi.fn(),rpc:vi.fn(),from:vi.fn(),account:{user_id:'dummy-id',person_id:'alex',email:'alex@uwcchina.org',role:'member',state:'active',expires_at:'2099-01-01',group_id:'A'}}));
-vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized}));
+const m=vi.hoisted(()=>({enabled:true,authorized:false,csrf:null as string|null,memberError:null as Error|null,result:{data:null as unknown,error:null as unknown},verify:{data:{user:{id:'dummy-id',email:'alex@uwcchina.org',email_confirmed_at:'2026-10-23'}},error:null as unknown},createUser:vi.fn(async()=>({data:{user:{id:'new-dummy-id'}},error:null})),signIn:vi.fn(async()=>({error:null})),signOut:vi.fn(async()=>({error:null})),limit:vi.fn(),rpc:vi.fn(),from:vi.fn(),session:vi.fn(async()=>'csrf'),destroy:vi.fn(async()=>{}),account:{user_id:'dummy-id',person_id:'alex',email:'alex@uwcchina.org',role:'member',state:'active',expires_at:'2099-01-01',group_id:'A'}}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized,createSession:m.session,destroySession:m.destroy}));
 vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
 vi.mock('@/lib/members/auth',async original=>{
  const real=await original<typeof import('@/lib/members/auth')>();
@@ -12,8 +12,15 @@ import {MemberError} from '@/lib/members/auth';
 import {createTermSeed} from '@/lib/term/seed';
 const params=(action:string)=>({params:Promise.resolve({action})});
 function req(action:string,body:unknown,origin='https://islandtoinfinity.online'){return new NextRequest('https://islandtoinfinity.online/api/members/'+action,{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify(body)});}
-beforeEach(()=>{process.env.NEXT_PUBLIC_SITE_URL='https://islandtoinfinity.online';m.enabled=true;m.authorized=false;m.csrf=null;m.memberError=null;m.result={data:{...m.account},error:null};m.verify.error=null;m.verify.data.user.id='dummy-id';m.createUser.mockClear();m.signIn.mockClear();m.signOut.mockClear();m.limit.mockReset();m.rpc.mockReset().mockResolvedValue({data:{id:'roles-A'},error:null});const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),gt:vi.fn().mockReturnThis(),order:vi.fn().mockReturnThis(),update:vi.fn().mockReturnThis(),maybeSingle:vi.fn(async()=>m.result)};m.from.mockReset().mockReturnValue(q);});
+beforeEach(()=>{process.env.NEXT_PUBLIC_SITE_URL='https://islandtoinfinity.online';m.enabled=true;m.authorized=false;m.account.role='member';m.session.mockClear();m.destroy.mockClear();m.csrf=null;m.memberError=null;m.result={data:{...m.account},error:null};m.verify.error=null;m.verify.data.user.id='dummy-id';m.createUser.mockClear();m.signIn.mockClear();m.signOut.mockClear();m.limit.mockReset();m.rpc.mockReset().mockResolvedValue({data:{id:'roles-A'},error:null});const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),gt:vi.fn().mockReturnThis(),order:vi.fn().mockReturnThis(),update:vi.fn().mockReturnThis(),maybeSingle:vi.fn(async()=>m.result)};m.from.mockReset().mockReturnValue(q);});
 describe('member API authentication and permissions',()=>{
+ it('only opens a personal admin session for an authorized admin, ignoring forged body roles',async()=>{
+  expect((await POST(req('admin-session',{role:'admin'}),params('admin-session'))).status).toBe(403);expect(m.session).not.toHaveBeenCalled();
+  m.account.role='admin';const response=await POST(req('admin-session',{}),params('admin-session'));expect(response.status).toBe(200);expect(m.session).toHaveBeenCalledWith(expect.any(String),'dummy-id');expect(await response.json()).toEqual({redirect:'/admin'});
+ });
+ it('rejects cross-origin admin-session creation and removes both sessions on logout',async()=>{
+  m.account.role='admin';expect((await POST(req('admin-session',{},'https://evil.example'),params('admin-session'))).status).toBe(403);expect(m.session).not.toHaveBeenCalled();expect((await POST(req('logout',{}),params('logout'))).status).toBe(200);expect(m.destroy).toHaveBeenCalled();expect(m.signOut).toHaveBeenCalled();
+ });
  it('preprovisions an OTP-ready identity while keeping membership invited and sending no email',async()=>{
   m.authorized=true;const doc=createTermSeed();doc.people=[{id:'alex',name:'Alex (dummy)',groupId:'A',availability:''}];
   const inserted:Record<string,unknown>[]=[];

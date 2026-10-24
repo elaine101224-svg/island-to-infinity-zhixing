@@ -1,0 +1,2 @@
+import AdminSidebar from '@/components/admin/AdminNavbar';
+export default function WorkspaceShell({children,canEditRoster=false,canManage=false}:{children:React.ReactNode;canEditRoster?:boolean;canManage?:boolean}){return <div className="admin-shell flex flex-col md:flex-row min-h-screen bg-cream font-sans"><AdminSidebar member canEditRoster={canEditRoster} canManage={canManage}/><main id="admin-main" tabIndex={-1} className="flex-1 min-w-0"><div className="p-5 sm:p-7 lg:p-8">{children}</div></main></div>;}

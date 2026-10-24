@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 export function makeCookieStore(initial: Record<string, string> = {}) {
   const store = { ...initial };
   return {
+    getAll: vi.fn(() => Object.entries(store).map(([name,value]) => ({name,value}))),
     get: vi.fn((name: string) =>
       Object.prototype.hasOwnProperty.call(store, name)
         ? { name, value: store[name] }
