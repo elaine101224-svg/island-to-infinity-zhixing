@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Lock } from 'lucide-react';
+import { Menu, X, UserRound } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
 // Follow the visitor’s path from the photo archive into families, plans and dates.
@@ -65,9 +65,9 @@ export default function Navbar() {
                 className={`inline-flex min-h-11 items-center whitespace-nowrap text-sm font-medium text-earth-dark underline-offset-4 hover:underline ${focus}`}>
                 Sewing <span className="ml-1.5 text-xs text-earth-mid" lang="zh">服装定制</span>
               </Link>
-              <Link href="/login" aria-current={active('/login') ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center gap-1.5 rounded-sm text-xs text-earth-mid hover:text-earth-dark ${focus}`}>
-                <Lock aria-hidden="true" className="h-3.5 w-3.5" />Admin
+              <Link href="/members" aria-current={active('/members') ? 'page' : undefined}
+                className={`inline-flex min-h-11 items-center gap-2 rounded-lg bg-earth-dark px-3 text-sm font-medium text-white hover:bg-earth-mid ${focus}`}>
+                <UserRound aria-hidden="true" className="h-4 w-4" />Member login
               </Link>
             </div>
           </div>
@@ -93,8 +93,8 @@ export default function Navbar() {
             <Link href="/sewing" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-earth-dark hover:bg-sand/30 ${focus}`}>
               Sewing <span className="text-earth-mid" lang="zh">服装定制</span>
             </Link>
-            <Link href="/login" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-earth-mid hover:text-earth-dark ${focus}`}>
-              <Lock aria-hidden="true" className="h-3.5 w-3.5" />Admin login
+            <Link href="/members" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg bg-earth-dark px-3 text-sm font-medium text-white hover:bg-earth-mid ${focus}`}>
+              <UserRound aria-hidden="true" className="h-4 w-4" />Member login
             </Link>
           </div>
         </div>
