@@ -18,7 +18,7 @@ export default async function AdminLayout({
     <ToastProvider>
       <div className="flex flex-col md:flex-row min-h-screen bg-sand/40 font-sans">
         <AdminSidebar />
-        <main className="flex-1 min-w-0 overflow-auto">
+        <main id="admin-main" tabIndex={-1} className="flex-1 min-w-0">
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>

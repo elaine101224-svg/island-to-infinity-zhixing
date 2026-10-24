@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
 import { getFamilies, getPlans, getScheduleEvents, getTeamMembers, getActivityRecords } from '@/lib/data';
-import { Users, Calendar, FileText, UserCog, Clock, ClipboardList, AlertCircle, ArrowRight } from 'lucide-react';
+import { Clock, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { readContentState } from '@/lib/websiteContent';
 import { inSchoolYear, needsRecording as eventNeedsRecording } from '@/lib/schoolYear';
@@ -47,10 +47,10 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     .slice(0, 8);
 
   const stats = [
-    { label: `Confirmed active members · ${schoolYear}`, value: unassignedMembers && !activeMembers ? '—' : activeMembers, icon: UserCog, href: '/admin/team', color: 'bg-terracotta/10 border-terracotta/20 text-terracotta-dark hover:bg-terracotta/20' },
-    { label: 'Families', value: families.length, icon: Users, href: '/admin/families', color: 'bg-sage/10 border-sage/20 text-sage hover:bg-sage/20' },
-    { label: 'Active Plans · all years', value: activePlans, icon: FileText, href: '/admin/plans', color: 'bg-amber-warm/10 border-amber-warm/20 text-amber-warm hover:bg-amber-warm/20' },
-    { label: `Recorded sessions · ${schoolYear}`, value: activities.filter(a => inSchoolYear(a.date, schoolYear) && a.date <= todayStr).length, icon: ClipboardList, href: '/admin/activities', color: 'bg-earth-mid/10 border-earth-mid/20 text-earth-mid hover:bg-earth-mid/20' },
+    { label: `Confirmed active members · ${schoolYear}`, value: unassignedMembers && !activeMembers ? '—' : activeMembers, href: '/admin/team' },
+    { label: 'Families', value: families.length, href: '/admin/families' },
+    { label: 'Active Plans · all years', value: activePlans, href: '/admin/plans' },
+    { label: `Recorded sessions · ${schoolYear}`, value: activities.filter(a => inSchoolYear(a.date, schoolYear) && a.date <= todayStr).length, href: '/admin/activities' },
   ];
 
   const familyName = (id: string) => families.find((f) => f.id === id)?.pseudonym;
@@ -69,25 +69,26 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
       </div>
 
       {unassignedMembers > 0 && <p className="mb-6 bg-amber-light/30 border border-sand rounded-xl p-4 text-earth-mid">{unassignedMembers} members have no confirmed school year. <Link href="/admin/team" className="underline">Review the roster</Link> before treating this year’s count as complete.</p>}
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className={`rounded-xl border p-5 flex flex-col items-center justify-center transition-all hover:shadow-lg hover:-translate-y-0.5 ${stat.color}`}
-          >
-            <stat.icon className="h-7 w-7 mb-3 opacity-80" />
-            <div className="text-3xl font-serif font-bold">{stat.value}</div>
-            <div className="text-sm font-medium mt-0.5 opacity-80">{stat.label}</div>
-          </Link>
-        ))}
-      </div>
+      <section aria-labelledby="admin-actions-title" className="mb-8">
+        <h2 id="admin-actions-title" className="text-lg font-semibold mb-3">What would you like to do?</h2>
+        <div className="divide-y divide-sand border-y border-sand">
+          {[
+            { href: '/admin/content', label: 'Edit website & photos', description: 'Homepage, Our Journey, documentary and public updates' },
+            { href: '/admin/term', label: 'Manage semester work', description: 'Calendar, family groups, assignments and progress' },
+            { href: '/admin/activities', label: 'Record an activity', description: 'Visits, session notes and follow-up' },
+          ].map(action => <Link key={action.href} href={action.href} className="flex items-center justify-between gap-4 py-4 px-2 rounded-lg hover:bg-white focus-visible:outline-2 focus-visible:outline-terracotta-dark">
+            <div><span className="font-medium text-earth-dark">{action.label}</span><p className="text-sm text-earth-mid mt-1">{action.description}</p></div><ArrowRight size={20} aria-hidden="true" className="shrink-0 text-earth-mid" />
+          </Link>)}
+        </div>
+      </section>
+      <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 mb-8">
+        {stats.map(stat => <div key={stat.label}><dt className="text-sm text-earth-mid">{stat.label}</dt><dd className="mt-1"><Link href={stat.href} className="text-xl font-semibold tabular-nums underline decoration-sand underline-offset-4 hover:decoration-earth-mid focus-visible:outline-2 focus-visible:outline-terracotta-dark">{stat.value}</Link></dd></div>)}
+      </dl>
 
       {/* Reminders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming */}
-        <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-sand overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-terracotta" />
@@ -120,7 +121,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
         </div>
 
         {/* Needs recording */}
-        <div className="bg-white rounded-xl border border-sand shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-sand overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-amber-warm" />
