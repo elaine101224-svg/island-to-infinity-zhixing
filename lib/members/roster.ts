@@ -4,8 +4,8 @@ export function rosterEditorsConfigured() { return process.env.MEMBER_ROSTER_EDI
 export function rosterEditors() {
   return (process.env.MEMBER_ROSTER_EDITORS ?? '').split(',').map(email => email.trim().toLowerCase()).filter(allowedMemberEmail);
 }
-export function canEditRoster(account: Pick<MemberAccount, 'email' | 'state'>) {
-  return account.state === 'active' && rosterEditors().includes(account.email);
+export function canEditRoster(account: Pick<MemberAccount, 'email' | 'state' | 'login_method'>) {
+  return account.login_method !== 'email-only' && account.state === 'active' && rosterEditors().includes(account.email);
 }
 export async function requireRosterEditor() {
   const member = await requireMember();

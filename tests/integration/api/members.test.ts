@@ -3,6 +3,7 @@ import {NextRequest} from 'next/server';
 const m=vi.hoisted(()=>({enabled:true,authorized:false,csrf:null as string|null,memberError:null as Error|null,result:{data:null as unknown,error:null as unknown},verify:{data:{user:{id:'dummy-id',email:'alex@uwcchina.org',email_confirmed_at:'2026-10-23'}},error:null as unknown},createUser:vi.fn(async()=>({data:{user:{id:'new-dummy-id'}},error:null})),signIn:vi.fn(async()=>({error:null})),signOut:vi.fn(async()=>({error:null})),limit:vi.fn(),rpc:vi.fn(),from:vi.fn(),session:vi.fn(async()=>'csrf'),destroy:vi.fn(async()=>{}),account:{user_id:'dummy-id',person_id:'alex',email:'alex@uwcchina.org',role:'member',state:'active',expires_at:'2099-01-01',group_id:'A'}}));
 vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized,createSession:m.session,destroySession:m.destroy}));
 vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
+vi.mock('@/lib/members/emailEntry',()=>({clearEmailEntry:vi.fn(async()=>{}),saveEmailEntry:vi.fn(async()=>{})}));
 vi.mock('@/lib/members/auth',async original=>{
  const real=await original<typeof import('@/lib/members/auth')>();
  return {...real,memberEnabled:()=>m.enabled,memberService:()=>({from:m.from,rpc:m.rpc,auth:{admin:{createUser:m.createUser}}}),memberClient:async()=>({auth:{signInWithOtp:m.signIn,verifyOtp:async()=>m.verify,signOut:m.signOut}}),memberLimit:m.limit,requireMember:async()=>{if(m.memberError)throw m.memberError;return {client:{rpc:m.rpc,from:m.from},account:m.account};}};

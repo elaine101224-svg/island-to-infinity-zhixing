@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { createHash } from 'node:crypto';
+import { emailEntryClient, hasEmailEntry } from './emailEntry';
 export class MemberError extends Error {constructor(message:string, public status=400){super(message);}}
 export function memberEnabled(){return process.env.MEMBERS_ENABLED==='true';}
 export function allowedMemberEmail(email:string){return /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@uwcchina\.org$/.test(email);}
@@ -12,11 +13,13 @@ export function memberService(){
  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 }
 export async function memberClient(){
+ try { const entry=await emailEntryClient();if(entry)return entry; }
+ catch { throw new MemberError('Member session expired. Enter your email again.',401); }
  const jar=await cookies();const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
  if(!url||!key)throw new MemberError('Member sign-in is not configured.',503);
  return createServerClient(url,key,{cookieOptions:{name:'iti-member-auth',httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:'/',maxAge:60*60*24*7},cookies:{getAll:()=>jar.getAll(),setAll:updates=>{for(const {name,value,options} of updates)jar.set(name,value,options);}}});
 }
-export type MemberAccount={user_id:string;person_id:string;email:string;name:string;role:'admin'|'coordinator'|'member';group_id:'A'|'B'|'C'|'D'|null;state:'invited'|'active'|'revoked';expires_at:string};
+export type MemberAccount={user_id:string;person_id:string;email:string;name:string;role:'admin'|'coordinator'|'member';group_id:'A'|'B'|'C'|'D'|null;state:'invited'|'active'|'revoked';expires_at:string;login_method?:'email-only'|'verified'};
 export async function requireMember(){
  if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
  const client=await memberClient();
@@ -27,7 +30,9 @@ export async function requireMember(){
  const {data:account,error:err}=await client.from('member_accounts').select('*').eq('user_id',data.user.id).maybeSingle();
  if(err)throw new MemberError('Membership could not be checked. Please retry.',503);
  if(!account||account.state!=='active'||account.email!==email)throw new MemberError('An active invitation is required. Ask your coordinator.',403);
- return {client,account:account as MemberAccount};
+ const emailOnly=await hasEmailEntry();
+ if(emailOnly&&account.role==='admin')throw new MemberError('Use Admin sign-in for administrator access.',403);
+ return {client,account:{...account,login_method:emailOnly?'email-only':'verified'} as MemberAccount};
 }
 export function sameOrigin(request:Request){
  const origin=request.headers.get('origin'),configured=process.env.NEXT_PUBLIC_SITE_URL;

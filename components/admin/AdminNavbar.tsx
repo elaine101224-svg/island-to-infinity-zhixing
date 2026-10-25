@@ -13,6 +13,7 @@ const primary = [
  {href:'/admin/content',label:'Website',icon:Globe},
 ];
 const secondary = [
+ {href:'/admin/term/import',label:'Task Import Preview',icon:ClipboardList},
  {href:'/admin/sewing',label:'Sewing · 缝纫队',icon:ClipboardList},
 ];
 

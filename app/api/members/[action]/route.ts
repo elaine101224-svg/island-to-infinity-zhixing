@@ -5,6 +5,8 @@ import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
 import { canEditRoster, rosterEditors } from '@/lib/members/roster';
+import { saveEmailEntry, clearEmailEntry } from '@/lib/members/emailEntry';
+import { createClient } from '@supabase/supabase-js';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:privateHeaders});}
 function failure(error:unknown){return response({error:error instanceof MemberError?error.message:'The request could not be completed. Please retry.'},error instanceof MemberError?error.status:503);}
@@ -64,16 +66,42 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  if(error)throw new MemberError('Access was not changed. Reload and check the invitation or group binding.',(error.code==='PT409'||error.code==='40001')?409:400);
  return response({message:'Access updated. Existing sessions are checked against this state on every request.'});
  }
- if(action==='logout'){const client=await memberClient();const result=await client.auth.signOut();if(result?.error)throw new MemberError('Sign-out failed. Please retry.',503);await destroySession();return response({message:'Signed out.'});}
+ if(action==='logout'){try{const client=await memberClient();const result=await client.auth.signOut();if(result?.error)throw new MemberError('Sign-out failed. Please retry.',503);}catch(error){if(!(error instanceof MemberError)||error.status!==401)throw error;}await clearEmailEntry();await destroySession();return response({message:'Signed out.'});}
  if(action==='admin-session'){const {account}=await requireMember();if(account.role!=='admin')throw new MemberError('Administrator required.',403);if(!await createSession(process.env.ADMIN_PASSWORD??'',account.user_id))throw new MemberError('Admin workspace is not configured.',503);return response({redirect:'/admin'});}
  if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
+ if(action==='email-entry'){
+ const parsed=loginSchema.safeParse(raw);if(!parsed.success||!allowedMemberEmail(parsed.data.email))throw new MemberError('Enter your approved uwcchina.org email.');
+ const {email}=parsed.data;await memberLimit('email-entry:'+email,10,600);
+ if(!process.env.ADMIN_PASSWORD||!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)throw new MemberError('Member sign-in is not configured.',503);
+ const db=memberService();const account=dbResult(await db.from('member_accounts').select('*').eq('email',email).maybeSingle()) as MemberAccount|null;
+ if(!account||account.state==='revoked'||(account.state==='invited'&&(!Number.isFinite(Date.parse(account.expires_at))||Date.parse(account.expires_at)<=Date.now())))throw new MemberError('This email is not on the current member list. Ask your coordinator.',403);
+ if(account.role==='admin')return response({error:'Use Admin sign-in for administrator access.',redirect:'/login'},403);
+ // No new identities and no email delivery. This is an owner-selected email-only entry policy,
+ // not proof of mailbox ownership. Keep the native session encrypted and separate from verified sign-in.
+ const existing=await db.auth.admin.getUserById(account.user_id);
+ if(existing.error||existing.data.user?.email?.toLowerCase()!==email)throw new MemberError('Account link needs administrator review.',403);
+ const link=await db.auth.admin.generateLink({type:'magiclink',email});
+ if(link.error||link.data.user?.id!==account.user_id||!link.data.properties?.hashed_token)throw new MemberError('Sign-in could not be prepared. Please retry.',503);
+ const native=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+ const verified=await native.auth.verifyOtp({token_hash:link.data.properties.hashed_token,type:'email'});
+ if(verified.error||!verified.data.session||verified.data.user?.id!==account.user_id){await native.auth.signOut();throw new MemberError('Sign-in failed. Please retry.',503);}
+ try{
+ if(account.state==='invited'){
+ const activated=dbResult(await db.from('member_accounts').update({state:'active'}).eq('user_id',account.user_id).eq('state','invited').gt('expires_at',new Date().toISOString()).select('user_id').maybeSingle());
+ if(!activated)throw new MemberError('Invitation changed. Ask your coordinator.',403);
+ }
+ await saveEmailEntry(verified.data.session);
+ const signedIn=await requireMember();if(signedIn.account.user_id!==account.user_id)throw new MemberError('Account link changed.',403);
+ }catch(error){await native.auth.signOut();await clearEmailEntry();throw error;}
+ return response({message:'Signed in.',redirect:'/members'});
+ }
  if(action==='request-code'){
  const parsed=loginSchema.safeParse(raw);if(!parsed.success)throw new MemberError('Enter your school email.');const {email}=parsed.data;
  if(!allowedMemberEmail(email))throw new MemberError('Use your uwcchina.org school email.');
  await memberLimit('otp:'+email,4,600);
  const db=memberService();const account=dbResult(await db.from('member_accounts').select('*').eq('email',email).maybeSingle()) as MemberAccount|null;
  if(account&&account.state!=='revoked'&&(account.state==='active'||Date.parse(account.expires_at)>Date.now())){
- const {error}=await (await memberClient()).auth.signInWithOtp({email,options:{shouldCreateUser:false}});if(error)throw new MemberError('Code could not be sent. Wait a minute and retry.',503);
+ const {error}=await (await memberClient()).auth.signInWithOtp({email,options:{shouldCreateUser:false}});if(error)throw new MemberError('Sign-in email could not be sent. Wait a minute and retry.',503);
  }
  return response({message:'If your school email has an active invitation, a sign-in code is on its way. Check your inbox and spam folder.'});
  }

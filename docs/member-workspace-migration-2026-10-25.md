@@ -1,0 +1,55 @@
+# Member workspace migration design — 25 October 2026
+
+This is the required first-stage design and import preview. It is not a claim that the full member task/calendar platform has been implemented or released. The administrator preview lives at `/admin/term/import`; it accepts a private JSON proposal, reads the existing directory, member accounts and planning revision, and performs no writes. Keep actual names, account bindings, family responsibilities and the source plan outside the public repository and client bundles. The reviewed private proposal and a readable snapshot are in the project's `private-media` folder.
+
+## Findings and confirmed decisions
+
+The existing Next.js app uses Supabase native Auth, `member_accounts` linked by stable `person_id` to `team_members`, and a revisioned `term_workspaces` master document. `iti_private.sync_term` derives `member_tasks`, `member_projects`, `member_groups` and `member_events`. Those projections are replaced whenever the master changes: never insert imported tasks into them directly. Current member/calendar views read these projections. Activity logs already have a separate per-author record and RLS.
+
+Production was inspected read-only at planning revision 6: 28 directory profiles, 23 member accounts, one active administrator and 22 invited ordinary members. Of the 20 participating labels in the new brief, 19 match an existing account through a reviewed directory ID. One directory member has no account and must remain pending. The retired member receives no new assignments; historical accounts and records remain. No email address or account has been inferred or provisioned by this preview. Exact private IDs and account states are in the private matching report; all names are deliberately omitted here.
+
+The owner confirmed the purchase-list deadline as **1 November 2026, 23:59 Asia/Shanghai**, equivalent to `2026-11-01T15:59:00Z`. Other tasks have no hard deadline. A proposed directory alias was explicitly confirmed by the owner. Distinct people sharing an English first name remain bound to distinct IDs. Existing authorization roles remain independent from names and team positions.
+
+The existing market event is marked Confirmed on 11 December. The new brief says that date requires organizer confirmation. The preview explicitly proposes downgrading the existing record to Tentative, preserving the old date as an unconfirmed planning reference and removing its confirmation evidence. Do not create a second event or convert 7 November/11 December into confirmed personal attendance. Also preview the updated fundraiser next action and the paused welfare project.
+
+## Additive data model
+
+Reuse the existing database, verified member/account IDs, service API guards, existing revision/audit pattern and shared calendar renderer. Do not create another account system or copy Calendar events into a personal event table.
+
+| Object | Representation and constraints |
+| --- | --- |
+| Family/project scope | Stable ID and kind; reference an existing project ID when one exists. Explicit `scope_members` rows, independent from legacy A/B/C/D. Do not guess family-to-group mappings. |
+| Long-term responsibility | Stable source ID, scope, description, confirmation/evidence, effective period and member relations. Completion of a weekly task never completes this responsibility. |
+| Task | One canonical record with stable source ID, scope, description, deliverable, status, priority, nullable event/series-instance reference, dependency and revision. Imported tasks start 待确认. Source-kind distinguishes an accepted role from a suggested action. |
+| Task participation | Composite `(task_id, account_id)` key; responsibility/owner/participant designation, personal contribution/status/evidence and revision. Whole-task completion is an administrator decision; personal completion updates only that member's contribution. |
+| Deadline | Checked union: no deadline, date only, or exact instant. Separate `due_date` and `due_at`, with confirmation and original text. Fixed Asia/Shanghai rendering and date comparison. A null date cannot be overdue. |
+| Tutoring series | Stable series ID, weekly rule, nullable confirmed anchor/date/time, status and revision. A rule without a confirmed anchor emits no instances. |
+| Series instance | Stable `(series_id, original_date)` uniqueness, exception kind, effective date/time/location, change reason and revision. Skipping/rescheduling preserves original identity. Future changes create a new effective rule segment; past instances remain untouched. Alternating locations need an explicit anchor. |
+| Attendance | Composite `(event_id, account_id)` key with invited/confirmed/attended/cancelled state; project membership never implies attendance. Canonical event may reference the existing master event or the canonical tutoring instance, never a copy. |
+| Personal task / preparation | Owner ID, optional canonical task/event reference, private title/notes, optional start/end, explicit sharing state and revision. Owner-only by default, including from administrators. Changing preparation cannot alter deadline or formal event. |
+| Proposal / change request | Author, requested scope/time/resources/participants, pending/reviewed status, administrator decision and audit. A private personal task is immediately usable; proposals that affect others await approval. |
+| Import batch and source mapping | Source ID/version, reviewed account bindings, expected master revision, checksum and rollback manifest. Unique `(source_id, object_kind, source_record_id)` makes repeated import idempotent. Never overwrite member progress during reimport; report conflicts. |
+
+Keep the old planning document and its four existing role-allocation tasks until an explicit reviewed reconciliation. New imported actions must have stable IDs and a single canonical source; avoid writing two competing representations of the same task. A suitable migration is to extend the revisioned master for shared responsibilities/tasks/series and derive permission-filtered projections, while private plans/contributions/attendance stay in relational tables referencing canonical IDs. Update the master schema, record editor, trigger and public/member serializers together; an old full-document save must not drop the new sections. Reject incompatible old writers by schema version before enabling the feature.
+
+## Permission boundaries
+
+All new tables enable RLS and explicitly revoke implicit grants. Members read only their task participation, authorized family scopes and events they can access. They update their contribution/status/evidence through a narrow identity-bound RPC, never another member's data or ownership/deadline fields. Administrator bulk assignment, priorities, deadlines, series changes, formal activity scheduling and whole-task completion use the live server role and expected revisions. Assignment rejects inactive/revoked members transactionally, including in bulk and on reimport.
+
+Personal plans stay owner-only unless explicitly shared to an administrator; do not add an unconditional admin SELECT policy. Even shared plans retain owner-only editing. Household/contact/health material never enters public Calendar, all-member project projections or public page props. Use explicitly public-safe fields when overlaying the existing public calendar. Coordinators have only explicit authorized scope access.
+
+The owner subsequently selected an **email-only entry policy for ordinary members**, without messages or codes. This is not mailbox verification. The app keeps those native session tokens encrypted in a separate HttpOnly cookie and denies administrator/roster-editor privileges to this login method. Verified administrator authentication remains separate. Existing per-request membership revocation and database RLS remain in force. The tradeoff is deliberate: anyone who knows a listed ordinary-member email can enter that member's workspace. This login change does not make cross-account authentication tests equivalent to proof of real-world identity.
+
+## Import and rollback sequence
+
+1. Review the private 16-action / 19-responsibility preview against live accounts. Resolve pending bindings using the existing invitation workflow, never guesses. Confirm canonical scope/project links. Do not modify accounts as a side effect of a task import.
+2. Before production data writes, export the master document and revision, all affected tables and existing function/policy definitions to a timestamped private backup with restricted permissions and a checksum. Record deployment ID and current release. The read-only inspection snapshot in this task is **not** a full backup or restore proof.
+3. Create a migration using `supabase migration new`; apply first to the isolated free test project or disposable local native stack. Add new fields/tables/indexes/policies/RPCs without deleting old tables or changing unrelated family/media data. Keep a feature gate disabled initially. Never put a private seed in the repository or migration SQL.
+4. Import a reviewed batch in one transaction, checking the preview's base revision and account states. Record original values and stable source links in a private rollback manifest. If another edit occurred, return a conflict and require a fresh preview. Do not silently overwrite progress or apply a partial shared task.
+5. Verify two ordinary members and the administrator through the real app, Auth and database. Test allowed and denied reads/writes, private sharing, assignment revocation, one shared-task count, contribution/whole-task distinction, single-instance completion vs series, skip/once/future edits, independent preparation and deadlines, and refresh persistence. Test empty/loading/error/mobile flows and public data boundaries.
+6. Stage the exact production build without assigning the domain; test it, then promote only after acceptance. Record what was actually verified. Do not describe a local unit-test pass as production or browser acceptance.
+7. Roll back the application to the recorded deployment first. Disable the new feature. Reverse only that batch's inserts/updates whose revisions still match the rollback manifest; stop on newer member edits and reconcile rather than deleting their work. Preserve history. Restore an old master document as a new revision using the existing audited write path, never reset its revision counter. Perform full database restore only if necessary, after explicit review of newer data.
+
+## Implemented in this stage
+
+Private import schema validation, deterministic account-ID matching, inactive-member exclusion, duplicate/dependency checks, a read-only administrator preview endpoint, a mobile-friendly preview page and targeted tests. The private initial proposal has 16 tasks (six shared), 19 confirmed responsibilities, two unanchored weekly series, zero generated activities and three legacy corrections. Full task CRUD, personal calendar/plans, recurrence editing, batch import SQL and production task writes remain follow-on implementation, not completed features.
