@@ -1,7 +1,7 @@
 import { NextRequest,NextResponse } from 'next/server';
 import { validateSession, createSession, destroySession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
-import { termSchema } from '@/lib/term/schema';
+import { termSchema, type Term } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
 import { canEditRoster, rosterEditors } from '@/lib/members/roster';
@@ -23,16 +23,24 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  if(action!=='workspace')return response({error:'Not found'},404);
  const {client,account}=await requireMember();
  const db=memberService();
- let rosterQuery=db.from('member_accounts').select('person_id,name,group_id').eq('state','active');
- if(account.role!=='admin')rosterQuery=rosterQuery.eq('group_id',account.group_id??'none');
- const [profileResult,rosterResult,tasks,reflections,groups,projects,events]=await Promise.all([
+ const rosterQuery=db.from('member_accounts').select('person_id,name,group_id').in('state',['active','invited']);
+ const [profileResult,rosterResult,projections,masterResult]=await Promise.all([
  db.from('team_members').select('data').eq('id',account.person_id).maybeSingle(),rosterQuery,
- ...['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data')),
+ Promise.all(['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data'))),
+ db.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle(),
  ]);
+ const [tasks,reflections,groups,projects,events]=projections;
  const profile=dbResult(profileResult);
  const position=profile?.data?.role==='lead'?'Leader':profile?.data?.role==='coordinator'?'Core team':'Member';
- const roster=dbResult(rosterResult);
- return response({me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
+ const master=dbResult(masterResult)?.document as Term|undefined;
+ const scopes=(master?.scopes??[]).filter(scope=>account.role==='admin'||scope.memberIds.includes(account.person_id)||scope.coordinatorIds.includes(account.person_id));
+ const responsibilities=(master?.responsibilities??[]).filter(role=>account.role==='admin'||role.memberIds.includes(account.person_id));
+ const taskRows=(dbResult(tasks)??[]).map(row=>row.data);
+ const visiblePeople=new Set([account.person_id,...taskRows.flatMap(task=>[task.ownerId,...(task.collaboratorIds??[])]),...scopes.flatMap(scope=>[...scope.memberIds,...scope.coordinatorIds])]);
+ const projectIds=new Set([...scopes.map(scope=>scope.id),...taskRows.map(task=>task.projectId)]);
+ const projectRows=(dbResult(projects)??[]).map(row=>row.data).filter(project=>account.role==='admin'||!master?.planVersion||projectIds.has(project.id));
+ const roster=(dbResult(rosterResult)??[]).filter(person=>account.role==='admin'||visiblePeople.has(person.person_id)||(account.group_id!==null&&person.group_id===account.group_id));
+ return response({me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:taskRows,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster});
  }catch(e){return failure(e);}
 }
 export async function POST(request:NextRequest,{params}:{params:Promise<{action:string}>}){

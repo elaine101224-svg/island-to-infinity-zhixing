@@ -75,7 +75,10 @@ export const defaultContent: Content = {
       en: "Individual and group customization. Styles and techniques are confirmed together.",
     },
     price: { zh: "", en: "" },
-    lead: { zh: "", en: "" },
+    lead: {
+      zh: "参考约20天：设计确定后打样约1周，确认样衣后批量制作约10天；具体交期需沟通确认。",
+      en: "Allow around 20 days overall: about one week for sampling once the design is agreed, then about 10 days for production after sample approval. Confirm the delivery date with the maker.",
+    },
     fabric: { zh: "", en: "" },
     moq: null,
     colors: [],
@@ -83,6 +86,20 @@ export const defaultContent: Content = {
   })),
   gallery: [],
   faq: [
+    {
+      question: { zh: "需要提前多久确认设计？", en: "How far ahead should I confirm my design?" },
+      answer: {
+        zh: "设计需求确定后，制作样衣通常约1周；确认样衣后再批量制作，大约需要10天。整体建议预留20天左右，包含打样、确认与制作。这些是参考时间，具体交期以与制作者沟通确认为准。",
+        en: "Once the design is agreed, sampling usually takes about one week. Batch production starts after sample approval and takes around 10 days. Allow around 20 days overall for sampling, confirmation and production. These are estimates; agree the actual delivery date with the maker.",
+      },
+    },
+    {
+      question: { zh: "打样包含什么？已有样板可以再做吗？", en: "What does sampling include? Can I reuse existing patterns?" },
+      answer: {
+        zh: "打样包括服装尺码版和印花图案样板，这一阶段通常约1周。尺码版、图案样板和样衣确认后再进入批量制作。已有确认的尺码版和图案样板时，可主要按制作所需时间沟通复单工期，仍需重新确认排期。",
+        en: "Sampling includes the garment size pattern and print artwork sample, usually taking about one week. Approve the size pattern, print sample and sample garment before batch production. If approved patterns and artwork samples already exist, a repeat order can focus on production time; confirm the schedule again with the maker.",
+      },
+    },
     {
       question: {
         zh: "可以只做一两件吗？",

@@ -9,6 +9,7 @@ import Logo from '@/components/ui/Logo';
 const primary = [
  {href:'/admin',label:'Today',icon:LayoutDashboard},
  {href:'/admin/term',label:'Semester',icon:Calendar},
+ {href:'/admin/tasks',label:'Member Tasks',icon:ClipboardList},
  {href:'/admin/members',label:'Members',icon:Users},
  {href:'/admin/content',label:'Website',icon:Globe},
 ];
@@ -17,8 +18,8 @@ const secondary = [
  {href:'/admin/sewing',label:'Sewing · 缝纫队',icon:ClipboardList},
 ];
 
-export default function AdminSidebar({member=false,canEditRoster=false,canManage=false}:{member?:boolean;canEditRoster?:boolean;canManage?:boolean}) {
- const items=member?[{href:'/members',label:'Today',icon:LayoutDashboard},{href:'/members#calendar',label:'Semester',icon:Calendar},{href:'/members#tasks',label:'My tasks',icon:ClipboardList},{href:'/members/activities',label:'Activity log',icon:ClipboardList},...(canEditRoster?[{href:'/members/roster',label:'Members',icon:Users}]:[]),...(canManage?[{href:'/admin',label:'Manage workspace',icon:Globe}]:[])]:primary;
+export default function AdminSidebar({member=false,canEditRoster=false,canManage=false,memberView='tasks'}:{member?:boolean;canEditRoster?:boolean;canManage?:boolean;memberView?:'tasks'|'calendar'|'projects'}) {
+ const items=member?[{href:'/members',label:'My Tasks',icon:ClipboardList},{href:'/members?view=calendar',label:'My Calendar',icon:Calendar},{href:'/members?view=projects',label:'My Projects',icon:LayoutDashboard},...(canEditRoster?[{href:'/members/roster',label:'Members',icon:Users}]:[]),...(canManage?[{href:'/admin',label:'Manage workspace',icon:Globe}]:[])]:primary;
   const pathname = usePathname();
   const toggle = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -26,6 +27,7 @@ export default function AdminSidebar({member=false,canEditRoster=false,canManage
   const [error, setError] = useState('');
 
   async function handleLogout() {
+    if(document.querySelector('[data-member-dirty]')&&!window.confirm('Sign out and discard your unsaved draft?'))return;
     setBusy(true); setError('');
     try {
       const response = await fetch('/api/members/logout', { method: 'POST', headers: {'Content-Type':'application/json'}, body:'{}' });
@@ -49,7 +51,7 @@ export default function AdminSidebar({member=false,canEditRoster=false,canManage
     </div>
     <div id="admin-navigation" className={`${open ? 'flex' : 'hidden'} md:flex flex-col md:min-h-[calc(100dvh-81px)]`}>
       <nav aria-label="Admin navigation" className="p-3 space-y-3">
-        <ul className="space-y-1">{items.map(item=>{const active=!item.href.includes('#')&&(pathname===item.href||(item.href!=='/admin'&&pathname.startsWith(item.href+'/'))||(item.href==='/admin/members'&&['/admin/team','/admin/member-access'].includes(pathname)));return <li key={item.href}><Link href={item.href} aria-current={active?'page':undefined} onClick={()=>setOpen(false)} className={`flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta-dark ${active?'bg-sand/70 text-earth-dark':'text-earth-mid hover:text-earth-dark hover:bg-sand/50'}`}><item.icon size={18} aria-hidden="true"/>{item.label}</Link></li>;})}</ul>
+        <ul className="space-y-1">{items.map(item=>{const active=member&&pathname==='/members'?(item.href===(memberView==='tasks'?'/members':'/members?view='+memberView)):!item.href.includes('#')&&(pathname===item.href||(item.href!=='/admin'&&pathname.startsWith(item.href+'/'))||(item.href==='/admin/members'&&['/admin/team','/admin/member-access'].includes(pathname)));return <li key={item.href}><Link href={item.href} aria-current={active?'page':undefined} onClick={()=>setOpen(false)} className={`flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta-dark ${active?'bg-sand/70 text-earth-dark':'text-earth-mid hover:text-earth-dark hover:bg-sand/50'}`}><item.icon size={18} aria-hidden="true"/>{item.label}</Link></li>;})}</ul>
         {!member&&<details className="border-t border-sand pt-3"><summary className="cursor-pointer min-h-11 px-3 py-3 text-sm text-earth-mid">More</summary><ul className="mt-1 space-y-1">{secondary.map(item=><li key={item.href}><Link href={item.href} onClick={()=>setOpen(false)} aria-current={pathname===item.href?'page':undefined} className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-earth-mid hover:bg-sand/50 focus-visible:outline-2 focus-visible:outline-terracotta-dark"><item.icon size={17} aria-hidden="true"/>{item.label}</Link></li>)}</ul></details>}
       </nav>
       <div className="p-3 mt-auto border-t border-sand space-y-1">

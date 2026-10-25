@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { memberPlanSchema, type MemberPlan } from '@/lib/member-plan/schema';
 import { previewMemberPlan, type PlanAccount } from '@/lib/member-plan/preview';
+import { importMemberPlan } from '@/lib/member-plan/import';
+import { createTermSeed } from '@/lib/term/seed';
 
 function plan(): MemberPlan {
   return { id: 'dummy-plan', version: 1, schoolYear: '2026–27', updatedOn: '2026-10-25', timezone: 'Asia/Shanghai',
@@ -14,6 +16,23 @@ function plan(): MemberPlan {
 const directory = [{ id: 'directory-a', data: { name: 'Alex Dummy' } }, { id: 'directory-b', data: { name: 'Bailey Dummy' } }];
 const accounts: PlanAccount[] = [{ user_id: 'account-a', person_id: 'directory-a', name: 'Alex Dummy', state: 'active', role: 'member' }, { user_id: 'account-b', person_id: 'directory-b', name: 'Bailey Dummy', state: 'invited', role: 'member' }];
 describe('member plan dry-run import', () => {
+  it('imports canonical shared work once and preserves subsequent progress on repeat import',()=>{
+    const current=createTermSeed();current.people=directory.map(person=>({id:person.id,name:person.data.name,groupId:null,availability:''}));
+    const result=importMemberPlan(plan(),current,1,directory,accounts,'2026-10-25T00:00:00.000Z');
+    const task=result.document.tasks.find(task=>task.sourcePlan==='dummy-plan')!;
+    expect(task).toMatchObject({ownerId:'directory-a',collaboratorIds:['directory-b'],status:'Awaiting confirmation',due:'2026-11-01',dueAt:'2026-11-01T15:59:00.000Z'});
+    expect(result.document.events).toHaveLength(current.events.length);
+    task.status='In progress';task.update='Saved member progress';
+    const repeat=importMemberPlan(plan(),result.document,2,directory,accounts,'2026-10-26T00:00:00.000Z');
+    expect(repeat.document).toEqual(result.document);
+    expect(repeat.document.tasks.filter(task=>task.sourcePlan==='dummy-plan')).toHaveLength(1);
+  });
+  it('keeps a directory identity without an account pending instead of making a duplicate login',()=>{
+    const current=createTermSeed();current.people=directory.map(person=>({id:person.id,name:person.data.name,groupId:null,availability:''}));
+    const result=importMemberPlan(plan(),current,1,directory,accounts.slice(0,1),'2026-10-25T00:00:00.000Z');
+    expect(result.document.tasks.find(task=>task.sourcePlan==='dummy-plan')).toMatchObject({ownerId:'directory-a',collaboratorIds:[],pendingAssigneeIds:['directory-b']});
+    expect(accounts).toHaveLength(2);
+  });
   it('binds explicit IDs, preserves a shared task once and generates no fake events or dates', () => {
     const source = memberPlanSchema.parse(plan());
     const snapshot = JSON.stringify(source);

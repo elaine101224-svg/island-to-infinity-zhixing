@@ -193,6 +193,9 @@ export default function RequestForm({ user }: { user: Identity | null }) {
               value={data.date}
               onChange={(e) => change("date", e.target.value)}
             />
+            <span className="text-sm text-earth-mid block mt-2">
+              {t("通常建议预留约20天，包含打样与确认。此处为期望日期，最终交期需与制作者确认。", "Allow around 20 days for sampling, approval and production. This is your preferred date; confirm the actual delivery date with the maker.")}
+            </span>
           </label>
           <label>
             {t("姓名", "Name")}
