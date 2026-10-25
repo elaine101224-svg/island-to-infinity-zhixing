@@ -1,0 +1,14 @@
+import {beforeEach,it,expect,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+import {createTermSeed} from '@/lib/term/seed';
+const m=vi.hoisted(()=>({authorized:true,csrf:null as string|null,from:vi.fn(),update:vi.fn()}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized}));
+vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
+vi.mock('@/lib/members/auth',async original=>({...await original<typeof import('@/lib/members/auth')>(),memberService:()=>({from:m.from})}));
+import {POST} from '@/app/api/admin/member-tasks/route';
+const create={id:'cead81d9-095f-4003-b19e-3893951ba8a5',scopeId:'booth',title:'Dummy material',deliverable:'A draft',ownerIds:['a'],due:null,dueAt:null};
+const request=(payload:unknown={revision:8,create})=>new NextRequest('https://islandtoinfinity.online/api/admin/member-tasks',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+beforeEach(()=>{m.authorized=true;m.csrf=null;m.from.mockReset();m.update.mockReset();const doc=createTermSeed();doc.people=[{id:'a',name:'Dummy A',groupId:null,availability:''},{id:'b',name:'Dummy B',groupId:null,availability:''}];doc.scopes=[{id:'booth',title:'Dummy Booth',kind:'project',memberIds:['a'],coordinatorIds:[],note:'',sourcePlan:'test'}];m.from.mockImplementation(()=>{const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),single:async()=>({data:{document:doc,revision:8},error:null}),update:m.update,m:0,maybeSingle:async()=>({data:{revision:9},error:null})};m.update.mockReturnValue(q);return q;});});
+it('allows admin to add a project-bound undated task through the same revision-guarded master',async()=>{const response=await POST(request());expect(response.status).toBe(200);expect(m.update.mock.calls[0][0].document.tasks.at(-1)).toMatchObject({scopeId:'booth',ownerId:'a',status:'Awaiting confirmation',due:null});});
+it('denies ordinary members and missing CSRF before accessing data',async()=>{m.authorized=false;expect((await POST(request())).status).toBe(401);expect(m.from).not.toHaveBeenCalled();m.authorized=true;m.csrf='Invalid CSRF';expect((await POST(request())).status).toBe(403);expect(m.from).not.toHaveBeenCalled();});
+it('does not save a stale or cross-project assignment',async()=>{expect((await POST(request({revision:7,create}))).status).toBe(409);expect((await POST(request({revision:8,create:{...create,ownerIds:['b']}}))).status).toBe(400);expect(m.update).not.toHaveBeenCalled();});
