@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
+import { cookies } from 'next/headers';
+import { makeCookieStore } from '../../helpers/cookies';
 vi.mock('next/headers', () => ({ cookies: vi.fn() }));
-import { sealEntrySession, openEntrySession } from '@/lib/members/emailEntry';
+import { sealEntrySession, openEntrySession, clearEmailEntry } from '@/lib/members/emailEntry';
 import { canEditRoster } from '@/lib/members/roster';
 describe('separate email-entry sessions', () => {
   const data = { access_token: 'private-native-access-token', refresh_token: 'private-native-refresh-token', userId: 'member-a', expiresAt: 2000 };
@@ -19,5 +21,11 @@ describe('separate email-entry sessions', () => {
     expect(canEditRoster({ email: 'dummy@uwcchina.org', state: 'active', login_method: 'email-only' })).toBe(false);
     expect(canEditRoster({ email: 'dummy@uwcchina.org', state: 'active', login_method: 'verified' })).toBe(true);
     delete process.env.MEMBER_ROSTER_EDITORS;
+  });
+  it('clears old verified cookies so logout cannot restore a previously signed-in account', async () => {
+    const jar = makeCookieStore({ 'iti-member-entry': 'encrypted', 'iti-member-auth.0': 'previous-account', 'iti-member-auth.1': 'previous-account', 'iti-member-auth-code-verifier': 'old-verifier', unrelated: 'keep' });
+    vi.mocked(cookies).mockResolvedValue(jar as never);
+    await clearEmailEntry();
+    expect(jar._store).toEqual({ unrelated: 'keep' });
   });
 });

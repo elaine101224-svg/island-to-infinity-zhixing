@@ -35,7 +35,14 @@ async function writeEntry(value: EntrySession) {
 export async function saveEmailEntry(session: Session) {
   await writeEntry({ access_token: session.access_token, refresh_token: session.refresh_token, userId: session.user.id, expiresAt: Date.now() + lifetime * 1000 });
 }
-export async function clearEmailEntry() { (await cookies()).delete(emailEntryCookie); }
+export async function clearEmailEntry() {
+  const jar = await cookies();
+  jar.delete(emailEntryCookie);
+  // An old verified cookie must not silently sign a different account back in after logout.
+  for (const { name } of jar.getAll()) {
+    if (name === 'iti-member-auth' || name.startsWith('iti-member-auth.') || name.startsWith('iti-member-auth-code-verifier')) jar.delete(name);
+  }
+}
 export async function hasEmailEntry() { return Boolean((await cookies()).get(emailEntryCookie)?.value); }
 export async function emailEntryClient() {
   const jar = await cookies(), raw = jar.get(emailEntryCookie)?.value;
