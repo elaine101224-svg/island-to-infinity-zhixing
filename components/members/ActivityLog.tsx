@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {useUnsavedChanges} from '@/lib/hooks/useUnsavedChanges';
-import {memberRequest} from './MemberDashboard';
+import {memberRequest} from '@/lib/members/client';
 import type {MemberActivity} from '@/lib/members/activity';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const blank=()=>({title:'',date:today(),summary:'',nextStep:'',eventId:null as string|null});

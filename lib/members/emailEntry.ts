@@ -52,9 +52,11 @@ export async function emailEntryClient() {
   if (!url || !anon) throw new Error('Member sign-in is not configured.');
   const client = createClient(url, anon, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await client.auth.setSession(stored);
-  if (error || !data.session || data.user?.id !== stored.userId) throw new Error('Member session expired. Enter your email again.');
+  if (error || !data.session || !data.user || data.user.id !== stored.userId) throw new Error('Member session expired. Enter your email again.');
   if (data.session.access_token !== stored.access_token || data.session.refresh_token !== stored.refresh_token) {
     await writeEntry({ ...stored, access_token: data.session.access_token, refresh_token: data.session.refresh_token });
   }
-  return client;
+  // setSession already fetched/validated this identity (or refreshed it) on this request.
+  // Bind it to this new client only; never cache identities across requests.
+  return Object.assign(client, { emailEntryUser: data.user });
 }

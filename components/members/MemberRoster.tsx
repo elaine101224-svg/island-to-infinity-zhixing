@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { memberRequest } from './MemberDashboard';
+import { memberRequest } from '@/lib/members/client';
 type Person = { id: string; name: string; status: 'active'|'inactive'; academicYears: string[]; groupId:string|null; updatedAt: string };
 export default function MemberRoster() {
  const [members,setMembers]=useState<Person[]>([]),[loaded,setLoaded]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[query,setQuery]=useState(''),[draft,setDraft]=useState<Person|null>(null),[years,setYears]=useState(''),[busy,setBusy]=useState(false);

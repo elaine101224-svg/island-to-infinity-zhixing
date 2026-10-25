@@ -22,12 +22,16 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  }
  if(action!=='workspace')return response({error:'Not found'},404);
  const {client,account}=await requireMember();
- const profile=dbResult(await memberService().from('team_members').select('data').eq('id',account.person_id).maybeSingle());
- const position=profile?.data?.role==='lead'?'Leader':profile?.data?.role==='coordinator'?'Core team':'Member';
- const [tasks,reflections,groups,projects,events]=await Promise.all(['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data')));
- let rosterQuery=memberService().from('member_accounts').select('person_id,name,group_id').eq('state','active');
+ const db=memberService();
+ let rosterQuery=db.from('member_accounts').select('person_id,name,group_id').eq('state','active');
  if(account.role!=='admin')rosterQuery=rosterQuery.eq('group_id',account.group_id??'none');
- const roster=dbResult(await rosterQuery);
+ const [profileResult,rosterResult,tasks,reflections,groups,projects,events]=await Promise.all([
+ db.from('team_members').select('data').eq('id',account.person_id).maybeSingle(),rosterQuery,
+ ...['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data')),
+ ]);
+ const profile=dbResult(profileResult);
+ const position=profile?.data?.role==='lead'?'Leader':profile?.data?.role==='coordinator'?'Core team':'Member';
+ const roster=dbResult(rosterResult);
  return response({me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:(dbResult(tasks)??[]).map(x=>x.data),reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:(dbResult(projects)??[]).map(x=>x.data),events:(dbResult(events)??[]).map(x=>x.data),roster});
  }catch(e){return failure(e);}
 }

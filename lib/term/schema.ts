@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { taskStatuses } from './statuses';
+export { taskStatuses } from './statuses';
 export const eventStatuses = ['Confirmed', 'Proposed', 'Tentative', 'Available slot', 'Awaiting approval', 'Completed', 'Cancelled'] as const;
-export const taskStatuses = ['Not started', 'In progress', 'Blocked', 'Completed'] as const;
 export const groupIds = ['A', 'B', 'C', 'D'] as const;
 export const groupRoles = ['Communication', 'Academic', 'Documentation', 'Follow-up', 'Outreach'] as const;
 const text = z.string().trim().max(2000);

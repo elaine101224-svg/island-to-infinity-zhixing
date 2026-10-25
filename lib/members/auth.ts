@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type User } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { createHash } from 'node:crypto';
@@ -23,7 +23,8 @@ export type MemberAccount={user_id:string;person_id:string;email:string;name:str
 export async function requireMember(){
  if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
  const client=await memberClient();
- const {data,error}=await client.auth.getUser();
+ const entryUser=(client as typeof client & {emailEntryUser?:User}).emailEntryUser;
+ const {data,error}=entryUser?{data:{user:entryUser},error:null}:await client.auth.getUser();
  if(error||!data.user||!data.user.email_confirmed_at)throw new MemberError('Sign in with your invited school email.',401);
  const email=data.user.email?.toLowerCase()??'';
  if(!allowedMemberEmail(email))throw new MemberError('School email required.',403);
