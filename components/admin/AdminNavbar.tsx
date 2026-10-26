@@ -18,8 +18,8 @@ const secondary = [
  {href:'/admin/sewing',label:'Sewing · 缝纫队',icon:ClipboardList},
 ];
 
-export default function AdminSidebar({member=false,canEditRoster=false,canManage=false,memberView='tasks'}:{member?:boolean;canEditRoster?:boolean;canManage?:boolean;memberView?:'tasks'|'calendar'}) {
- const items=member?[{href:'/members',label:'My Tasks',icon:ClipboardList},{href:'/members?view=calendar',label:'My Calendar',icon:Calendar}]:primary;
+export default function AdminSidebar({member=false,canEditRoster=false,canManage=false,memberView='tasks'}:{member?:boolean;canEditRoster?:boolean;canManage?:boolean;memberView?:'tasks'|'projects'|'calendar'}) {
+ const items=member?[{href:'/members',label:'My Tasks',icon:ClipboardList},{href:'/members?view=projects',label:'My Projects',icon:LayoutDashboard},{href:'/members?view=calendar',label:'My Calendar',icon:Calendar}]:primary;
   const pathname = usePathname();
   const toggle = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -38,7 +38,7 @@ export default function AdminSidebar({member=false,canEditRoster=false,canManage
     } catch { setError('Unable to log out. Please retry.'); setBusy(false); }
   }
 
-  return <aside className="w-full md:w-54 md:shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto bg-cream text-earth-dark border-b md:border-b-0 md:border-r border-sand" onKeyDown={event => {
+  return <aside className="member-sidebar w-full md:w-54 md:shrink-0 md:sticky md:top-0 md:h-screen md:overflow-y-auto bg-cream text-earth-dark border-b md:border-b-0 md:border-r border-sand" onKeyDown={event => {
     if (event.key === 'Escape' && open) { setOpen(false); toggle.current?.focus(); }
   }}>
     <a href="#admin-main" className="sr-only focus:not-sr-only focus:block focus:p-4 focus:underline">Skip to main content</a>
@@ -52,6 +52,7 @@ export default function AdminSidebar({member=false,canEditRoster=false,canManage
     <div id="admin-navigation" className={`${open ? 'flex' : 'hidden'} md:flex flex-col md:min-h-[calc(100dvh-81px)]`}>
       <nav aria-label={member?'Member navigation':'Admin navigation'} className="p-3 space-y-3">
         <ul className="space-y-1">{items.map(item=>{const active=member&&pathname==='/members'?(item.href===(memberView==='tasks'?'/members':'/members?view='+memberView)):!item.href.includes('#')&&(pathname===item.href||(item.href!=='/admin'&&pathname.startsWith(item.href+'/'))||(item.href==='/admin/members'&&['/admin/team','/admin/member-access'].includes(pathname)));return <li key={item.href}><Link href={item.href} aria-current={active?'page':undefined} onClick={()=>setOpen(false)} className={`flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta-dark ${active?'bg-sand/70 text-earth-dark':'text-earth-mid hover:text-earth-dark hover:bg-sand/50'}`}><item.icon size={18} aria-hidden="true"/>{item.label}</Link></li>;})}</ul>
+        {member&&pathname==='/members'&&<div className="member-page-nav"><p className="px-3 text-xs font-semibold text-earth-mid mb-2">ON THIS PAGE</p>{(memberView==='tasks'?[['#family-heading','Family plan'],['#personal-plans','Personal plans']]:memberView==='projects'?[['#project-heading','Project assignments']]:[['#unscheduled','Unscheduled tasks']]).map(([href,label])=><a key={href} href={href} className="block px-3 py-2 text-sm text-earth-mid hover:text-earth-dark underline-offset-4 hover:underline">{label}</a>)}</div>}
         {!member&&<details className="border-t border-sand pt-3"><summary className="cursor-pointer min-h-11 px-3 py-3 text-sm text-earth-mid">More</summary><ul className="mt-1 space-y-1">{secondary.map(item=><li key={item.href}><Link href={item.href} onClick={()=>setOpen(false)} aria-current={pathname===item.href?'page':undefined} className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-earth-mid hover:bg-sand/50 focus-visible:outline-2 focus-visible:outline-terracotta-dark"><item.icon size={17} aria-hidden="true"/>{item.label}</Link></li>)}</ul></details>}
       </nav>
       <div className="p-3 mt-auto border-t border-sand space-y-1">
