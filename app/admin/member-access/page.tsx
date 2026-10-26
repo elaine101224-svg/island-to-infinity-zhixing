@@ -1,2 +1,2 @@
-import MemberAccess from '@/components/members/MemberAccess';
-export default function Page(){return <MemberAccess/>;}
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/admin/members?view=access');}
