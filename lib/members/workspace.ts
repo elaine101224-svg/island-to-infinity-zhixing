@@ -1,6 +1,7 @@
+import type {PersonalPlan} from './plans';
 import type {Term} from '@/lib/term/schema';
 export type MemberView='tasks'|'projects'|'calendar';
-export type Workspace={me:{name:string;position:string;role:'admin'|'coordinator'|'member';personId:string;groupId:string|null;canEditRoster:boolean};tasks:Term['tasks'];reflections:Term['reflections'];groups:Term['groups'];projects:Term['projects'];events:Term['events'];scopes:NonNullable<Term['scopes']>;responsibilities:NonNullable<Term['responsibilities']>;roster:{person_id:string;name:string;group_id:string|null}[]};
+export type Workspace={personalPlans?:PersonalPlan[]|null;personalPlansError?:string;me:{name:string;position:string;role:'admin'|'coordinator'|'member';personId:string;groupId:string|null;canEditRoster:boolean};tasks:Term['tasks'];reflections:Term['reflections'];groups:Term['groups'];projects:Term['projects'];events:Term['events'];scopes:NonNullable<Term['scopes']>;responsibilities:NonNullable<Term['responsibilities']>;roster:{person_id:string;name:string;group_id:string|null}[]};
 export type MemberTask=Term['tasks'][number];
 export const taskIsShared=(task:MemberTask)=>Boolean(task.collaboratorIds?.length);
 export const taskProgress=(task:MemberTask,personId:string)=>['Completed','Cancelled'].includes(task.status)?task.status:taskIsShared(task)?task.contributions?.[personId]?.status??'Awaiting confirmation':task.status;

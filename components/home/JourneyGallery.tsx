@@ -44,8 +44,8 @@ export default function JourneyGallery({ entries }: { entries: HomepageContent['
       if (event.target !== event.currentTarget) return;
       if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); advance(event.key === 'ArrowRight' ? 1 : -1); }
     }}>
-      {entries.map(entry => <article key={entry.id} className="min-w-0 snap-start">
-        <PhotoViewer photo={entry.photo} />
+      {entries.map((entry,index) => <article key={entry.id} className="min-w-0 snap-start">
+        <PhotoViewer photo={entry.photo} eager={index===0} />
         <h3 className="font-serif text-2xl mt-4 break-words">{entry.year} · {entry.title}</h3>
       </article>)}
     </div>

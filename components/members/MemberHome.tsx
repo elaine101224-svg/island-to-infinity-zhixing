@@ -20,9 +20,9 @@ function PersonalRow({plan,onSaved,onEdit}:{plan:PersonalPlan;onSaved:(plan:Pers
 }
 
 export default function MemberHome({workspace,view,onTaskSaved}:{workspace:Workspace;view:MemberView;onTaskSaved:(task:MemberTask)=>void}){
- const [plans,setPlans]=useState<PersonalPlan[]>([]),[plansLoading,setPlansLoading]=useState(true),[plansError,setPlansError]=useState(''),[filter,setFilter]=useState<'active'|'done'>('active'),[draft,setDraft]=useState<PlanDraft|null>(null),[message,setMessage]=useState(''),[teamCalendar,setTeamCalendar]=useState(true),[inspected,setInspected]=useState<string|null>(null);
+ const [plans,setPlans]=useState<PersonalPlan[]>(workspace.personalPlans??[]),[plansLoading,setPlansLoading]=useState(workspace.personalPlans===undefined),[plansError,setPlansError]=useState(workspace.personalPlansError??''),[filter,setFilter]=useState<'active'|'done'>('active'),[draft,setDraft]=useState<PlanDraft|null>(null),[message,setMessage]=useState(''),[teamCalendar,setTeamCalendar]=useState(true),[inspected,setInspected]=useState<string|null>(null);
  async function loadPlans(){setPlansLoading(true);try{const result=await memberRequest('plans');setPlans(result.records);setPlansError('');}catch(cause){setPlansError((cause as Error).message);}finally{setPlansLoading(false);}}
- useEffect(()=>{void loadPlans();},[]);
+ useEffect(()=>{if(workspace.personalPlans===undefined)void loadPlans();},[workspace.personalPlans]);
  useEffect(()=>{const leave=(event:BeforeUnloadEvent)=>{if(document.querySelector('[data-member-dirty]'))event.preventDefault();};window.addEventListener('beforeunload',leave);return()=>window.removeEventListener('beforeunload',leave);},[]);
  const me=workspace.me.personId,closed=(status:string)=>['Completed','Cancelled'].includes(status);
  const pageTasks=workspace.tasks.filter(task=>view==='calendar'||((view==='projects')===workspace.scopes.some(scope=>scope.kind==='project'&&(task.scopeId===scope.id||(!task.scopeId&&task.projectId===scope.id)))));

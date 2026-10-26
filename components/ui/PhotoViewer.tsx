@@ -7,10 +7,11 @@ export default function PhotoViewer({ photo, eager = false }: { photo: ContentPh
   const trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [failedUrl, setFailedUrl] = useState('');
+  const preview=({'/images/members/2024.jpg':'/images/members/2024-preview.webp','/images/members/2025.jpg':'/images/members/2025-preview.webp'} as Record<string,string>)[photo.url]??photo.url;
   if (!photo.url || failedUrl === photo.url) return null;
   return <figure>
     <button ref={trigger} type="button" className="block w-full cursor-zoom-in rounded-xl focus-visible:outline-2 focus-visible:outline-terracotta" aria-label={`Enlarge photo: ${photo.alt}`} onClick={() => { setOpen(true); dialog.current?.showModal(); }}>
-      <img src={photo.url} alt={photo.alt} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" onError={() => setFailedUrl(photo.url)} className="w-full h-auto max-h-[650px] object-contain rounded-xl bg-sand/30" />
+      <img src={preview} alt={photo.alt} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" onError={() => setFailedUrl(photo.url)} className="w-full h-auto max-h-[650px] object-contain rounded-xl bg-sand/30" />
     </button>
     {photo.caption && <figcaption className="text-sm text-earth-mid mt-3 leading-relaxed">{photo.caption}</figcaption>}
     <dialog ref={dialog} className="photo-dialog" onClose={() => { setOpen(false); trigger.current?.focus(); }} onClick={e => { if (e.target === e.currentTarget) dialog.current?.close(); }}>

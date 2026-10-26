@@ -6,6 +6,7 @@ const m = vi.hoisted(() => ({
   from: vi.fn(), generate: vi.fn(), getUser: vi.fn(), verify: vi.fn(), signOut: vi.fn(),
   save: vi.fn(), clear: vi.fn(), limit: vi.fn(), nativeClient: vi.fn(),
 }));
+vi.mock('@/lib/members/loadWorkspace',()=>({loadMemberWorkspace:vi.fn(async()=>({me:{personId:'person-a'},tasks:[],personalPlans:[]}))}));
 vi.mock('@/lib/auth', () => ({ validateSession: async () => false, createSession: vi.fn(), destroySession: vi.fn() }));
 vi.mock('@/lib/members/emailEntry', () => ({ saveEmailEntry: m.save, clearEmailEntry: m.clear }));
 vi.mock('@supabase/supabase-js', () => ({ createClient: m.nativeClient }));
@@ -38,7 +39,7 @@ describe('owner-selected allowlisted email entry', () => {
     expect(m.verify).toHaveBeenCalledWith({ token_hash: 'private-bearer', type: 'email' });
     expect(m.save).toHaveBeenCalledOnce(); expect(m.from.mock.results[0].value.update).not.toHaveBeenCalled();
     expect(m.from.mock.results[1].value.update).toHaveBeenCalledWith({ state: 'active' });
-    const body = await response.text(); expect(body).not.toContain('private-'); expect(response.headers.get('cache-control')).toContain('no-store');
+    const body = await response.text(); expect(JSON.parse(body).workspace).toMatchObject({me:{personId:'person-a'},personalPlans:[]});expect(body).not.toContain('private-'); expect(response.headers.get('cache-control')).toContain('no-store');
   });
   it('rejects unknown, revoked and expired emails without creating any native session', async () => {
     m.from.mockReturnValue({ select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), maybeSingle: vi.fn(async () => ({ data: null, error: null })) });

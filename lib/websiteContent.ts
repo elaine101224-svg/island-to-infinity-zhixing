@@ -11,8 +11,9 @@ export async function readContentState() {
 }
 
 async function loadPublished(): Promise<HomepageContent> {
-  const state = await readContentState();
-  return state.published ? homepageSchema.parse(state.published) : { ...defaultHomepage, members: [] };
+  const {data,error}=await supabase.from('website_content').select('published').eq('id',CONTENT_ID).single();
+  if(error||!data)throw new Error('Website content is unavailable. Please retry.');
+  return data.published ? homepageSchema.parse(data.published) : { ...defaultHomepage, members: [] };
 }
 
 export const CONTENT_CACHE_TAG = `published-website-content:${CONTENT_ID}`;

@@ -1,12 +1,13 @@
 import { NextRequest,NextResponse } from 'next/server';
 import { validateSession, createSession, destroySession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
-import { termSchema, type Term } from '@/lib/term/schema';
+import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
-import { canEditRoster, rosterEditors } from '@/lib/members/roster';
+import { rosterEditors } from '@/lib/members/roster';
 import { saveEmailEntry, clearEmailEntry } from '@/lib/members/emailEntry';
 import { createClient } from '@supabase/supabase-js';
+import {loadMemberWorkspace} from '@/lib/members/loadWorkspace';
 export const dynamic='force-dynamic';
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:privateHeaders});}
 function failure(error:unknown){return response({error:error instanceof MemberError?error.message:'The request could not be completed. Please retry.'},error instanceof MemberError?error.status:503);}
@@ -22,25 +23,8 @@ export async function GET(_request:NextRequest,{params}:{params:Promise<{action:
  }
  if(action!=='workspace')return response({error:'Not found'},404);
  const {client,account}=await requireMember();
- const db=memberService();
- const rosterQuery=db.from('member_accounts').select('person_id,name,group_id').in('state',['active','invited']);
- const [profileResult,rosterResult,projections,masterResult]=await Promise.all([
- db.from('team_members').select('data').eq('id',account.person_id).maybeSingle(),rosterQuery,
- Promise.all(['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data'))),
- db.from('term_workspaces').select('document').eq('id','2026-27-T1').maybeSingle(),
- ]);
- const [tasks,reflections,groups,projects,events]=projections;
- const profile=dbResult(profileResult);
- const position=profile?.data?.role==='lead'?'Leader':profile?.data?.role==='coordinator'?'Core team':'Member';
- const master=dbResult(masterResult)?.document as Term|undefined;
- const scopes=(master?.scopes??[]).filter(scope=>account.role==='admin'||scope.memberIds.includes(account.person_id)||scope.coordinatorIds.includes(account.person_id));
- const responsibilities=(master?.responsibilities??[]).filter(role=>account.role==='admin'||role.memberIds.includes(account.person_id));
- const taskRows=(dbResult(tasks)??[]).map(row=>row.data);
- const visiblePeople=new Set([account.person_id,...taskRows.flatMap(task=>[task.ownerId,...(task.collaboratorIds??[])]),...scopes.flatMap(scope=>[...scope.memberIds,...scope.coordinatorIds])]);
- const projectIds=new Set([...scopes.map(scope=>scope.id),...taskRows.map(task=>task.projectId)]);
- const projectRows=(dbResult(projects)??[]).map(row=>row.data).filter(project=>account.role==='admin'||!master?.planVersion||projectIds.has(project.id));
- const roster=(dbResult(rosterResult)??[]).filter(person=>account.role==='admin'||visiblePeople.has(person.person_id)||(account.group_id!==null&&person.group_id===account.group_id));
- return response({me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:taskRows,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster});
+ const workspace=await loadMemberWorkspace({client,account});
+ return response(workspace);
  }catch(e){return failure(e);}
 }
 export async function POST(request:NextRequest,{params}:{params:Promise<{action:string}>}){
@@ -97,6 +81,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  const native=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
  const verified=await native.auth.verifyOtp({token_hash:link.data.properties.hashed_token,type:'email'});
  if(verified.error||!verified.data.session||verified.data.user?.id!==account.user_id){await native.auth.signOut();throw new MemberError('Sign-in failed. Please retry.',503);}
+ let workspace;
  try{
  if(account.state==='invited'){
  const activated=dbResult(await db.from('member_accounts').update({state:'active'}).eq('user_id',account.user_id).eq('state','invited').gt('expires_at',new Date().toISOString()).select('user_id').maybeSingle());
@@ -104,8 +89,9 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  }
  await saveEmailEntry(verified.data.session);
  const signedIn=await requireMember();if(signedIn.account.user_id!==account.user_id)throw new MemberError('Account link changed.',403);
+ workspace=await loadMemberWorkspace(signedIn);
  }catch(error){await native.auth.signOut();await clearEmailEntry();throw error;}
- return response({message:'Signed in.',redirect:'/members'});
+ return response({message:'Signed in.',redirect:'/members',workspace});
  }
  if(action==='request-code'){
  const parsed=loginSchema.safeParse(raw);if(!parsed.success)throw new MemberError('Enter your school email.');const {email}=parsed.data;
