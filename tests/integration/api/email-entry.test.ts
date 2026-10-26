@@ -14,6 +14,7 @@ vi.mock('@/lib/members/auth', async original => {
   const real = await original<typeof import('@/lib/members/auth')>();
   return { ...real, memberEnabled: () => m.enabled, memberLimit: m.limit,
     memberService: () => ({ from: m.from, auth: { admin: { getUserById: m.getUser, generateLink: m.generate } } }),
+    requireVerifiedMember: async () => { if (m.actorError) throw m.actorError; return { account:m.account }; },
     requireMember: async () => { if (m.actorError) throw m.actorError; return { account: m.account }; },
   };
 });

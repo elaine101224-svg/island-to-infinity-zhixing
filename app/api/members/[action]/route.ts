@@ -2,7 +2,7 @@ import { NextRequest,NextResponse } from 'next/server';
 import { validateSession, createSession, destroySession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
 import { termSchema } from '@/lib/term/schema';
-import { MemberError,memberEnabled,memberService,memberClient,requireMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
+import { MemberError,memberEnabled,memberService,memberClient,requireMember,requireVerifiedMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
 import { rosterEditors } from '@/lib/members/roster';
 import { saveEmailEntry, clearEmailEntry } from '@/lib/members/emailEntry';
@@ -88,7 +88,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  if(!activated)throw new MemberError('Invitation changed. Ask your coordinator.',403);
  }
  await saveEmailEntry(verified.data.session);
- const signedIn=await requireMember();if(signedIn.account.user_id!==account.user_id)throw new MemberError('Account link changed.',403);
+ const signedIn=await requireVerifiedMember(native,verified.data.user,true);if(signedIn.account.user_id!==account.user_id)throw new MemberError('Account link changed.',403);
  workspace=await loadMemberWorkspace(signedIn);
  }catch(error){await native.auth.signOut();await clearEmailEntry();throw error;}
  return response({message:'Signed in.',redirect:'/members',workspace});

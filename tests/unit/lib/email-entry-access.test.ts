@@ -15,4 +15,5 @@ describe('email-only entry preserves the administrator authentication boundary',
   it('rechecks live revocation on every request', async () => {
     await requireMember(); m.state = 'revoked'; await expect(requireMember()).rejects.toThrow(/active invitation/);
   });
+  it('rejects a mismatched live account binding',async()=>{m.accountId='other';await expect(requireMember()).rejects.toThrow(/active invitation/);});
 });

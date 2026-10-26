@@ -26,12 +26,17 @@ export async function requireMember(){
  const entryUser=(client as typeof client & {emailEntryUser?:User}).emailEntryUser;
  const {data,error}=entryUser?{data:{user:entryUser},error:null}:await client.auth.getUser();
  if(error||!data.user||!data.user.email_confirmed_at)throw new MemberError('Sign in with your invited school email.',401);
- const email=data.user.email?.toLowerCase()??'';
+ return requireVerifiedMember(client,data.user,await hasEmailEntry());
+}
+/** Reuse only a User returned by native Auth on this same request; still check live membership. */
+export async function requireVerifiedMember(client:Awaited<ReturnType<typeof memberClient>>,user:User,emailOnly:boolean){
+ if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
+ if(!user.email_confirmed_at)throw new MemberError('Sign in with your invited school email.',401);
+ const email=user.email?.toLowerCase()??'';
  if(!allowedMemberEmail(email))throw new MemberError('School email required.',403);
- const {data:account,error:err}=await client.from('member_accounts').select('*').eq('user_id',data.user.id).maybeSingle();
+ const {data:account,error:err}=await client.from('member_accounts').select('*').eq('user_id',user.id).maybeSingle();
  if(err)throw new MemberError('Membership could not be checked. Please retry.',503);
- if(!account||account.state!=='active'||account.email!==email)throw new MemberError('An active invitation is required. Ask your coordinator.',403);
- const emailOnly=await hasEmailEntry();
+ if(!account||account.user_id!==user.id||account.state!=='active'||account.email!==email)throw new MemberError('An active invitation is required. Ask your coordinator.',403);
  if(emailOnly&&account.role==='admin')throw new MemberError('Use Admin sign-in for administrator access.',403);
  return {client,account:{...account,login_method:emailOnly?'email-only':'verified'} as MemberAccount};
 }
