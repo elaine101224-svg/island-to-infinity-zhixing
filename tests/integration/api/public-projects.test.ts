@@ -1,0 +1,18 @@
+import {beforeEach,it,expect,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+import {defaultHomepage,emptyPhoto,publicDocument,publicProjectSchema,type PublicProject} from '@/lib/contentSchema';
+const m=vi.hoisted(()=>({authorized:true,csrf:null as string|null,state:{} as Record<string,unknown>,from:vi.fn(),update:vi.fn(),invalidate:vi.fn()}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized}));
+vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
+vi.mock('next/cache',()=>({revalidateTag:m.invalidate}));
+vi.mock('@/lib/websiteContent',()=>({CONTENT_ID:'homepage',CONTENT_CACHE_TAG:'test-content',readContentState:async()=>m.state}));
+vi.mock('@/lib/supabase',()=>({supabase:{from:m.from}}));
+vi.mock('@/lib/data',()=>({getTeamMembers:vi.fn(),getActivityRecords:vi.fn()}));
+import {PATCH} from '@/app/api/admin/content/route';
+const project:PublicProject={id:'dummy-project',title:'A project',category:'library',summary:'Short public text',description:'Reviewed description',status:'Planned',progress:'Team assigned; date to confirm.',timing:'Date to confirm',nextSteps:['Agree format'],team:[{id:'a',name:'Public A',role:'Member'}],photo:emptyPhoto,published:true};
+const request=(projects:unknown=[project],revision=2)=>new NextRequest('https://islandtoinfinity.online/api/admin/content',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({revision,projects})});
+beforeEach(()=>{m.authorized=true;m.csrf=null;m.from.mockReset();m.update.mockReset();m.invalidate.mockReset();m.state={revision:2,draft:{...defaultHomepage,title:'Unpublished title'},published:{...defaultHomepage,title:'Live title'}};m.from.mockImplementation(()=>{const q={insert:async()=>({error:null}),update:m.update,eq:vi.fn().mockReturnThis(),select:vi.fn().mockReturnThis(),maybeSingle:async()=>({data:{revision:3},error:null})};m.update.mockReturnValue(q);return q;});});
+it('publishes only reviewed projects, preserving unrelated live content and pending draft edits',async()=>{const response=await PATCH(request());expect(response.status).toBe(200);const saved=m.update.mock.calls[0][0];expect(saved.published.title).toBe('Live title');expect(saved.draft.title).toBe('Unpublished title');expect(saved.published.projects).toEqual([project]);expect(saved.draft.projects).toEqual([project]);expect(m.invalidate).toHaveBeenCalled();});
+it('rejects ordinary members, missing CSRF and stale publication before any update',async()=>{m.authorized=false;expect((await PATCH(request())).status).toBe(401);m.authorized=true;m.csrf='Bad CSRF';expect((await PATCH(request())).status).toBe(403);m.csrf=null;expect((await PATCH(request([project],1))).status).toBe(409);expect(m.update).not.toHaveBeenCalled();});
+it('requires reviewed public content and consent, and rejects private team fields',async()=>{expect((await PATCH(request([{...project,description:''}]))).status).toBe(400);expect((await PATCH(request([{...project,photo:{...emptyPhoto,url:'/images/example.jpg',alt:'Example'}}]))).status).toBe(400);expect(publicProjectSchema.safeParse({...project,team:[{...project.team[0],email:'private@example.test'}]}).success).toBe(false);expect(m.update).not.toHaveBeenCalled();});
+it('omits unpublished projects and unapproved covers from public snapshots',()=>{const published=publicDocument({...defaultHomepage,projects:[{...project,photo:{...emptyPhoto,url:'/images/example.jpg',alt:'Example'}},{...project,id:'hidden',published:false}]});expect(published.projects).toHaveLength(1);expect(published.projects[0].photo.url).toBe('');});

@@ -588,3 +588,6 @@
 .sewing .sw-contact-qr a:focus-visible { outline: 2px solid #3d2e24; outline-offset: 4px; }
 .sewing .sw-contact-qr figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; }
 .sw-qr-save { display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; }
+.sw-sample-archive { max-width: 38rem; margin: 2rem auto; }
+.sw-sample-archive a { display: block; }
+.sw-sample-archive figcaption { margin-top: .75rem; font-size: .8125rem; line-height: 1.65; color: var(--sw-muted, #6B5B4E); }

@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import Garment from "./Garment";
 import { Notice, useSewing } from "./shared";
 import { names, type Content, type Gallery } from "@/lib/sewing/types";
 export default function PublicContent({
@@ -93,28 +92,7 @@ export default function PublicContent({
               )}
             </small>
           </div>
-          <div className="sw-hero-art">
-            {content.gallery.find((g) => g.kind === "team") ? (
-              <img
-                src={`/api/sewing-photo/${content.gallery.find((g) => g.kind === "team")!.photo}`}
-                alt={t("缝纫队工作照片", "Sewing team at work")}
-              />
-            ) : (
-              <>
-                <div className="sw-stitch-ring">
-                  <svg viewBox="0 0 500 500" aria-hidden="true">
-                    <Garment kind="hoodie" color="#9aa897" side="front" />
-                  </svg>
-                </div>
-                <span className="sw-tag">
-                  {t(
-                    "服装模板示意 · 团队真实照片待补充",
-                    "Garment illustration · real team photos to come",
-                  )}
-                </span>
-              </>
-            )}
-          </div>
+          <div className="sw-hero-art">{content.gallery.find(g=>g.kind==='team')?<img src={`/api/sewing-photo/${content.gallery.find(g=>g.kind==='team')!.photo}`} alt={t("缝纫队工作照片","Sewing team at work")}/>:<Image src="/images/sewing/sample-merch-2025-26.jpg" width={1587} height={2245} alt={t("2025–26历史样品海报，包含手工袋与Ohana卫衣案例", "Archive sample merchandise poster with handmade bags and the 2025–26 Ohana hoodie")} className="w-full h-auto max-h-[560px] object-contain"/>}</div>
         </section>
       )}
       {show("products") && (
@@ -132,42 +110,7 @@ export default function PublicContent({
           <div className="sw-grid four">
             {content.products.map((p) => (
               <article className="sw-product" key={p.id}>
-                {p.photos.length ? (
-                  <div className="sw-product-photos">
-                    {p.photos.map((photo) => (
-                      <img
-                        key={photo}
-                        src={`/api/sewing-photo/${photo}`}
-                        alt={names[p.id][lang]}
-                        loading="lazy"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="sw-product-art">
-                    <svg viewBox="0 0 500 500" aria-hidden="true">
-                      <Garment
-                        kind={p.id}
-                        color={
-                          p.id === "hoodie"
-                            ? "#a3ad9a"
-                            : p.id === "zip"
-                              ? "#cebba6"
-                              : p.id === "tshirt"
-                                ? "#e4d8c5"
-                                : "#b0bbc3"
-                        }
-                        side="front"
-                      />
-                    </svg>
-                    <small>
-                      {t(
-                        "模板示意 · 非成品照片",
-                        "Template · not a product photo",
-                      )}
-                    </small>
-                  </div>
-                )}
+                {p.photos.length>0&&<div className="sw-product-photos">{p.photos.map(photo=><img key={photo} src={`/api/sewing-photo/${photo}`} alt={names[p.id][lang]} loading="lazy"/>)}</div>}
                 <h3>{names[p.id][lang]}</h3>
                 <p>{p.description[lang]}</p>
                 <dl>
@@ -185,8 +128,8 @@ export default function PublicContent({
                     <span key={c} style={{ background: c }} title={c} />
                   ))}
                 </div>
-                <Link href="/sewing/preview">
-                  {t("试试模板预览 →", "Try the preview studio →")}
+                <Link href="/sewing/request">
+                  {t("咨询定制 →", "Discuss a custom order →")}
                 </Link>
               </article>
             ))}
@@ -201,10 +144,11 @@ export default function PublicContent({
           <h2>{t("作品与以往合作", "Work & collaborations")}</h2>
           <p>
             {t(
-              "在这里并排展示设计稿与真实成品，记录每一次制作的细节。经核实的合作记录与 Ohana hoodie 素材待提供后发布。",
-              "A place for side-by-side designs and finished garments, with details of the making process. Verified collaboration records and Ohana hoodie materials await publication.",
+              "历史样品包括手工袋、发饰与服装。2025–26学年的Ohana卫衣也是缝纫队的合作案例；当前能否承接、款式和价格需重新沟通确认。",
+              "Past examples include handmade bags, hair accessories and clothing, including the 2025–26 Ohana hoodie. Confirm current availability, designs and pricing with the makers.",
             )}
           </p>
+          <figure className="sw-sample-archive"><a href="/images/sewing/sample-merch-2025-26.jpg" target="_blank" rel="noopener noreferrer" aria-label={t("打开完整历史样品海报（新窗口）", "Open the full archive sample poster in a new tab")}><Image src="/images/sewing/sample-merch-2025-26.jpg" width={1587} height={2245} alt={t("历史样品海报：手工袋、工作区域与Ohana 2025–26卫衣的设计和成品", "Archive merchandise poster: handmade bags, the work area, and design and finished-product examples of the Ohana 2025–26 hoodie")} className="w-full h-auto rounded-xl"/></a><figcaption>{t("历史案例 · 2025–26。海报设计：Crystal。图片同时包含设计稿与成品；不代表当前库存、价格或本学期已确认订单。", "Archive examples · 2025–26. Poster designed by Crystal. Includes both designs and finished products; this is not a current stock list, price list or confirmed order for this term.")}</figcaption></figure>
           {gallery(content.gallery.filter((g) => g.kind !== "team"))}
         </section>
       )}

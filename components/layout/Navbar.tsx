@@ -10,7 +10,7 @@ import Logo from '@/components/ui/Logo';
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/families', label: 'Families' },
-  { href: '/plans', label: 'Plans' },
+  { href: '/projects', label: 'Projects' },
   { href: '/schedule', label: 'Schedule' },
 ];
 const focus = 'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-earth-dark';

@@ -63,8 +63,8 @@ export type Content = {
 };
 export const defaultContent: Content = {
   story: {
-    zh: "以手艺连接校园与社区。常熟爱心缝纫队与 Island to Infinity 合作，让校内真实的服装需求与制作者的专业劳动相遇。每一次合作，都从认真了解需求开始。",
-    en: "Connecting campus and community through craft. Changshu Sewing Team and Island to Infinity bring real clothing needs together with skilled work. Every collaboration starts with listening.",
+    zh: "常熟爱心缝纫队与 Island to Infinity 合作，将校园定制需求与社区制作者连接起来。团队为因照顾孩子而难以全职工作的女性提供灵活的兼职机会。我们希望通过持续、真实的订单建立长期互惠的合作，尊重制作者的专业劳动。",
+    en: "Changshu Sewing Team and Island to Infinity connect campus customization needs with skilled local makers. The team offers flexible, part-time work for women whose childcare responsibilities make full-time work difficult. We hope to build a lasting, mutually beneficial partnership through genuine, ongoing orders.",
   },
   wechat: "elaine_10x / jasmine",
   teams: "Yiling(Elaine) Xie / Jasmine Angela Pangilinan",
@@ -116,8 +116,8 @@ export const defaultContent: Content = {
         en: "Can I submit without a design?",
       },
       answer: {
-        zh: "可以。描述想法即可，模板预览是选填工具。",
-        en: "Yes. Describe your idea; the preview tool is optional.",
+        zh: "可以。描述想法即可，也可以上传你希望使用的原始图案，与制作者沟通确认。",
+        en: "Yes. Describe your idea or upload original artwork, then confirm the details with the maker.",
       },
     },
     {

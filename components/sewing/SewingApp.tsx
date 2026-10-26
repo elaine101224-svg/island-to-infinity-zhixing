@@ -16,9 +16,6 @@ import {
 } from "@/lib/sewing/types";
 import PublicContent from "./PublicContent";
 import dynamic from "next/dynamic";
-const Preview = dynamic(() => import("./Preview"), {
-  loading: () => <Pending />,
-});
 const RequestForm = dynamic(() => import("./RequestForm"), {
   loading: () => <Pending />,
 });
@@ -65,7 +62,6 @@ function Main({ admin = false }: { admin?: boolean }) {
     ["collaborations", t("以往合作", "Collaborations")],
     ["story", t("团队故事", "Our story")],
     ["faq", t("流程与 FAQ", "Process & FAQ")],
-    ["preview", t("模板预览", "Preview studio")],
     ["orders", t("我的订单", "My orders")],
   ];
   if (loading) return <Pending />;
@@ -112,8 +108,8 @@ function Main({ admin = false }: { admin?: boolean }) {
       {!configured && (
         <p className="sw-setup" role="status">
           {t(
-            "配置待完成：公开介绍与本地预览可用；线上保存、登录和订单需先配置数据库与邮件服务。这里不会生成演示订单。",
-            "Setup pending: public pages and local previews work. Sign-in, saving and orders require database and email configuration. No demo orders are generated.",
+            "配置待完成：公开介绍可用；线上保存、登录和订单需先配置数据库与邮件服务。这里不会生成演示订单。",
+            "Setup pending: public pages work. Sign-in, saving and orders require database and email configuration. No demo orders are generated.",
           )}
         </p>
       )}
@@ -138,8 +134,6 @@ function Main({ admin = false }: { admin?: boolean }) {
               />
             )}
           </>
-        ) : view === "preview" ? (
-          <Preview content={content} user={user} />
         ) : view === "request" ? (
           <RequestForm user={user} />
         ) : view === "login" ? (

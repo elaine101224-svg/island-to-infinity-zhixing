@@ -200,6 +200,14 @@ beforeEach(() => {
   mocks.conflict = false;
 });
 describe("sewing private workflow (mock database integration)", () => {
+  it("retires preview creation without deleting historical preview records",async()=>{
+    as("a@school.test");
+    const record={id,owner:"a@school.test",data:{product:"hoodie"},created_at:"2026-10-25"};
+    mocks.tables.sewing_previews=[record];
+    expect((await call("previews",{})).status).toBe(410);
+    expect(mocks.tables.sewing_previews).toEqual([record]);
+    const response=await call("previews");expect(response.status).toBe(200);expect((await response.json()).previews).toEqual([record]);
+  });
   it("rejects anonymous private reads and cross-origin writes", async () => {
     expect((await call("orders")).status).toBe(401);
     expect((await call("orders", {}, "https://attacker.test")).status).toBe(

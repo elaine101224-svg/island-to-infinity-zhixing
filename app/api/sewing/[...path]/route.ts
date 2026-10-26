@@ -181,46 +181,7 @@ async function handle(req: NextRequest, ctx: Context) {
     }
     const user = await requireIdentity();
     if (path === "previews") {
-      if (write) {
-        const p = z
-          .object({
-            id: uuid,
-            product: z.enum(["hoodie", "zip", "tshirt", "jersey"]),
-            color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-            fileIds: z.array(uuid).min(2).max(4),
-            transforms: z.object({
-              front: z.object({
-                x: z.number(),
-                y: z.number(),
-                scale: z.number(),
-                angle: z.number(),
-              }),
-              back: z.object({
-                x: z.number(),
-                y: z.number(),
-                scale: z.number(),
-                angle: z.number(),
-              }),
-            }),
-          })
-          .parse(data);
-        const files = check(
-          await db()
-            .from("sewing_files")
-            .select("id")
-            .eq("owner", user.email)
-            .neq("purpose", "public")
-            .in("id", p.fileIds),
-        );
-        if (new Set(files?.map((f) => f.id)).size !== new Set(p.fileIds).size)
-          throw new SewingError("file");
-        check(
-          await db()
-            .from("sewing_previews")
-            .insert({ id: p.id, owner: user.email, data: p }),
-        );
-        return NextResponse.json({ id: p.id });
-      }
+      if(write)return NextResponse.json({error:'Preview studio has been removed.'},{status:410});
       return NextResponse.json({
         previews: check(
           await db()

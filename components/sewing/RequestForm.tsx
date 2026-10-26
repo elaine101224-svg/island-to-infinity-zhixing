@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { api, ErrorMessage, Notice, upload, useSewing } from "./shared";
 import {
   names,
@@ -10,14 +9,8 @@ import {
   type Identity,
   type RequestData,
 } from "@/lib/sewing/types";
-type SavedPreview = {
-  id: string;
-  data: { product: keyof typeof names; color: string; fileIds: string[] };
-  created_at: string;
-};
 export default function RequestForm({ user }: { user: Identity | null }) {
   const { t, lang } = useSewing();
-  const params = useSearchParams();
   const [data, setData] = useState<RequestData>({
     kind: "personal",
     product: "hoodie",
@@ -30,30 +23,12 @@ export default function RequestForm({ user }: { user: Identity | null }) {
     fileIds: [],
   });
   const [files, setFiles] = useState<FileRecord[]>([]);
-  const [previews, setPreviews] = useState<SavedPreview[]>([]);
-  const [selected, setSelected] = useState("");
   const [review, setReview] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const id = useRef("");
-  useEffect(() => {
-    if (!user) return;
-    api("previews")
-      .then((r) => {
-        setPreviews(r.previews);
-        const p = r.previews.find(
-          (p: SavedPreview) => p.id === params.get("preview"),
-        );
-        if (p) {
-          setSelected(p.id);
-          setData((d) => ({ ...d, product: p.data.product }));
-        }
-      })
-      .catch((e) => setError(e.message));
-  }, [user, params]);
-  const preview = previews.find((p) => p.id === selected);
-  const allIds = [...files.map((f) => f.id), ...(preview?.data.fileIds || [])];
+  const allIds = files.map((file) => file.id);
   const change = (key: keyof RequestData, value: string | number) => {
     setData((d) => ({ ...d, [key]: value }));
     setReview(false);
@@ -263,51 +238,7 @@ export default function RequestForm({ user }: { user: Identity | null }) {
             </button>
           </div>
         ))}
-        <label>
-          {t(
-            "附加已保存的预览（选填，包含原始图案）",
-            "Attach a saved preview (optional, includes originals)",
-          )}
-          <select
-            value={selected}
-            onChange={(e) => {
-              setSelected(e.target.value);
-              setReview(false);
-            }}
-          >
-            <option value="">{t("不附加", "None")}</option>
-            {previews.map((p) => (
-              <option value={p.id} key={p.id}>
-                {names[p.data.product][lang]} · {p.data.color} ·{" "}
-                {new Date(p.created_at).toLocaleString(
-                  lang === "zh" ? "zh-CN" : "en-GB",
-                )}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Link href="/sewing/preview" target="_blank">
-          {t(
-            "在新窗口制作预览（非必需） ↗",
-            "Open preview studio (optional) ↗",
-          )}
-        </Link>
-        <p>
-          <button disabled={busy} className="sw-primary" type="submit">
-            {t("检查提交摘要", "Review request")}
-          </button>{" "}
-          <button
-            disabled={busy}
-            type="button"
-            onClick={() =>
-              api("previews")
-                .then((r) => setPreviews(r.previews))
-                .catch((e) => setError(e.message))
-            }
-          >
-            {t("刷新已保存预览", "Refresh saved previews")}
-          </button>
-        </p>
+        <p><button disabled={busy} className="sw-primary" type="submit">{t("检查提交摘要", "Review request")}</button></p>
       </form>
       {review && (
         <div className="sw-card" aria-live="polite">
@@ -331,8 +262,8 @@ export default function RequestForm({ user }: { user: Identity | null }) {
             <dd>{data.notes || "—"}</dd>
             <dt>
               {t(
-                "附件数量（原图与预览）",
-                "Attachments (originals & previews)",
+                "附件数量（原始图案）",
+                "Attachments (original artwork)",
               )}
             </dt>
             <dd>{allIds.length}</dd>

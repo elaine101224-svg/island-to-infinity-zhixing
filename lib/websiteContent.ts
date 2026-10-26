@@ -25,5 +25,5 @@ export async function readPublishedContent(fresh = false): Promise<HomepageConte
 }
 
 export function contentPhotoUrls(content: HomepageContent): Set<string> {
-  return new Set([content.teamPhoto.url, ...content.groups.map(g => g.photo.url), ...content.history.map(h => h.photo.url), ...content.cards.map(c => c.photo.url), ...content.members.map(m => m.photoUrl)].filter(Boolean));
+  return new Set([content.teamPhoto.url, ...content.groups.map(g => g.photo.url), ...content.history.map(h => h.photo.url), ...content.cards.map(c => c.photo.url), ...content.members.map(m => m.photoUrl),...content.projects.filter(project=>project.published&&project.photo.consent).map(project=>project.photo.url)].filter(Boolean));
 }

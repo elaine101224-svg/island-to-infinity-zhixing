@@ -33,15 +33,15 @@ export default function Login({ configured }: { configured: boolean }) {
       <h1>{t("验证校内身份", "Verify your school identity")}</h1>
       <p>
         {t(
-          "用于提交需求、保存设计预览及查看自己的订单。验证码10分钟有效，最多尝试5次，每60秒可重发一次。",
-          "Required to submit requests, save previews and view your orders. Codes expire in 10 minutes, allow 5 attempts, and can be resent after 60 seconds.",
+          "用于提交需求及查看自己的订单。验证码10分钟有效，最多尝试5次，每60秒可重发一次。",
+          "Required to submit requests and view your orders. Codes expire in 10 minutes, allow 5 attempts, and can be resent after 60 seconds.",
         )}
       </p>
       {!configured && (
         <p className="sw-notice">
           {t(
-            "验证码登录尚未启用：需完成数据库与验证码邮件服务配置。公开浏览与本地模板导出可用。",
-            "Code sign-in is not enabled yet: database access and verification email delivery must be configured. Public browsing and local preview export are available.",
+            "验证码登录尚未启用：需完成数据库与验证码邮件服务配置。公开浏览可用。",
+            "Code sign-in is not enabled yet: database access and verification email delivery must be configured. Public browsing is available.",
           )}
         </p>
       )}
