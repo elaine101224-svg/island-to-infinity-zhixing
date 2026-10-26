@@ -270,3 +270,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-entry-error svg { flex-shrink:0; margin-top:.15rem; }
 @media (min-width:768px) { .member-entry { padding:4.5rem 2rem 5rem; } .member-entry-layout { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:4rem; } .member-entry-overview { display:block; } .member-entry-form { padding:2.25rem; } .member-entry-welcome h1 { font-size:3.25rem; } }
 @media (prefers-reduced-motion:reduce) { .member-entry-submit { transition:none; } }
+
+.member-team-work { padding:1rem 1.25rem; border-top:1px solid var(--scope-border); background:var(--scope-tint); }
+.member-assignment-form { padding:1rem; margin:.5rem 0 1rem; background:#FFFEFB; border:1px solid var(--scope-border); border-radius:.625rem; }
+@media(min-width:640px){.member-team-work { padding-left:1.5rem; padding-right:1.5rem; }}

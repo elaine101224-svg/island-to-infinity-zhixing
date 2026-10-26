@@ -5,7 +5,7 @@ import type {Term} from '@/lib/term/schema';
 // One authenticated, parallel read. Nothing is cached between members or requests.
 export async function loadMemberWorkspace({client,account}:Awaited<ReturnType<typeof requireMember>>){
  const db=memberService();
- const rosterQuery=db.from('member_accounts').select('person_id,name,group_id').in('state',['active','invited']);
+ const rosterQuery=db.from('member_accounts').select('person_id,name,group_id,state,expires_at').in('state',['active','invited']);
  const [profileResult,rosterResult,projections,masterResult,plansResult]=await Promise.all([
  db.from('team_members').select('data').eq('id',account.person_id).maybeSingle(),rosterQuery,
  Promise.all(['member_tasks','member_reflections','member_groups','member_projects','member_events'].map(t=>client.from(t).select('data'))),
@@ -19,9 +19,12 @@ export async function loadMemberWorkspace({client,account}:Awaited<ReturnType<ty
  const scopes=(master?.scopes??[]).filter(scope=>account.role==='admin'||scope.memberIds.includes(account.person_id)||scope.coordinatorIds.includes(account.person_id));
  const responsibilities=(master?.responsibilities??[]).filter(role=>account.role==='admin'||role.memberIds.includes(account.person_id));
  const taskRows=(dbResult(tasks)??[]).map(row=>row.data);
+ const managedScopes=new Set(scopes.filter(scope=>scope.coordinatorIds.includes(account.person_id)).map(scope=>scope.id));
+ const teamTasks=taskRows.filter(task=>managedScopes.has(task.scopeId));
+ const personalTasks=taskRows.filter(task=>account.role==='admin'||!master?.planVersion||task.ownerId===account.person_id||task.collaboratorIds?.includes(account.person_id));
  const visiblePeople=new Set([account.person_id,...taskRows.flatMap(task=>[task.ownerId,...(task.collaboratorIds??[])]),...scopes.flatMap(scope=>[...scope.memberIds,...scope.coordinatorIds])]);
  const projectIds=new Set([...scopes.map(scope=>scope.id),...taskRows.map(task=>task.projectId)]);
  const projectRows=(dbResult(projects)??[]).map(row=>row.data).filter(project=>account.role==='admin'||!master?.planVersion||projectIds.has(project.id));
  const roster=(dbResult(rosterResult)??[]).filter(person=>account.role==='admin'||visiblePeople.has(person.person_id)||(account.group_id!==null&&person.group_id===account.group_id));
- return {personalPlans:plansResult.error?null:(plansResult.data??[]).map(row=>row.data),personalPlansError:plansResult.error?'Your personal plans could not be loaded. Please retry.':'',me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},tasks:taskRows,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster};
+ return {personalPlans:plansResult.error?null:(plansResult.data??[]).map(row=>row.data),personalPlansError:plansResult.error?'Your personal plans could not be loaded. Please retry.':'',me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},assignmentMemberIds:roster.filter(person=>person.state==='active'||(person.state==='invited'&&Date.parse(person.expires_at)>Date.now())).map(person=>person.person_id),teamTasks,tasks:personalTasks,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster:roster.map(({person_id,name,group_id})=>({person_id,name,group_id}))};
 }

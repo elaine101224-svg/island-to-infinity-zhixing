@@ -2,6 +2,7 @@
 
 import {Home,Layers,BookOpen,Camera,ShoppingBag,HeartHandshake,Scissors,Clapperboard,UserRound} from 'lucide-react';
 import MemberTaskRow from './MemberTaskRow';
+import ScopeAssignments from './ScopeAssignments';
 import type {MemberTask,Workspace} from '@/lib/members/workspace';
 const icons={library:BookOpen,booth:Camera,market:ShoppingBag,bullying:HeartHandshake,education:HeartHandshake,sewing:Scissors,documentary:Clapperboard};
 const tones:Record<string,string>={library:'sage',education:'sage',bullying:'sage',booth:'amber',market:'amber',sewing:'clay',documentary:'clay'};
@@ -19,6 +20,7 @@ export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPre
      <dl className="member-team-list">{scope.coordinatorIds.length>0&&<div><dt>Coordinators</dt><dd>{people(scope.coordinatorIds)}</dd></div>}{team.length>0&&<div><dt>Team</dt><dd>{people(team)}</dd></div>}</dl>
      <p className="member-scope-note">{scope.note}</p>
     </div>
+    {coordinator&&<ScopeAssignments scope={scope} workspace={workspace} onSaved={onSaved}/>}
     <div className="member-scope-tasks"><div className="member-task-heading"><h4>{done?'Completed tasks':'Your tasks'}</h4>{assigned.length>0&&<span>{assigned.length}</span>}</div>{assigned.length?<div className="divide-y divide-sand/70">{assigned.map(task=><MemberTaskRow key={task.id+task.updatedAt} compact task={task} workspace={workspace} onSaved={onSaved} onPrepare={()=>onPrepare(task)}/>)}</div>:<p className="member-empty-tasks">{done?'No completed tasks yet.':scope.id==='jingyi'?'Temporary family assignment. No tasks are assigned.':'Participation is confirmed. No individual tasks have been scheduled yet.'}</p>}</div>
    </article>;
   })}</div>:<p className="text-sm text-earth-mid py-3">{kind==='family'?'No family assigned.':'No projects assigned yet.'}</p>}

@@ -31,7 +31,7 @@ export default function MemberHome({workspace,view,onTaskSaved}:{workspace:Works
  const personal=plans.filter(plan=>filter==='active'?!closed(plan.status):closed(plan.status));
  const firstName=workspace.me.name.match(/\(([^)]+)\)/)?.[1]??workspace.me.name.split(' ')[0];
  const otherTasks=assigned.filter(task=>!workspace.scopes.some(scope=>task.scopeId===scope.id||(!task.scopeId&&task.projectId===scope.id)));
- const savedTask=(record:MemberTask)=>{onTaskSaved(record);setMessage('Progress saved.');};
+ const savedTask=(record:MemberTask)=>{onTaskSaved(record);setMessage('Task saved.');};
  function savePlan(plan:PersonalPlan){setPlans(rows=>[plan,...rows.filter(row=>row.id!==plan.id)]);setDraft(null);setMessage(plan.kind==='proposal'?'Proposal sent to Elaine.':'Saved.');}
  function prepare(task?:MemberTask){setDraft({kind:'preparation',task});window.scrollTo({top:0,behavior:'smooth'});}
  const privateEvents:Term['events']=plans.filter(plan=>plan.kind==='preparation'&&plan.date&&!closed(plan.status)).map(plan=>({id:`personal-${plan.id}`,title:`Preparation · ${plan.title}`,date:plan.date!,endDate:null,startTime:plan.startTime,endTime:plan.endTime,location:'Personal plan',status:'Confirmed',evidence:'Personal preparation time',notes:'',schoolEvent:false,participation:'TBC',participationEvidence:''}));
