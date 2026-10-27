@@ -289,7 +289,6 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-task-metadata .member-task-date { background:#EEE6DB; padding:.3rem .5rem; border-radius:.375rem; color:#594234; }
 .member-task-metadata .member-task-deadline { font-weight:600; color:#805039; }
 .member-task-metadata .member-task-priority { color:#853D2B; font-weight:600; }
-.member-task-preview { margin-top:.875rem; font-size:.8125rem; line-height:1.7; color:#6B5B4E; }
 .member-task-expand { display:inline-flex; align-items:center; gap:.4rem; min-height:2.75rem; margin-top:.25rem; font-size:.75rem; font-weight:500; color:#594234; text-decoration:underline; text-underline-offset:3px; }
 .member-task-editor { margin-top:.5rem; padding-top:1rem; border-top:1px solid #E2D8CA; }
 .member-task-quick-action { margin-top:.125rem; }
