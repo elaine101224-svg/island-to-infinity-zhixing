@@ -3,6 +3,7 @@
 import {Home,Layers,BookOpen,Camera,ShoppingBag,HeartHandshake,Scissors,Clapperboard,UserRound} from 'lucide-react';
 import MemberTaskRow from './MemberTaskRow';
 import ScopeAssignments from './ScopeAssignments';
+import {rolePhrases} from './rolePhrases';
 import type {Term} from '@/lib/term/schema';
 import type {MemberTask,Workspace} from '@/lib/members/workspace';
 const icons={library:BookOpen,booth:Camera,market:ShoppingBag,bullying:HeartHandshake,education:HeartHandshake,sewing:Scissors,documentary:Clapperboard};
@@ -19,6 +20,7 @@ export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPre
    return <article key={scope.id} className="member-scope-card" data-tone={kind==='family'?'clay':tones[scope.id]??'sage'} aria-labelledby={`scope-${scope.id}`}>
     <div className="member-scope-heading"><span className="member-scope-icon"><Icon size={19} aria-hidden="true"/></span><h3 id={`scope-${scope.id}`}>{scope.title}</h3><span className="member-assignment-badge">{scope.coordinationRoles?.find(role=>role.memberId===workspace.me.personId)?.label??(coordinator?'Coordinator':'Assigned')}</span></div>
     <div className="member-scope-content">
+     <div className="member-role-phrases" aria-label="Your responsibilities">{rolePhrases(scope,workspace.responsibilities,workspace.me.personId).map(phrase=><span key={phrase}>{phrase}</span>)}</div>
      <dl className="member-team-list">{scope.coordinationRoles?scope.coordinationRoles.map(role=><div key={role.memberId}><dt>{role.label}</dt><dd>{people([role.memberId])}</dd></div>):scope.coordinatorIds.length>0&&<div><dt>Coordinators</dt><dd>{people(scope.coordinatorIds)}</dd></div>}{team.length>0&&<div><dt>Team</dt><dd>{people(team)}</dd></div>}</dl>
     </div>
     {coordinator&&<ScopeAssignments scope={scope} workspace={workspace} onSaved={onSaved}/>}

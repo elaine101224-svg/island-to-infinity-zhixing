@@ -297,3 +297,6 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-personal-task { padding:1rem; background:#FFFEFB; border:1px solid #E1D0A5; border-radius:.625rem; }
 @media(min-width:640px){.member-task-stack { padding:1.25rem; gap:1rem; }.member-task-row { padding:1.25rem; }}
 @media(max-width:639px){.member-task-layout { flex-direction:column; gap:.25rem; }.member-task-layout > details { width:100%; }.member-task-quick-action { align-self:flex-start; }.member-task-stack { padding:.75rem; }.member-task-row { padding:1rem; }}
+
+.member-role-phrases { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.25rem; }
+.member-role-phrases > span { padding:.3rem .55rem; border-radius:.375rem; background:var(--scope-tint); color:var(--scope-ink); font-size:.75rem; font-weight:550; line-height:1.5; }
