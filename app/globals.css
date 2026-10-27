@@ -280,7 +280,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-task-row { min-width:0; padding:1.125rem; border:1px solid #D8CCBD; border-radius:.75rem; background:#FFFEFB; }
 .member-task-layout { display:flex; align-items:flex-start; gap:1rem; }
 .member-task-topline { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
-.member-task-reference { font-size:.6875rem; font-weight:600; letter-spacing:.035em; color:#786653; }
+.member-task-reference { max-width:100%; overflow-wrap:anywhere; font-size:.6875rem; font-weight:600; letter-spacing:.035em; color:#786653; }
 .member-task-topline .member-progress-badge { margin-top:0; }
 .member-task-title { font-size:1rem; line-height:1.55; font-weight:650; margin-top:.75rem; overflow-wrap:anywhere; }
 .member-task-metadata { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem .875rem; margin-top:.75rem; color:#6B5B4E; font-size:.75rem; line-height:1.6; }
