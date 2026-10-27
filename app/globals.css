@@ -274,3 +274,28 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-team-work { padding:1rem 1.25rem; border-top:1px solid var(--scope-border); background:var(--scope-tint); }
 .member-assignment-form { padding:1rem; margin:.5rem 0 1rem; background:#FFFEFB; border:1px solid var(--scope-border); border-radius:.625rem; }
 @media(min-width:640px){.member-team-work { padding-left:1.5rem; padding-right:1.5rem; }}
+
+/* Each task has its own reading boundary, with dates distinct from progress. */
+.member-task-stack { display:grid; gap:.875rem; padding:1rem; background:#F5F1E9; }
+.member-task-row { min-width:0; padding:1.125rem; border:1px solid #D8CCBD; border-radius:.75rem; background:#FFFEFB; }
+.member-task-layout { display:flex; align-items:flex-start; gap:1rem; }
+.member-task-topline { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; }
+.member-task-reference { font-size:.6875rem; font-weight:600; letter-spacing:.035em; color:#786653; }
+.member-task-topline .member-progress-badge { margin-top:0; }
+.member-task-title { font-size:1rem; line-height:1.55; font-weight:650; margin-top:.75rem; overflow-wrap:anywhere; }
+.member-task-metadata { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem .875rem; margin-top:.75rem; color:#6B5B4E; font-size:.75rem; line-height:1.6; }
+.member-task-metadata > span { display:inline-flex; align-items:center; gap:.375rem; min-width:0; }
+.member-task-metadata svg { flex-shrink:0; }
+.member-task-metadata .member-task-date { background:#EEE6DB; padding:.3rem .5rem; border-radius:.375rem; color:#594234; }
+.member-task-metadata .member-task-deadline { font-weight:600; color:#805039; }
+.member-task-metadata .member-task-priority { color:#853D2B; font-weight:600; }
+.member-task-preview { margin-top:.875rem; font-size:.8125rem; line-height:1.7; color:#6B5B4E; }
+.member-task-expand { display:inline-flex; align-items:center; gap:.4rem; min-height:2.75rem; margin-top:.25rem; font-size:.75rem; font-weight:500; color:#594234; text-decoration:underline; text-underline-offset:3px; }
+.member-task-editor { margin-top:.5rem; padding-top:1rem; border-top:1px solid #E2D8CA; }
+.member-task-quick-action { margin-top:.125rem; }
+.member-team-task-stack,.member-personal-task-stack { display:grid; gap:.75rem; }
+.member-team-task { min-width:0; padding:1rem; border:1px solid var(--scope-border,#D8CCBD); border-radius:.625rem; background:#FFFEFB; }
+.member-team-task-title { font-size:.875rem; line-height:1.6; font-weight:650; overflow-wrap:anywhere; }
+.member-personal-task { padding:1rem; background:#FFFEFB; border:1px solid #E1D0A5; border-radius:.625rem; }
+@media(min-width:640px){.member-task-stack { padding:1.25rem; gap:1rem; }.member-task-row { padding:1.25rem; }}
+@media(max-width:639px){.member-task-layout { flex-direction:column; gap:.25rem; }.member-task-layout > details { width:100%; }.member-task-quick-action { align-self:flex-start; }.member-task-stack { padding:.75rem; }.member-task-row { padding:1rem; }}

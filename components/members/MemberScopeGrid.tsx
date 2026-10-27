@@ -23,7 +23,7 @@ export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPre
      <p className="member-scope-note">{scope.note}</p>
     </div>
     {coordinator&&<ScopeAssignments scope={scope} workspace={workspace} onSaved={onSaved}/>}
-    <div className="member-scope-tasks"><div className="member-task-heading"><h4>{done?'Completed tasks':'Your tasks'}</h4>{assigned.length>0&&<span>{assigned.length}</span>}</div>{assigned.length?<div className="divide-y divide-sand/70">{assigned.map(task=><MemberTaskRow key={task.id+task.updatedAt} compact onSuggestTime={onSuggestTime} task={task} workspace={workspace} onSaved={onSaved} onPrepare={()=>onPrepare(task)}/>)}</div>:<p className="member-empty-tasks">{done?'No completed tasks yet.':scope.id==='jingyi'?'Temporary family assignment. No tasks are assigned.':'Participation is confirmed. No individual tasks have been scheduled yet.'}</p>}</div>
+    <div className="member-scope-tasks"><div className="member-task-heading"><h4>{done?'Completed tasks':'Your tasks'}</h4>{assigned.length>0&&<span>{assigned.length}</span>}</div>{assigned.length?<div className="member-task-stack">{assigned.map(task=><MemberTaskRow key={task.id+task.updatedAt} compact onSuggestTime={onSuggestTime} task={task} workspace={workspace} onSaved={onSaved} onPrepare={()=>onPrepare(task)}/>)}</div>:<p className="member-empty-tasks">{done?'No completed tasks yet.':scope.id==='jingyi'?'Temporary family assignment. No tasks are assigned.':'Participation is confirmed. No individual tasks have been scheduled yet.'}</p>}</div>
    </article>;
   })}</div>:<p className="text-sm text-earth-mid py-3">{kind==='family'?'No family assigned.':'No projects assigned yet.'}</p>}
  </section>;
