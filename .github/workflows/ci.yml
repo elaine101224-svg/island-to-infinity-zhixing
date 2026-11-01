@@ -41,8 +41,15 @@ jobs:
       - name: Test (with coverage)
         run: npm run test:coverage
 
-      - name: Build
-        run: npm run build
+      - name: Build against isolated editorial content
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54436
+        run: |
+          node tests/fixtures/build-content-server.mjs &
+          fixture_pid=$!
+          trap 'kill "$fixture_pid"' EXIT
+          curl --fail --silent --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:54436/health
+          npm run build
 
       - name: Upload coverage
         if: always()
