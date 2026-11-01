@@ -1,6 +1,7 @@
 import {NextRequest,NextResponse} from 'next/server';
 import {z} from 'zod';import {randomUUID} from 'node:crypto';
 import {db,hash,limit} from '@/lib/sewing/server';import {result} from '@/lib/sewing/operations-server';import {publicRequestSchema,imageMime} from '@/lib/sewing/schema';
+import {readPublicTimeline} from '@/lib/sewing/timeline-server';
 const headers={'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
 const input=publicRequestSchema.safeExtend({budgetCents:z.number().int().min(0).max(100000000000).nullable(),sizing:z.enum(['specified','recommend']),fabric:z.enum(['specified','recommend']),requirements:z.string().max(5000)});
 const tokenSchema=z.string().regex(/^[a-zA-Z0-9_-]{43}$/);
@@ -16,6 +17,6 @@ async function handle(req:NextRequest,ctx:{params:Promise<{path?:string[]}>}){tr
  if(!mime)throw Error('支持PNG、JPG、WebP、PDF、CSV或XLSX，每份最多4MB');
  const id=z.uuid().parse(req.headers.get('x-upload-id')||randomUUID()),objectPath='customer-request/'+view.id+'/'+id;const existing=result(await db().from('sewing_files').select('id,owner').eq('id',id).maybeSingle());if(existing){if(existing.owner!=='request:'+view.id)return NextResponse.json({error:'附件编号冲突'},{status:409,headers});result(await db().rpc('sewing_request_attach',{link_hash,file_id:id}));return NextResponse.json({id},{headers});}const stored=await db().storage.from('sewing-private').upload(objectPath,raw,{contentType:mime,upsert:false});if(stored.error&&!['409','400'].includes(String((stored.error as {statusCode?:string}).statusCode)))result(stored);if(stored.error){const prior=result(await db().storage.from('sewing-private').download(objectPath));if(!Buffer.from(await prior!.arrayBuffer()).equals(raw))throw Error('附件编号已使用，请重新选择文件');}result(await db().rpc('sewing_request_register_file',{link_hash,file_id:id,file_name:name,file_mime:mime}));return NextResponse.json({id},{headers});}
  if(write){const body=z.object({id:z.uuid(),notes:z.string().trim().max(5000)}).parse(await req.json());result(await db().rpc('sewing_request_add',{link_hash,supplement_id:body.id,note:body.notes}));return NextResponse.json({ok:true},{headers});}
- return NextResponse.json(view,{headers});
+ return NextResponse.json({...view,timeline:await readPublicTimeline(view.id)},{headers});
  }catch(e){return NextResponse.json({error:e instanceof z.ZodError?'请检查必填项和链接格式':(e as Error).message},{status:(e as {status?:number}).status??400,headers});}}
 export {handle as GET,handle as POST};

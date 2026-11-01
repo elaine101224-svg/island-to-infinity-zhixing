@@ -1,0 +1,6 @@
+import {Check,Clock3,HelpCircle} from 'lucide-react';
+import type {OrderTimelineData} from '@/lib/sewing/timeline';
+import './timeline.css';
+export default function OrderTimeline({timeline,compact=false}:{timeline:OrderTimelineData;compact?:boolean}){
+ return <section className={'order-timeline'+(compact?' is-compact':'')} aria-label="订单流程时间线"><div className="timeline-heading"><h3>订单进度</h3><span>{timeline.completed} / {timeline.total} 已完成</span></div><p className="timeline-current">当前阶段：<strong>{timeline.current}</strong></p><ol>{timeline.stages.map((s,i)=><li key={s.id} data-state={s.state} aria-current={s.state==='current'?'step':undefined}><span className="timeline-marker" aria-hidden="true">{(s.state==='done'||s.state==='recorded')?<Check size={15}/>:s.state==='review'?<HelpCircle size={15}/>:s.state==='current'?<Clock3 size={15}/>:i+1}</span><div><div className="timeline-title"><strong>{s.title}</strong><span>{s.state==='recorded'?'历史已完成':s.state==='done'?'已完成':s.state==='current'?(s.id==='production'?'进行中':'待推进'):s.state==='review'?(s.id==='bulk'&&s.detail.includes('付款尚未进行')?'待付款':'待核对'):'待进行'}</span></div>{!compact&&<><p>{s.detail}</p>{s.date&&<time dateTime={s.date}>{s.date}</time>}</>}</div></li>)}</ol>{!compact&&<small>双方查看同一条订单进度。历史事实如缺少日期或凭证，会明确标注待补充；不会自动生成客户确认。</small>}</section>;
+}

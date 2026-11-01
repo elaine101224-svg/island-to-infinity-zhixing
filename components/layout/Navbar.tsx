@@ -61,7 +61,7 @@ export default function Navbar() {
               ))}
             </ul>
             <div className="flex items-center gap-4 border-l border-sand pl-5">
-              <Link href="/sewing" aria-current={active('/sewing') ? 'page' : undefined}
+              <Link href="/sewing/request" aria-current={active('/sewing') ? 'page' : undefined}
                 className={`inline-flex min-h-11 items-center whitespace-nowrap text-sm font-medium text-earth-dark underline-offset-4 hover:underline ${focus}`}>
                 Sewing <span className="ml-1.5 text-xs text-earth-mid" lang="zh">服装定制</span>
               </Link>
@@ -90,7 +90,7 @@ export default function Navbar() {
             ))}
           </ul>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-sand pt-3">
-            <Link href="/sewing" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-earth-dark hover:bg-sand/30 ${focus}`}>
+            <Link href="/sewing/request" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-earth-dark hover:bg-sand/30 ${focus}`}>
               Sewing <span className="text-earth-mid" lang="zh">服装定制</span>
             </Link>
             <Link href="/members" onClick={close} className={`inline-flex min-h-11 items-center gap-2 rounded-lg bg-earth-dark px-3 text-sm font-medium text-white hover:bg-earth-mid ${focus}`}>

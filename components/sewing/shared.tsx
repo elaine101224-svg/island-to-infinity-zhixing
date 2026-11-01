@@ -24,7 +24,7 @@ export const Language = createContext<{
   t: (zh: string, en: string) => string;
 }>({ lang: "zh", t: (zh) => zh });
 export const useSewing = () => useContext(Language);
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({ children, minimal=false }: { children: React.ReactNode; minimal?:boolean }) {
   const lang = useSyncExternalStore(
     subscribeLanguage,
     readLanguage,
@@ -33,8 +33,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = (zh: string, en: string) => (lang === "zh" ? zh : en);
   return (
     <Language.Provider value={{ lang, t }}>
-      <div className="sewing">
-        <div className="sw-top">
+      <div className={minimal?"sewing sewing-workspace":"sewing"}>
+        {!minimal&&<div className="sw-top">
           <Link href="/sewing">
             {t("常熟爱心缝纫队", "Changshu Sewing Team")}{" "}
             <span>× Island to Infinity</span>
@@ -52,7 +52,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           >
             中文 / English · {lang.toUpperCase()}
           </button>
-        </div>
+        </div>}
         {children}
       </div>
     </Language.Provider>
