@@ -1,11 +1,14 @@
 'use client';
+import {workspaceSchoolYear} from '@/lib/term/schoolYears';
+import {taskEditStatuses as taskStatuses} from '@/lib/term/statuses';
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 import SemesterCalendar from './SemesterCalendar';
 import type {CalendarEntry} from '@/lib/term/calendar';
 import {useUnsavedChanges} from '@/lib/hooks/useUnsavedChanges';
 import {adminFetch} from '@/lib/adminFetch';
-import {eventStatuses,taskStatuses,groupIds,type Term} from '@/lib/term/schema';
+import {eventStatuses,groupIds,type Term} from '@/lib/term/schema';
 type Section='events'|'tasks'|'groups'|'projects'|'recaps';
 type Item=Term[Section][number];
 type Selection={section:Section;record:Item;expected:Item|null};
@@ -31,6 +34,7 @@ function Editor({selection,people,onCancel,onSaved}:{selection:Selection;people:
  <div className="flex gap-4 items-center"><button className="editor-button">{busy?'Saving…':'Save this item'}</button><button type="button" className="min-h-11 underline px-2" onClick={onCancel}>Cancel</button></div></fieldset>{error&&<p role="alert" className="text-red-800">{error}</p>}</form>;
 }
 export default function SemesterDashboard(){
+ const router=useRouter();
  const [doc,setDoc]=useState<Term|null>(null),[section,setSection]=useState<Section>(()=>{const key=typeof window==='undefined'?'':window.location.hash.slice(1);return ['events','tasks','groups','projects'].includes(key)?key as Section:'events';}),[selection,setSelection]=useState<Selection|null>(null),[error,setError]=useState(''),[message,setMessage]=useState('');
  const opener=useRef<HTMLElement|null>(null);
  function restoreFocus(){requestAnimationFrame(()=>{if(opener.current?.isConnected)opener.current.focus();else document.getElementById('semester-title')?.focus();});}
@@ -38,13 +42,12 @@ export default function SemesterDashboard(){
  useEffect(()=>{void adminFetch('/api/admin/term').then(async response=>{const data=await response.json();if(!response.ok)throw Error(data.error);return data;}).then(data=>setDoc(data.document)).catch(error=>setError(error.message));},[]);
  function leave(restore=true){if(selection&&!window.confirm('Discard this item’s unsaved changes?'))return false;setSelection(null);if(restore)restoreFocus();return true;}
  if(!doc)return <div role="status">{error||'Loading semester…'}{error&&<button className="block underline min-h-11" onClick={()=>void load().catch(error=>setError(error.message))}>Retry</button>}</div>;
- const currentDoc=doc;
- function review(groupId:'A'|'B'|'C'|'D'){const month=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit'}).format(new Date()).slice(0,7);const existing=currentDoc.recaps.find(row=>row.groupId===groupId&&row.month===month);const tasks=currentDoc.tasks.filter(task=>task.groupId===groupId);const record=existing??{id:crypto.randomUUID(),groupId,month,completed:tasks.filter(task=>task.status==='Completed').map(task=>task.title).join('\n'),ongoing:tasks.filter(task=>task.status==='In progress').map(task=>task.title).join('\n'),obstacles:tasks.filter(task=>task.status==='Blocked').map(task=>`${task.title}: ${task.update}`).join('\n'),nextAction:'',ownerId:null,review:'Pending' as const};if(leave(false)){setSection('recaps');setSelection({section:'recaps',record,expected:existing??null});}}
- function editCalendar(entry:CalendarEntry){opener.current=document.activeElement as HTMLElement;setSelection({section:entry.kind==='task'?'tasks':'events',record:structuredClone(entry.source),expected:structuredClone(entry.source)});}
- function addCalendar(kind:'events'|'tasks',date?:string){opener.current=document.activeElement as HTMLElement;const record=empty(kind);if(date){if('date'in record)record.date=date;if('due'in record)record.due=date;}setSelection({section:kind,record,expected:null});}
+
+ function editCalendar(entry:CalendarEntry){if(entry.kind==='task'){router.push('/admin/tasks?task='+encodeURIComponent(entry.source.id));return;}opener.current=document.activeElement as HTMLElement;setSelection({section:'events',record:structuredClone(entry.source),expected:structuredClone(entry.source)});}
+ function addCalendar(kind:'events'|'tasks',date?:string){if(kind==='tasks'){router.push('/admin/tasks?assign=1');return;}opener.current=document.activeElement as HTMLElement;const record=empty(kind);if(date){if('date'in record)record.date=date;if('due'in record)record.due=date;}setSelection({section:kind,record,expected:null});}
  const auxiliary=section==='groups'||section==='projects'||section==='recaps';
  const rows=doc[section];
- return <section className="max-w-6xl mx-auto space-y-5"><header><h1 id="semester-title" tabIndex={-1} className="font-serif text-3xl">Semester</h1><p className="text-earth-mid mt-2">Term 1 · 2026–27</p></header>
+ return <section className="max-w-6xl mx-auto space-y-5"><header><h1 id="semester-title" tabIndex={-1} className="font-serif text-3xl">Calendar</h1><p className="text-earth-mid mt-2">Current school year · {workspaceSchoolYear(doc)}</p></header>
  {auxiliary&&<div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">{labels[section]}</h2><button type="button" className="min-h-11 underline px-2" onClick={()=>{if(leave())setSection('events');}}>Back to calendar</button></div>}
  <p role="status" className="text-sm text-earth-mid">{message}</p>{error&&<p role="alert">{error}</p>}
  {selection&&<Editor key={selection.section+'-'+selection.record.id} selection={selection} people={doc.people} onCancel={()=>void leave()} onSaved={async()=>{setSelection(null);setMessage('Saved.');restoreFocus();try{await load();}catch{setError('Saved, but the calendar could not refresh. Reload this page.');}}}/>}
@@ -53,6 +56,6 @@ export default function SemesterDashboard(){
  {section==='projects'&&<button type="button" className="editor-button" onClick={()=>setSelection({section,record:empty(section),expected:null})}>Add project</button>}
  <div className="divide-y divide-sand border-y border-sand">{rows.map(row=><article key={row.id} className="py-4 flex justify-between gap-4"><div className="min-w-0"><h2 className="font-medium break-words">{'title' in row?row.title:'month' in row?`${row.month} · Group ${row.groupId}`:`Family Group ${row.id}`}</h2><p className="text-sm text-earth-mid mt-1">{'plan' in row?row.plan:'nextAction' in row?row.nextAction:''}{'status' in row?` · ${row.status}`:''}</p></div><button type="button" className="min-h-11 px-3 underline shrink-0" onClick={()=>{opener.current=document.activeElement as HTMLElement;setSelection({section,record:structuredClone(row),expected:structuredClone(row)});}} aria-label={`Edit ${'title' in row?row.title:row.id}`}>Edit</button></article>)}</div>{!rows.length&&<p className="text-earth-mid">No items here yet.</p>}
  </div>
- <details className="border-t border-sand pt-4"><summary className="cursor-pointer min-h-11">Groups, projects & semester details</summary><div className="space-y-4 pt-3"><div className="flex flex-wrap gap-4">{(['groups','projects'] as const).map(key=><button key={key} type="button" className="min-h-11 underline px-2" onClick={()=>{if(leave(false)){setSection(key);requestAnimationFrame(()=>document.getElementById('semester-title')?.focus());}}}>{labels[key]}</button>)}</div><p className="text-sm text-earth-mid">Start a monthly review from completed, ongoing and blocked tasks. Review the draft before saving.</p><div className="flex flex-wrap gap-3">{groupIds.map(groupId=><button key={groupId} className="min-h-11 px-3 underline" onClick={()=>review(groupId)}>Group {groupId} review</button>)}</div><Link className="block underline" href="/admin/term/advanced">Reflections & full semester details</Link></div></details>
+ <div className="border-t border-sand pt-4 flex flex-wrap gap-5 text-sm"><Link className="min-h-11 py-3 underline" href="/admin/tasks">Manage tasks &amp; family / project teams</Link><details><summary className="min-h-11 cursor-pointer py-3 text-earth-mid">Historical semester tools</summary><Link className="block min-h-11 py-3 underline" href="/admin/term/advanced">Group history, reflections &amp; full semester details</Link></details></div>
  </section>;
 }

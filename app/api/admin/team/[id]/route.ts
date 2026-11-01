@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 async function guardMutation(request: NextRequest) {
   const requestId = getRequestId(request);
+  if(await validateSession()){const csrf=await verifyCsrf(request);return csrf?NextResponse.json({error:csrf},{status:403}):null;}
   if (rosterEditorsConfigured()) {
     try { sameOrigin(request); await requireRosterEditor(); return null; }
     catch (error) { return NextResponse.json({ error: error instanceof MemberError ? error.message : 'Roster authorization unavailable' }, { status: error instanceof MemberError ? error.status : 503 }); }

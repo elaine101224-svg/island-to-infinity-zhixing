@@ -14,19 +14,20 @@ export const workspaceScopeSchema=z.object({id,title:text,kind:z.enum(['family',
 export const responsibilitySchema=z.object({id,scopeId:id,memberIds:z.array(id).max(100),description:text,confirmation:z.literal('confirmed'),sourcePlan:id});
 export const termSchema = z.object({
   term: z.literal('2026-27-T1'),
+  activeSchoolYear:z.string().regex(/^20\d{2}–\d{2}$/).optional(),
   planVersion:z.literal(1).optional(),
   events: z.array(z.object({ id, title: z.string().trim().min(1).max(200), date, endDate: date.nullable(), startTime: time.nullable(), endTime: time.nullable(), location: text, status: z.enum(eventStatuses), evidence: text, notes: text, schoolEvent: z.boolean(), participation: z.enum(['TBC', 'Confirmed', 'Not participating']), participationEvidence: text,scopeIds:z.array(id).max(10).optional(),participantIds:z.array(id).max(100).optional(),invitedMemberIds:z.array(id).max(100).optional(),excludedParticipantIds:z.array(id).max(100).optional(),candidateMemberIds:z.array(id).max(100).optional(),scheduleNote:text.optional(),windowStartTime:time.optional(),windowEndTime:time.optional(),parentEventId:id.optional(),archived:z.boolean().optional() })).max(200),
   groups: z.array(z.object({ id: group, coordinator: text, plan: text, assignments: z.array(z.object({ role: z.enum(groupRoles), memberIds: z.array(id).max(2) })).max(5) })).length(4),
   people: z.array(z.object({ id, name: z.string().trim().min(1).max(100), groupId: group.nullable(), availability: text })).max(100),
   projects: z.array(z.object({ id, title: z.string().trim().min(1).max(200), description: text, owners: text, interestSnapshot: text, interestedIds: z.array(id).max(100), participantIds: z.array(id).max(100), start: text, end: text, milestones: text, status: z.enum(['Not Started', 'Planning', 'Awaiting Response', 'In progress', 'Completed', 'On hold']), evidence: text, nextAction: text, privacy: z.literal('Internal planning') })).max(100),
-  tasks: z.array(z.object({ id, title: z.string().trim().min(1).max(200), ownerId: id.nullable(), groupId: group.nullable(), projectId: id.nullable(), eventId: id.nullable(), due: date.nullable(), priority: z.enum(['Normal', 'High']), status: z.enum(taskStatuses), update: text, nextStep: text, evidence: text, updatedAt: z.iso.datetime(),
+  tasks: z.array(z.object({ id, schoolYear:z.string().regex(/^20\d{2}–\d{2}$/).optional(), title: z.string().trim().min(1).max(200), ownerId: id.nullable(), groupId: group.nullable(), projectId: id.nullable(), eventId: id.nullable(), due: date.nullable(), priority: z.enum(['Normal', 'High']), status: z.enum(taskStatuses), update: text, nextStep: text, evidence: text, updatedAt: z.iso.datetime(),
     collaboratorIds:z.array(id).max(100).optional(),pendingAssigneeIds:z.array(id).max(100).optional(),dueAt:z.iso.datetime({offset:true}).nullable().optional(),scopeId:id.optional(),sourcePlan:id.optional(),sourceId:id.optional(),deliverable:text.optional(),timingNote:text.optional(),recurrence:z.enum(['none','weekly-unanchored','to-confirm']).optional(),dependsOn:z.array(id).max(20).optional(),contributions:z.record(z.string(),contribution).optional(),
   })).max(500),
   scopes:z.array(workspaceScopeSchema).max(100).optional(),
   responsibilities:z.array(responsibilitySchema).max(200).optional(),
   tutoringSeries:z.array(z.object({id,scopeId:id,title:text,memberIds:z.array(id),frequency:z.literal('weekly'),firstDate:date.nullable(),startTime:time.nullable(),locationRule:text,anchorConfirmed:z.boolean(),sourcePlan:id})).max(100).optional(),
   reflections: z.array(z.object({ id, memberId: id, groupId: group, date, summary: text.min(1), review: z.enum(['Pending', 'Reviewed']) })).max(500),
-  recaps: z.array(z.object({ id, groupId: group, month: z.string().regex(/^2026-(10|11|12)$/), completed: text, ongoing: text, obstacles: text, nextAction: text, ownerId: id.nullable(), review: z.enum(['Pending', 'Reviewed']) })).max(100),
+  recaps: z.array(z.object({ id, groupId: group, month: z.string().regex(/^20\d{2}-(0[1-9]|1[0-2])$/), completed: text, ongoing: text, obstacles: text, nextAction: text, ownerId: id.nullable(), review: z.enum(['Pending', 'Reviewed']) })).max(100),
 }).strict().superRefine((doc, ctx) => {
   const fail = (message: string) => ctx.addIssue({ code: 'custom', message });
   const people = new Set(doc.people.map(p => p.id));

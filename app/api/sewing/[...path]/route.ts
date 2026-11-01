@@ -1,3 +1,4 @@
+import {isDeepStrictEqual} from 'node:util';
 import { after, NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { randomBytes, randomInt, randomUUID, createHmac } from "crypto";
@@ -22,6 +23,7 @@ import {
   imageMime,
   quoteSchema,
   requestSchema,
+  publicRequestSchema,
 } from "@/lib/sewing/schema";
 import {
   defaultContent,
@@ -179,7 +181,35 @@ async function handle(req: NextRequest, ctx: Context) {
       jar.delete("sewing_session");
       return NextResponse.json({ ok: true });
     }
+    if(path==='requests'&&write){
+      const input=z.object({id:uuid,data:publicRequestSchema,website:z.string().max(200).default('')}).strict().parse(data);
+      if(input.website)throw new SewingError('invalid');
+      const prior=check(await db().from('sewing_orders').select('id,owner,data').eq('id',input.id).maybeSingle());
+      if(prior){if(prior.owner!==`guest:${input.id}`||!isDeepStrictEqual(prior.data,input.data))throw new SewingError('conflict',409);return NextResponse.json({reference:prior.id});}
+      const ip=req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||req.headers.get('x-real-ip')||'unknown';
+      await limit('enquiry-ip:'+hash(ip),60,3600);
+      await limit('enquiry-contact:'+hash(input.data.wechat.toLowerCase()),5,3600);
+      const stamp=new Date().toISOString();
+      const result=await db().from('sewing_orders').insert({id:input.id,owner:`guest:${input.id}`,data:input.data,updates:[{at:stamp,by:'public-form',text:'Public enquiry; follow up through the supplied WeChat contact.',status:'submitted',internal:true}]}).select('id').single();
+      if(result.error?.code==='23505'){const existing=check(await db().from('sewing_orders').select('id,owner,data').eq('id',input.id).single());if(existing?.owner!==`guest:${input.id}`||!isDeepStrictEqual(existing.data,input.data))throw new SewingError('conflict',409);return NextResponse.json({reference:existing.id});}
+      const record=check(result);if(!record)throw new SewingError('storage',503);return NextResponse.json({reference:record.id},{status:201});
+    }
     const user = await requireIdentity();
+    if(path==='requests'&&!write){
+      if(user.role!=='admin')throw new SewingError('forbidden',403);
+      const rows=check(await db().from('sewing_orders').select('id,owner,status,data,updates,version,created_at,work').order('created_at',{ascending:false}).limit(500)) as Order[];
+      return NextResponse.json({requests:rows.filter(order=>order.owner.startsWith('guest:'))});
+    }
+    if(parts[0]==='requests'&&parts.length===2&&write){
+      if(user.role!=='admin')throw new SewingError('forbidden',403);
+      const id=uuid.parse(parts[1]),input=z.object({version:z.number().int().positive(),status:z.enum(['submitted','communicating','completed','declined','cancelled']),notes:z.string().trim().max(3000)}).strict().parse(data);
+      const prior=check(await db().from('sewing_orders').select('*').eq('id',id).single()) as Order;
+      if(!prior||!prior.owner.startsWith('guest:'))throw new SewingError('missing',404);
+      if(prior.version!==input.version)throw new SewingError('conflict',409);
+      const updated=check(await db().from('sewing_orders').update({status:input.status,version:prior.version+1,updates:[...prior.updates,{at:new Date().toISOString(),by:user.email,text:input.notes,status:input.status,internal:true}]}).eq('id',id).eq('version',prior.version).select('id').maybeSingle());
+      if(!updated)throw new SewingError('conflict',409);
+      return NextResponse.json({ok:true});
+    }
     if (path === "previews") {
       if(write)return NextResponse.json({error:'Preview studio has been removed.'},{status:410});
       return NextResponse.json({

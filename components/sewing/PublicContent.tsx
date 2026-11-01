@@ -189,8 +189,8 @@ export default function PublicContent({
               [
                 t("提交想法", "Share your idea"),
                 t(
-                  "验证校内邮箱，提交个人或团体需求。无设计稿也可以。",
-                  "Verify your school email and share your individual or group request. Artwork is optional.",
+                  "填写个人或团体需求和微信联系方式，无需注册或登录。参考图可在微信沟通时发送。",
+                  "Fill in your individual or group request and WeChat contact. No account or sign-in needed.",
                 ),
               ],
               [
@@ -203,8 +203,8 @@ export default function PublicContent({
               [
                 t("明确确认", "Confirm together"),
                 t(
-                  "查看报价版本，确认明细与交期后才成为正式订单。",
-                  "Review and explicitly confirm a quote and delivery date to create a formal order.",
+                  "团队通过微信与你确认价格、明细与交期，再决定是否制作。",
+                  "Discuss and confirm pricing, details and timing with the team on WeChat before deciding to proceed.",
                 ),
               ],
               [

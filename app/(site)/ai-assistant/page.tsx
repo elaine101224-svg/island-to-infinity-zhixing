@@ -1,11 +1,13 @@
 'use client';
 
+import {conversationContext} from '@/lib/aiChat';
 import { useState, useRef, useEffect } from 'react';
 import { Heart, Send, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  error?:boolean;
 }
 
 const WELCOME_MESSAGE = `Hello! I'm your compassionate assistant for Island to Infinity.
@@ -50,12 +52,10 @@ export default function AIAssistantPage() {
       const response = await fetch('/api/ai-assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal:AbortSignal.timeout(60000),
         body: JSON.stringify({
           message: userMessage,
-          conversationHistory: messages.filter(m => m.role === 'user').map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
+          conversationHistory: conversationContext(messages),
         }),
       });
 
@@ -67,8 +67,8 @@ export default function AIAssistantPage() {
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
-      setMessages(prev => [...prev, { role: 'assistant', content: `I apologize, but I encountered an error: ${errorMessage}. Please try again.` }]);
+      const errorMessage = err instanceof Error && ['TimeoutError','AbortError'].includes(err.name)?'The reply took too long. Please try again.':err instanceof Error?err.message:'Please try again.';
+      setMessages(prev => [...prev, { role: 'assistant', error:true, content: `Could not get a reply: ${errorMessage}` }]);
     } finally {
       setIsLoading(false);
     }
@@ -149,6 +149,7 @@ export default function AIAssistantPage() {
           <div className="flex gap-3">
             <input
               type="text"
+              maxLength={4000}
               aria-label="Your message"
               name="message"
               autoComplete="off"

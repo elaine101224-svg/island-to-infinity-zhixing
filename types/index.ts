@@ -94,6 +94,8 @@ export type MemberRole = 'lead' | 'coordinator' | 'volunteer';
 export type MemberStatus = 'active' | 'inactive';
 
 export interface TeamMember {
+  graduationYear?: string | null;
+  grade?: 'DP1' | 'DP2' | 'FP' | null;
   academicYears?: string[];
   publicName?: string;
   publicRole?: string;

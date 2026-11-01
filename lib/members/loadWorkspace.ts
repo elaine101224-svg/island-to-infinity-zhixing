@@ -1,3 +1,4 @@
+import {workspaceSchoolYear} from '@/lib/term/schoolYears';
 import {memberService,dbResult,type requireMember} from './auth';
 import {canEditRoster} from './roster';
 import type {Term} from '@/lib/term/schema';
@@ -26,5 +27,5 @@ export async function loadMemberWorkspace({client,account}:Awaited<ReturnType<ty
  const projectIds=new Set([...scopes.map(scope=>scope.id),...taskRows.map(task=>task.projectId)]);
  const projectRows=(dbResult(projects)??[]).map(row=>row.data).filter(project=>account.role==='admin'||!master?.planVersion||projectIds.has(project.id));
  const roster=(dbResult(rosterResult)??[]).filter(person=>account.role==='admin'||visiblePeople.has(person.person_id)||(account.group_id!==null&&person.group_id===account.group_id));
- return {personalPlans:plansResult.error?null:(plansResult.data??[]).map(row=>row.data),personalPlansError:plansResult.error?'Your personal plans could not be loaded. Please retry.':'',me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},assignmentMemberIds:roster.filter(person=>person.state==='active'||(person.state==='invited'&&Date.parse(person.expires_at)>Date.now())).map(person=>person.person_id),teamTasks,tasks:personalTasks,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster:roster.map(({person_id,name,group_id})=>({person_id,name,group_id}))};
+ return {schoolYear:workspaceSchoolYear(master??{}),personalPlans:plansResult.error?null:(plansResult.data??[]).map(row=>row.data),personalPlansError:plansResult.error?'Your personal plans could not be loaded. Please retry.':'',me:{name:account.name,role:account.role,position,personId:account.person_id,groupId:account.group_id,canEditRoster:canEditRoster(account)},assignmentMemberIds:roster.filter(person=>person.state==='active'||(person.state==='invited'&&Date.parse(person.expires_at)>Date.now())).map(person=>person.person_id),teamTasks,tasks:personalTasks,scopes,responsibilities,reflections:(dbResult(reflections)??[]).map(x=>x.data),groups:(dbResult(groups)??[]).map(x=>x.data),projects:projectRows,events:(dbResult(events)??[]).map(x=>x.data),roster:roster.map(({person_id,name,group_id})=>({person_id,name,group_id}))};
 }

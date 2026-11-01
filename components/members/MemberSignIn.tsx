@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import {currentSchoolYear} from '@/lib/schoolYear';
 import {ArrowRight,CalendarDays,ClipboardList,Layers,Mail,AlertCircle} from 'lucide-react';
 
 export default function MemberSignIn({email,onEmail,onSubmit,busy,loading,error,message,onRetry}:{email:string;onEmail:(value:string)=>void;onSubmit:(event:React.FormEvent)=>void;busy:boolean;loading:boolean;error:string;message:string;onRetry:()=>void}){
@@ -8,11 +9,11 @@ export default function MemberSignIn({email,onEmail,onSubmit,busy,loading,error,
  return <main className="member-entry">
   <div className="member-entry-layout">
    <section className="member-entry-welcome" aria-labelledby="member-welcome">
-    <p className="member-entry-eyebrow">MEMBER WORKSPACE <span>2026–27</span></p>
+    <p className="member-entry-eyebrow">MEMBER WORKSPACE <span>{currentSchoolYear()}</span></p>
     <h1 id="member-welcome">Welcome back.</h1>
     <p className="member-entry-intro">Your next steps, your team, and the time you make for them.</p>
     <ul className="member-entry-overview" aria-label="Inside your workspace">
-     <li><span data-tone="clay"><ClipboardList size={19} aria-hidden="true"/></span><div><strong>My Tasks</strong><p>Your family plan and personal to-dos</p></div></li>
+     <li><span data-tone="clay"><ClipboardList size={19} aria-hidden="true"/></span><div><strong>My Tasks</strong><p>All your tasks and nearest deadlines</p></div></li>
      <li><span data-tone="sage"><Layers size={19} aria-hidden="true"/></span><div><strong>My Projects</strong><p>Your teams and assigned work</p></div></li>
      <li><span data-tone="amber"><CalendarDays size={19} aria-hidden="true"/></span><div><strong>My Calendar</strong><p>Team activities and your own plans</p></div></li>
     </ul>
@@ -27,7 +28,7 @@ export default function MemberSignIn({email,onEmail,onSubmit,busy,loading,error,
      <button type="submit" className="member-entry-submit" disabled={busy}>{busy?'Signing in…':'Open my workspace'}<ArrowRight size={18} aria-hidden="true"/></button>
      <p role="status" aria-live="polite" className="member-entry-status">{status}</p>
     </form>
-    <div className="member-entry-help"><p>Need access? Contact Elaine or Jasmine.</p>{error&&<button type="button" disabled={loading||busy} onClick={onRetry}>Check saved sign-in</button>}<Link href="/login">Admin sign-in <ArrowRight size={13} aria-hidden="true"/></Link></div>
+    <div className="member-entry-help"><p>Need access? Contact your current team leaders.</p>{error&&<button type="button" disabled={loading||busy} onClick={onRetry}>Check saved sign-in</button>}<Link href="/login">Admin sign-in <ArrowRight size={13} aria-hidden="true"/></Link></div>
    </section>
   </div>
  </main>;

@@ -9,8 +9,8 @@ export function adminOverview(document:Term,now:Date){
   deadlines:active.filter(task=>task.due&&(overdue(task)||task.due<=until)).toSorted((a,b)=>a.due!.localeCompare(b.due!)||(a.dueAt??'').localeCompare(b.dueAt??'')),
   overdue:active.filter(overdue),blocked:active.filter(task=>task.status==='Blocked'),
   pendingLinks:active.filter(task=>task.pendingAssigneeIds?.length),
-  unconfirmed:document.events.filter(event=>event.date>=today&&['Tentative','Proposed','Awaiting approval'].includes(event.status)),
-  events:document.events.filter(event=>event.status==='Confirmed'&&event.date<=until&&(event.endDate??event.date)>=today).toSorted((a,b)=>a.date.localeCompare(b.date)),
+  unconfirmed:document.events.filter(event=>!event.archived&&event.date>=today&&['Tentative','Proposed','Awaiting approval'].includes(event.status)),
+  events:document.events.filter(event=>!event.archived&&event.status==='Confirmed'&&event.date<=until&&(event.endDate??event.date)>=today).toSorted((a,b)=>a.date.localeCompare(b.date)),
   scopes:(document.scopes??[]).map(scope=>({...scope,tasks:active.filter(task=>task.scopeId===scope.id||(!task.scopeId&&task.projectId===scope.id))})),
  };
 }

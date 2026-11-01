@@ -12,8 +12,8 @@ export function memberService(){
  if(!url||!key)throw new MemberError('Member storage is not configured.',503);
  return createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 }
-export async function memberClient(){
- try { const entry=await emailEntryClient();if(entry)return entry; }
+export async function memberClient(ignoreEmailEntry=false){
+ try { if(!ignoreEmailEntry){const entry=await emailEntryClient();if(entry)return entry;} }
  catch { throw new MemberError('Member session expired. Enter your email again.',401); }
  const jar=await cookies();const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
  if(!url||!key)throw new MemberError('Member sign-in is not configured.',503);

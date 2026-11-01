@@ -21,3 +21,5 @@ describe('bounded member requests', () => {
     expect(new MemberRequestError('Denied', 403).status).toBe(403);
   });
 });
+
+it('turns non-JSON server errors into a recoverable message',async()=>{vi.stubGlobal('fetch',vi.fn(async()=>new Response('Gateway unavailable',{status:503})));await expect(memberRequest('workspace')).rejects.toMatchObject({status:503,message:expect.stringContaining('Refresh')});});

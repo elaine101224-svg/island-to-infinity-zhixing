@@ -20,7 +20,7 @@ describe('member plan dry-run import', () => {
     const current=createTermSeed();current.people=directory.map(person=>({id:person.id,name:person.data.name,groupId:null,availability:''}));
     const result=importMemberPlan(plan(),current,1,directory,accounts,'2026-10-25T00:00:00.000Z');
     const task=result.document.tasks.find(task=>task.sourcePlan==='dummy-plan')!;
-    expect(task).toMatchObject({ownerId:'directory-a',collaboratorIds:['directory-b'],status:'Awaiting confirmation',due:'2026-11-01',dueAt:'2026-11-01T15:59:00.000Z'});
+    expect(task).toMatchObject({ownerId:'directory-a',collaboratorIds:['directory-b'],status:'Not started',due:'2026-11-01',dueAt:'2026-11-01T15:59:00.000Z'});
     expect(result.document.events).toHaveLength(current.events.length);
     task.status='In progress';task.update='Saved member progress';
     const repeat=importMemberPlan(plan(),result.document,2,directory,accounts,'2026-10-26T00:00:00.000Z');

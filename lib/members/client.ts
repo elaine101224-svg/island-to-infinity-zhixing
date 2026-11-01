@@ -18,7 +18,8 @@ export async function memberRequest(action: string, body?: unknown) {
     }
     throw new MemberRequestError('Could not connect. Check your connection and try again.', 0);
   }
-  const data = await res.json();
+  let data;
+  try { data=await res.json(); } catch { throw new MemberRequestError(res.ok?'The server returned an unreadable response. Refresh and try again.':'The server could not complete the request. Refresh to check your changes before retrying.',res.ok?502:res.status); }
   if (!res.ok) throw new MemberRequestError(data.error || 'Request failed. Please retry.', res.status);
   return data;
 }

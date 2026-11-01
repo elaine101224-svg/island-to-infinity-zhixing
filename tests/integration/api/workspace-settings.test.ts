@@ -1,0 +1,12 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+import {createTermSeed} from '@/lib/term/seed';
+const m=vi.hoisted(()=>({authorized:true,csrf:null as string|null,from:vi.fn(),update:vi.fn(),cas:true}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized}));
+vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
+vi.mock('@/lib/members/auth',async original=>({...await original<typeof import('@/lib/members/auth')>(),memberService:()=>({from:m.from})}));
+import {POST} from '@/app/api/admin/workspace-settings/route';
+const request=(schoolYear='2027–28',revision=8)=>new NextRequest('https://islandtoinfinity.online/api/admin/workspace-settings',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({revision,schoolYear})});
+beforeEach(()=>{m.authorized=true;m.csrf=null;m.cas=true;m.from.mockReset();m.update.mockReset();const document=createTermSeed();m.from.mockImplementation(()=>{const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),single:async()=>({data:{document,revision:8},error:null}),update:m.update,maybeSingle:async()=>({data:m.cas?{revision:9}:null,error:null})};m.update.mockReturnValue(q);return q;});});
+it('changes the active year without moving historical tasks or deleting any records',async()=>{expect((await POST(request())).status).toBe(200);const saved=m.update.mock.calls[0][0].document;expect(saved.activeSchoolYear).toBe('2027–28');expect(saved.tasks).toHaveLength(createTermSeed().tasks.length);expect(saved.tasks.every((task:{schoolYear:string})=>task.schoolYear==='2026–27')).toBe(true);expect(saved.events).toEqual(createTermSeed().events);});
+it('rejects stale, unauthenticated, CSRF and invalid-year settings writes',async()=>{m.authorized=false;expect((await POST(request())).status).toBe(401);m.authorized=true;m.csrf='bad';expect((await POST(request())).status).toBe(403);m.csrf=null;expect((await POST(request('2027–29'))).status).toBe(400);expect((await POST(request('2027–28',7))).status).toBe(409);expect(m.update).not.toHaveBeenCalled();m.cas=false;expect((await POST(request())).status).toBe(409);});

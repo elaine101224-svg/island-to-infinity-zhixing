@@ -1,8 +1,9 @@
 'use client';
+import {taskEditStatuses as taskStatuses} from '@/lib/term/statuses';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { adminFetch } from '@/lib/adminFetch';
-import { eventStatuses, taskStatuses, groupIds, termSchema, type Term } from '@/lib/term/schema';
+import { eventStatuses, groupIds, termSchema, type Term } from '@/lib/term/schema';
 const tabs = ['Overview','Calendar','Groups','Projects','Tasks','Reflections','Monthly recap','People'] as const;
 function Field({label,value,onChange,type='text'}:{label:string;value:string;onChange:(v:string)=>void;type?:string}) {return <label className="block text-sm text-earth-mid">{label}<input className="editor-input" type={type} value={value} onChange={e=>onChange(e.target.value)} /></label>;}
 function Text({label,value,onChange}:{label:string;value:string;onChange:(v:string)=>void}) {return <label className="block text-sm text-earth-mid">{label}<textarea className="editor-input" rows={3} maxLength={2000} value={value} onChange={e=>onChange(e.target.value)} /></label>;}

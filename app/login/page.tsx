@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, LogIn } from 'lucide-react';
+import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
@@ -47,7 +48,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center mb-4">
             <Logo size={76} priority />
           </div>
-          <h1 className="text-2xl font-serif font-bold text-earth-dark">Admin Portal</h1>
+          <h1 className="text-2xl font-serif font-bold text-earth-dark">Administrator sign-in</h1>
           <p className="text-earth-mid text-sm mt-1">Island to Infinity</p>
         </div>
 
@@ -91,8 +92,9 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <Link href="/members" className="block text-center underline text-sm min-h-11 py-3 mt-3">Open my member tasks</Link>
         <p className="text-center text-xs text-earth-light mt-6">
-          Contact your project administrator for access.
+          This sign-in is separate from member accounts.
         </p>
       </div>
     </div>

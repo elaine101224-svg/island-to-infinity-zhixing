@@ -157,6 +157,7 @@ export type Update = {
   status?: Status;
 };
 export type Order = {
+  work?: unknown;
   id: string;
   owner: string;
   assigned: string | null;

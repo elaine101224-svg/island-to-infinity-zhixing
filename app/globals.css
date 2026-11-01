@@ -225,9 +225,6 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-workspace button[data-calendar-kind="tentative"] { background: #FBF3DF; color: #6B5425; border: 1px dashed #99804B; }
 
 .member-workspace .member-page-nav { border-top:1px solid var(--color-sand); padding-top:1rem; margin-top:1rem; }
-.member-workspace .member-next-page { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.5rem; border:1px solid #C9B49D; border-radius:1rem; background:#EDE5D8; text-decoration:none; }
-.member-workspace .member-next-page:hover { background:#E6DBC9; }
-.member-workspace .member-next-page:focus-visible { outline:2px solid #805039; outline-offset:4px; }
 .member-workspace [id$="-heading"] { scroll-margin-top:1.5rem; }
 
 /* Member entry keeps one clear action within the site's warm palette. */

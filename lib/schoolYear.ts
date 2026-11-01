@@ -16,3 +16,8 @@ export function inSchoolYear(date: string, year: string) {
 export function needsRecording(event: {id:string; date:string; status?:string; requiresRecord?:boolean}, recorded: Set<string>, year: string, today: string, history = false) {
   return event.date < today && !recorded.has(event.id) && event.status !== 'cancelled' && event.requiresRecord !== false && (history || inSchoolYear(event.date, year));
 }
+
+export function graduationYears(records:{graduationYear?:string|null}[],now=new Date()){
+ const year=now.getUTCFullYear();
+ return Array.from(new Set([...Array.from({length:10},(_,index)=>`${year-3+index}fall`),...records.flatMap(record=>record.graduationYear?[record.graduationYear]:[])])).sort();
+}

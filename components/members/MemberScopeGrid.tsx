@@ -8,7 +8,7 @@ import type {Term} from '@/lib/term/schema';
 import type {MemberTask,Workspace} from '@/lib/members/workspace';
 const icons={library:BookOpen,booth:Camera,market:ShoppingBag,bullying:HeartHandshake,education:HeartHandshake,sewing:Scissors,documentary:Clapperboard};
 const tones:Record<string,string>={library:'sage',education:'sage',bullying:'sage',booth:'amber',market:'amber',sewing:'clay',documentary:'clay'};
-export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPrepare,onSuggestTime}:{kind:'family'|'project';workspace:Workspace;tasks:MemberTask[];done:boolean;onSaved:(task:MemberTask)=>void;onPrepare:(task:MemberTask)=>void;onSuggestTime?:(event:Term['events'][number])=>void}){
+export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPrepare,onSuggestTime,showTasks=true}:{showTasks?:boolean;kind:'family'|'project';workspace:Workspace;tasks:MemberTask[];done:boolean;onSaved:(task:MemberTask)=>void;onPrepare:(task:MemberTask)=>void;onSuggestTime?:(event:Term['events'][number])=>void}){
  const scopes=workspace.scopes.filter(scope=>scope.kind===kind),SectionIcon=kind==='family'?Home:Layers;
  function people(ids:string[]){return <div className="member-people">{ids.map(id=>id===workspace.me.personId?<span key={id} className="member-you" aria-label={`You, ${workspace.me.name}`}><UserRound size={13} aria-hidden="true"/>You</span>:<span key={id} className="member-person">{workspace.roster.find(person=>person.person_id===id)?.name??'Account link pending'}</span>)}</div>;}
  return <section aria-labelledby={`${kind}-heading`} className="member-scope-section" data-kind={kind}>
@@ -23,8 +23,8 @@ export default function MemberScopeGrid({kind,workspace,tasks,done,onSaved,onPre
      <div className="member-role-phrases" aria-label="Your responsibilities">{rolePhrases(scope,workspace.responsibilities,workspace.me.personId).map(phrase=><span key={phrase}>{phrase}</span>)}</div>
      <dl className="member-team-list">{scope.coordinationRoles?scope.coordinationRoles.map(role=><div key={role.memberId}><dt>{role.label}</dt><dd>{people([role.memberId])}</dd></div>):scope.coordinatorIds.length>0&&<div><dt>Coordinators</dt><dd>{people(scope.coordinatorIds)}</dd></div>}{team.length>0&&<div><dt>Team</dt><dd>{people(team)}</dd></div>}</dl>
     </div>
-    {coordinator&&<ScopeAssignments scope={scope} workspace={workspace} onSaved={onSaved}/>}
-    <div className="member-scope-tasks"><div className="member-task-heading"><h4>{done?'Completed tasks':'Your tasks'}</h4>{assigned.length>0&&<span>{assigned.length}</span>}</div>{assigned.length?<div className="member-task-stack">{assigned.map(task=><MemberTaskRow key={task.id+task.updatedAt} compact onSuggestTime={onSuggestTime} task={task} workspace={workspace} onSaved={onSaved} onPrepare={()=>onPrepare(task)}/>)}</div>:<p className="member-empty-tasks">{done?'No completed tasks.':'No tasks assigned yet.'}</p>}</div>
+    {showTasks&&coordinator&&<ScopeAssignments scope={scope} workspace={workspace} onSaved={onSaved}/>}
+    {showTasks&&<div className="member-scope-tasks"><div className="member-task-heading"><h4>{done?'Completed tasks':'Your tasks'}</h4>{assigned.length>0&&<span>{assigned.length}</span>}</div>{assigned.length?<div className="member-task-stack">{assigned.map(task=><MemberTaskRow key={task.id+task.updatedAt} compact onSuggestTime={onSuggestTime} task={task} workspace={workspace} onSaved={onSaved} onPrepare={()=>onPrepare(task)}/>)}</div>:<p className="member-empty-tasks">{done?'No completed tasks.':'No tasks assigned yet.'}</p>}</div>}
    </article>;
   })}</div>:<p className="text-sm text-earth-mid py-3">{kind==='family'?'No family assigned.':'No projects assigned yet.'}</p>}
  </section>;

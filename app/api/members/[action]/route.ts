@@ -1,11 +1,11 @@
 import { NextRequest,NextResponse } from 'next/server';
-import { validateSession, createSession, destroySession } from '@/lib/auth';
+import { validateSession, createSession } from '@/lib/auth';
 import { verifyCsrf } from '@/lib/csrf';
 import { termSchema } from '@/lib/term/schema';
 import { MemberError,memberEnabled,memberService,memberClient,requireMember,requireVerifiedMember,allowedMemberEmail,sameOrigin,memberLimit,privateHeaders,dbResult,type MemberAccount } from '@/lib/members/auth';
 import { loginSchema,verifySchema,changeSchema,inviteSchema,accessSchema } from '@/lib/members/validation';
 import { rosterEditors } from '@/lib/members/roster';
-import { saveEmailEntry, clearEmailEntry } from '@/lib/members/emailEntry';
+import { saveEmailEntry, clearEmailEntry, clearUnverifiedEntry } from '@/lib/members/emailEntry';
 import { createClient } from '@supabase/supabase-js';
 import {loadMemberWorkspace} from '@/lib/members/loadWorkspace';
 export const dynamic='force-dynamic';
@@ -62,7 +62,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  if(error)throw new MemberError('Access was not changed. Reload and check the invitation or group binding.',(error.code==='PT409'||error.code==='40001')?409:400);
  return response({message:'Access updated. Existing sessions are checked against this state on every request.'});
  }
- if(action==='logout'){try{const client=await memberClient();const result=await client.auth.signOut();if(result?.error)throw new MemberError('Sign-out failed. Please retry.',503);}catch(error){if(!(error instanceof MemberError)||error.status!==401)throw error;}await clearEmailEntry();await destroySession();return response({message:'Signed out.'});}
+ if(action==='logout'){try{const client=await memberClient();const result=await client.auth.signOut({scope:'local'});if(result?.error)throw new MemberError('Sign-out failed. Please retry.',503);}catch(error){if(!(error instanceof MemberError)||error.status!==401)throw error;}await clearEmailEntry();return response({message:'Signed out.'});}
  if(action==='admin-session'){const {account}=await requireMember();if(account.role!=='admin')throw new MemberError('Administrator required.',403);if(!await createSession(process.env.ADMIN_PASSWORD??'',account.user_id))throw new MemberError('Admin workspace is not configured.',503);return response({redirect:'/admin'});}
  if(!memberEnabled())throw new MemberError('Member access has not launched.',503);
  if(action==='email-entry'){
@@ -99,7 +99,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  await memberLimit('otp:'+email,4,600);
  const db=memberService();const account=dbResult(await db.from('member_accounts').select('*').eq('email',email).maybeSingle()) as MemberAccount|null;
  if(account&&account.state!=='revoked'&&(account.state==='active'||Date.parse(account.expires_at)>Date.now())){
- const {error}=await (await memberClient()).auth.signInWithOtp({email,options:{shouldCreateUser:false}});if(error)throw new MemberError('Sign-in email could not be sent. Wait a minute and retry.',503);
+ const {error}=await (await memberClient(true)).auth.signInWithOtp({email,options:{shouldCreateUser:false}});if(error)throw new MemberError('Sign-in email could not be sent. Wait a minute and retry.',503);
  }
  return response({message:'If your school email has an active invitation, a sign-in code is on its way. Check your inbox and spam folder.'});
  }
@@ -108,13 +108,13 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{action:
  if(!allowedMemberEmail(email))throw new MemberError('School email required.',403);await memberLimit('verify:'+email,10,600);
  const db=memberService();const account=dbResult(await db.from('member_accounts').select('*').eq('email',email).maybeSingle()) as MemberAccount|null;
  if(!account||account.state==='revoked'||(account.state==='invited'&&Date.parse(account.expires_at)<=Date.now()))throw new MemberError('Invitation or code is invalid or expired.',403);
- const client=await memberClient();const {data,error}=await client.auth.verifyOtp({email,token:code,type:'email'});
+ const client=await memberClient(true);const {data,error}=await client.auth.verifyOtp({email,token:code,type:'email'});
  if(error||!data.user||!data.user.email_confirmed_at||data.user.id!==account.user_id||data.user.email?.toLowerCase()!==email){await client.auth.signOut();throw new MemberError('Invitation or code is invalid or expired.',403);}
  if(account.state==='invited'){
  const activated=dbResult(await db.from('member_accounts').update({state:'active'}).eq('user_id',account.user_id).eq('state','invited').gt('expires_at',new Date().toISOString()).select('user_id').maybeSingle());
  if(!activated){await client.auth.signOut();throw new MemberError('Invitation changed. Request access again.',403);}
  }
- await requireMember();return response({message:'Signed in.'});
+ await clearUnverifiedEntry();await requireMember();return response({message:'Signed in.'});
  }
  const {client,account}=await requireMember();await memberLimit('write:'+account.user_id,60,60);
  if(action!=='change')return response({error:'Not found'},404);

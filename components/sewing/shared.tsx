@@ -85,8 +85,8 @@ export const errors: Record<string, [string, string]> = {
     "Code invalid, expired, or attempt limit reached. Request a new code.",
   ],
   rate: [
-    "操作太频繁，请稍后重试（验证码至少间隔60秒）。",
-    "Too many attempts. Please retry later (at least 60 seconds between codes).",
+    "操作太频繁，请稍后重试。",
+    "Too many attempts. Please retry later.",
   ],
   invalid: [
     "请检查必填信息及输入格式。",

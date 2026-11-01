@@ -8,7 +8,7 @@ const m = vi.hoisted(() => ({
 }));
 vi.mock('@/lib/members/loadWorkspace',()=>({loadMemberWorkspace:vi.fn(async()=>({me:{personId:'person-a'},tasks:[],personalPlans:[]}))}));
 vi.mock('@/lib/auth', () => ({ validateSession: async () => false, createSession: vi.fn(), destroySession: vi.fn() }));
-vi.mock('@/lib/members/emailEntry', () => ({ saveEmailEntry: m.save, clearEmailEntry: m.clear }));
+vi.mock('@/lib/members/emailEntry', () => ({ clearUnverifiedEntry:vi.fn(async()=>{}), saveEmailEntry: m.save, clearEmailEntry: m.clear }));
 vi.mock('@supabase/supabase-js', () => ({ createClient: m.nativeClient }));
 vi.mock('@/lib/members/auth', async original => {
   const real = await original<typeof import('@/lib/members/auth')>();

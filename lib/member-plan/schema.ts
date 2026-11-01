@@ -9,7 +9,7 @@ export const deadlineSchema = z.discriminatedUnion('kind', [
 ]);
 /** An import proposal, never a login/authorization source. Names carry no privileges. */
 export const memberPlanSchema = z.object({
-  id, version: z.literal(1), schoolYear: z.literal('2026–27'),
+  id, version: z.literal(1), schoolYear: z.string().regex(/^20\d{2}–\d{2}$/),
   updatedOn: z.iso.date(), timezone: z.literal('Asia/Shanghai'),
   members: z.array(z.object({
     key: id, label: text, personId: id.nullable(), expectedDirectoryName: text.nullable(),

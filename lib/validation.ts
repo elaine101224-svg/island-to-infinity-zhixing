@@ -70,6 +70,8 @@ export const familyUpsertSchema = familySchema;
 // ───────────────────────── team members ─────────────────────────
 
 export const teamMemberSchema = z.object({
+  graduationYear:z.string().regex(/^20\d{2}fall$/).nullable().optional(),
+  grade: z.enum(['DP1','DP2','FP']).nullable().optional(),
   academicYears: z.array(z.string().regex(/^\d{4}–\d{2}$/)).max(20).default([]),
   publicName: z.string().trim().max(120).default(''),
   publicRole: z.string().max(120).default(''),

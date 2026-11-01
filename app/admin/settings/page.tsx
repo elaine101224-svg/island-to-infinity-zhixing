@@ -1,0 +1,9 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {adminFetch} from '@/lib/adminFetch';
+export default function Settings(){
+ const [year,setYear]=useState(''),[revision,setRevision]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState('');
+ useEffect(()=>{void adminFetch('/api/admin/workspace-settings').then(async response=>{const data=await response.json();if(!response.ok)throw Error(data.error);setYear(data.schoolYear);setRevision(data.revision);}).catch(cause=>setError(cause.message));},[]);
+ async function save(event:React.FormEvent){event.preventDefault();setBusy(true);setError('');try{const response=await adminFetch('/api/admin/workspace-settings',{method:'POST',json:{revision,schoolYear:year.replace('-','–')}});const data=await response.json();if(!response.ok)throw Error(data.error);setYear(data.schoolYear);setRevision(data.revision);setMessage(data.message);}catch(cause){setError((cause as Error).message);}finally{setBusy(false);}}
+ return <section className="max-w-3xl mx-auto space-y-6"><header className="console-page-heading"><div><h1>Workspace settings</h1><p>One shared workspace, with records kept across school years.</p></div></header>{error&&<p role="alert" className="text-sm text-terracotta-dark">{error}</p>}{message&&<p role="status" className="text-sm">{message}</p>}<form onSubmit={save} className="console-panel p-5 space-y-4"><h2 className="text-lg font-semibold">Current school year</h2><p className="text-sm text-earth-mid">New tasks use this school year. Changing it keeps all existing tasks, teams and history.</p><label className="block text-sm">School year<input className="editor-input" required pattern="20[0-9]{2}[–-][0-9]{2}" placeholder="2027–28" value={year} onChange={event=>setYear(event.target.value)}/></label><button className="editor-button" type="submit" disabled={busy||!revision}>{busy?'Saving…':'Save school year'}</button></form></section>;
+}

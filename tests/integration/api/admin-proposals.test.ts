@@ -1,0 +1,12 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+const m=vi.hoisted(()=>({authorized:true,csrf:null as string|null,saved:vi.fn(),from:vi.fn(),stale:false,found:true}));
+vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized}));
+vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
+vi.mock('@/lib/members/auth',async original=>({...await original<typeof import('@/lib/members/auth')>(),memberService:()=>({from:m.from})}));
+import {POST} from '@/app/api/admin/member-proposals/route';
+const request=(expectedUpdatedAt='v1')=>new NextRequest('https://islandtoinfinity.online/api/admin/member-proposals',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:'12345678-1234-4123-8123-123456789abc',expectedUpdatedAt})});
+beforeEach(()=>{m.authorized=true;m.csrf=null;m.stale=false;m.found=true;m.saved.mockReset();m.from.mockReset();m.from.mockImplementation(()=>{let updating=false;const q={select:vi.fn().mockReturnThis(),eq:vi.fn().mockReturnThis(),update:vi.fn(value=>{updating=true;m.saved(value);return q;}),maybeSingle:async()=>({error:null,data:updating?(m.stale?null:{id:'proposal'}):m.found?{data:{title:'Dummy proposal',notes:'Original proposal',review:'Pending',updatedAt:'v1'},updated_at:'row-v1'}:null})};return q;});});
+it('marks only a proposal reviewed, retaining the member content',async()=>{expect((await POST(request())).status).toBe(200);expect(m.saved).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({title:'Dummy proposal',notes:'Original proposal',review:'Reviewed'})}));expect(m.from).toHaveBeenCalledWith('member_personal_plans');});
+it('rejects unauthorized requests and missing CSRF before querying records',async()=>{m.authorized=false;expect((await POST(request())).status).toBe(401);m.authorized=true;m.csrf='Invalid CSRF';expect((await POST(request())).status).toBe(403);expect(m.from).not.toHaveBeenCalled();});
+it('rejects missing or concurrently changed proposals',async()=>{m.found=false;expect((await POST(request())).status).toBe(404);m.found=true;expect((await POST(request('old'))).status).toBe(409);expect(m.saved).not.toHaveBeenCalled();m.stale=true;expect((await POST(request())).status).toBe(409);});

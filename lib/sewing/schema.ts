@@ -85,3 +85,6 @@ export function imageMime(b: Buffer) {
     return "image/webp";
   return null;
 }
+
+/** Public enquiries use contact details, never an email account or private uploads. */
+export const publicRequestSchema=requestSchema.safeExtend({date:z.iso.date().or(z.literal('')),fileIds:z.array(z.string().uuid()).length(0)});

@@ -415,3 +415,43 @@ describe("sewing private workflow (mock database integration)", () => {
     expect(c).not.toHaveProperty("orders");
   });
 });
+
+describe('anonymous Sewing enquiries',()=>{
+ const enquiry=()=>({id,data:{...form,date:''},website:''});
+ it('accepts a request without login and returns only its reference',async()=>{
+  const response=await call('requests',enquiry());
+  expect(response.status).toBe(201);
+  expect(await response.json()).toEqual({reference:id});
+  expect(mocks.tables.sewing_orders[0]).toMatchObject({owner:`guest:${id}`,status:'submitted',data:{name:form.name,wechat:form.wechat,date:''}});
+  expect(mocks.tables.sewing_sessions).toBeUndefined();
+  expect(mocks.tables.sewing_notifications).toBeUndefined();
+ });
+ it('safely retries the same submission and refuses changed data with the same reference',async()=>{
+  await call('requests',enquiry());
+  expect((await call('requests',enquiry())).status).toBe(200);
+  expect(mocks.tables.sewing_orders).toHaveLength(1);
+  expect((await call('requests',{...enquiry(),data:{...form,date:'',name:'Changed'}})).status).toBe(409);
+ });
+ it('keeps contact details and internal follow-up private',async()=>{
+  await call('requests',enquiry());
+  expect((await call('requests')).status).toBe(401);
+  as('a@school.test');
+  expect((await call('requests')).status).toBe(403);
+  expect((await call(`requests/${id}`,{version:1,status:'communicating',notes:''})).status).toBe(403);
+  mocks.admin.mockResolvedValue(true);
+  const result=await call('requests');
+  expect(result.status).toBe(200);
+  expect((await result.json()).requests).toHaveLength(1);
+  expect((await call(`requests/${id}`,{version:1,status:'communicating',notes:'Contacted on WeChat'})).status).toBe(200);
+  expect(mocks.tables.sewing_orders[0]).toMatchObject({version:2,status:'communicating',data:{wechat:form.wechat}});
+  expect((await call(`requests/${id}`,{version:1,status:'completed',notes:''})).status).toBe(409);
+ });
+ it('rejects invalid fields, unsolicited uploads, bots and cross-origin submissions',async()=>{
+  for(const patch of [{wechat:''},{quantity:0},{fileIds:[fileId]}]){
+   expect((await call('requests',{...enquiry(),data:{...form,...patch}})).status).toBe(400);
+  }
+  expect((await call('requests',{...enquiry(),website:'bot.example'})).status).toBe(400);
+  expect((await call('requests',enquiry(),'https://attacker.test')).status).toBe(403);
+  expect(mocks.tables.sewing_orders).toBeUndefined();
+ });
+});

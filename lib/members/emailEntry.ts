@@ -35,6 +35,7 @@ async function writeEntry(value: EntrySession) {
 export async function saveEmailEntry(session: Session) {
   await writeEntry({ access_token: session.access_token, refresh_token: session.refresh_token, userId: session.user.id, expiresAt: Date.now() + lifetime * 1000 });
 }
+export async function clearUnverifiedEntry(){(await cookies()).delete(emailEntryCookie);}
 export async function clearEmailEntry() {
   const jar = await cookies();
   jar.delete(emailEntryCookie);

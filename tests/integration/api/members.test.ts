@@ -3,7 +3,7 @@ import {NextRequest} from 'next/server';
 const m=vi.hoisted(()=>({enabled:true,authorized:false,csrf:null as string|null,memberError:null as Error|null,result:{data:null as unknown,error:null as unknown},verify:{data:{user:{id:'dummy-id',email:'alex@uwcchina.org',email_confirmed_at:'2026-10-23'}},error:null as unknown},createUser:vi.fn(async()=>({data:{user:{id:'new-dummy-id'}},error:null})),signIn:vi.fn(async()=>({error:null})),signOut:vi.fn(async()=>({error:null})),limit:vi.fn(),rpc:vi.fn(),from:vi.fn(),session:vi.fn(async()=>'csrf'),destroy:vi.fn(async()=>{}),account:{user_id:'dummy-id',person_id:'alex',email:'alex@uwcchina.org',role:'member',state:'active',expires_at:'2099-01-01',group_id:'A'}}));
 vi.mock('@/lib/auth',()=>({validateSession:async()=>m.authorized,createSession:m.session,destroySession:m.destroy}));
 vi.mock('@/lib/csrf',()=>({verifyCsrf:async()=>m.csrf}));
-vi.mock('@/lib/members/emailEntry',()=>({clearEmailEntry:vi.fn(async()=>{}),saveEmailEntry:vi.fn(async()=>{})}));
+vi.mock('@/lib/members/emailEntry',()=>({clearUnverifiedEntry:vi.fn(async()=>{}),clearEmailEntry:vi.fn(async()=>{}),saveEmailEntry:vi.fn(async()=>{})}));
 vi.mock('@/lib/members/auth',async original=>{
  const real=await original<typeof import('@/lib/members/auth')>();
  return {...real,memberEnabled:()=>m.enabled,memberService:()=>({from:m.from,rpc:m.rpc,auth:{admin:{createUser:m.createUser}}}),memberClient:async()=>({auth:{signInWithOtp:m.signIn,verifyOtp:async()=>m.verify,signOut:m.signOut}}),memberLimit:m.limit,requireMember:async()=>{if(m.memberError)throw m.memberError;return {client:{rpc:m.rpc,from:m.from},account:m.account};}};
@@ -19,8 +19,8 @@ describe('member API authentication and permissions',()=>{
   expect((await POST(req('admin-session',{role:'admin'}),params('admin-session'))).status).toBe(403);expect(m.session).not.toHaveBeenCalled();
   m.account.role='admin';const response=await POST(req('admin-session',{}),params('admin-session'));expect(response.status).toBe(200);expect(m.session).toHaveBeenCalledWith(expect.any(String),'dummy-id');expect(await response.json()).toEqual({redirect:'/admin'});
  });
- it('rejects cross-origin admin-session creation and removes both sessions on logout',async()=>{
-  m.account.role='admin';expect((await POST(req('admin-session',{},'https://evil.example'),params('admin-session'))).status).toBe(403);expect(m.session).not.toHaveBeenCalled();expect((await POST(req('logout',{}),params('logout'))).status).toBe(200);expect(m.destroy).toHaveBeenCalled();expect(m.signOut).toHaveBeenCalled();
+ it('rejects cross-origin admin-session creation and keeps independent admin login on member logout',async()=>{
+  m.account.role='admin';expect((await POST(req('admin-session',{},'https://evil.example'),params('admin-session'))).status).toBe(403);expect(m.session).not.toHaveBeenCalled();expect((await POST(req('logout',{}),params('logout'))).status).toBe(200);expect(m.destroy).not.toHaveBeenCalled();expect(m.signOut).toHaveBeenCalledWith({scope:'local'});
  });
  it('preprovisions an OTP-ready identity while keeping membership invited and sending no email',async()=>{
   m.authorized=true;const doc=createTermSeed();doc.people=[{id:'alex',name:'Alex (dummy)',groupId:'A',availability:''}];

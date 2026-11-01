@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {createTermSeed} from '@/lib/term/seed';
 import type {Term} from '@/lib/term/schema';
 import {addAssignedTask} from '@/lib/members/assignment';
+import {updateScopeMembership} from '@/lib/members/scopeMembership';
 let db:PGlite;
 const ids={a:'22222222-0000-4000-8000-000000000001',b:'22222222-0000-4000-8000-000000000002',c:'22222222-0000-4000-8000-000000000003',admin:'22222222-0000-4000-8000-000000000004'};
 async function actor(who:keyof typeof ids,sql:string,params:unknown[]=[]){await db.exec('begin;set local role authenticated');try{await db.query("select set_config('request.jwt.claims',$1,true)",[JSON.stringify({sub:ids[who],email:who+'@uwcchina.org',user_metadata:{role:'admin'}})]);const result=await db.query(sql,params);await db.exec('commit');return result.rows;}catch(error){await db.exec('rollback');throw error;}}
@@ -26,4 +27,17 @@ describe('actual assigned tasks and private preparation',()=>{
   expect(await task(id)).toMatchObject({status:'In progress',contributions:{b:{status:'Completed'}}});
  });
  it('rejects assignment to revoked members, old document writers, spoofed fields and direct writes',async()=>{await db.exec("update member_accounts set state='revoked' where person_id='c'");const stored=await db.query<{document:Term;revision:number}>('select document,revision from term_workspaces');const doc=structuredClone(stored.rows[0].document);doc.tasks.push({...doc.tasks.find(t=>t.id==='single')!,id:'bad-new-assignment',ownerId:'c'});await expect(db.query("update term_workspaces set document=$1,revision=revision+1 where id='2026-27-T1'",[doc])).rejects.toThrow(/current linked member/);const old=structuredClone(stored.rows[0].document);delete old.planVersion;await expect(db.query("update term_workspaces set document=$1,revision=revision+1 where id='2026-27-T1'",[old])).rejects.toThrow(/Reload/);await expect(actor('a',"select member_save_plan($1)",[{kind:'task',title:'Spoof',user_id:ids.b}])).rejects.toThrow(/Invalid fields/);await expect(actor('a',"update member_personal_plans set user_id=$1",[ids.b])).rejects.toThrow();});
+ it('persists changed project membership and keeps existing task contributions',async()=>{
+  const stored=(await db.query<{document:Term}>('select document from term_workspaces')).rows[0].document;
+  const project=stored.projects[0];
+  stored.scopes=[{id:project.id,title:project.title,kind:'project',memberIds:['a'],coordinatorIds:['a'],note:'',sourcePlan:'test'}];
+  stored.responsibilities=[];
+  const document=updateScopeMembership(stored,{scopeId:project.id,memberIds:['b']});
+  await db.query("update term_workspaces set document=$1,revision=revision+1 where id='2026-27-T1'",[document]);
+  const saved=(await db.query<{document:Term}>('select document from term_workspaces')).rows[0].document;
+  expect(saved.scopes![0]).toMatchObject({memberIds:['b'],coordinatorIds:[]});
+  expect(saved.projects[0].participantIds).toEqual(['b']);
+  expect(saved.tasks).toEqual(stored.tasks);
+ });
+
 });

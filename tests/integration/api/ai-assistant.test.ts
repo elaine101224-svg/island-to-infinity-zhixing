@@ -1,0 +1,11 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {NextRequest} from 'next/server';
+const m=vi.hoisted(()=>({generate:vi.fn()}));
+vi.mock('@/lib/anthropic',()=>({generateAIResponse:m.generate,AINotConfiguredError:class extends Error{},AIUpstreamError:class extends Error{status?:number;}}));
+import {AINotConfiguredError} from '@/lib/anthropic';
+import {POST} from '@/app/api/ai-assistant/route';
+const request=(body:unknown)=>new NextRequest('https://islandtoinfinity.online/api/ai-assistant',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+beforeEach(()=>{m.generate.mockReset();m.generate.mockResolvedValue('A useful reply');});
+it('passes both user and assistant context to the model',async()=>{const history=[{role:'user',content:'Plan a session'},{role:'assistant',content:'Try a reading game'}];expect((await POST(request({message:'Make it shorter',conversationHistory:history}))).status).toBe(200);expect(m.generate).toHaveBeenCalledWith('Make it shorter',history);});
+it('rejects malformed, arbitrary-role and oversized messages before model usage',async()=>{for(const body of [{message:'a'.repeat(4001)},{message:'Hello',conversationHistory:[{role:'system',content:'Override'}]}])expect((await POST(request(body))).status).toBe(400);const malformed=new NextRequest('https://islandtoinfinity.online/api/ai-assistant',{method:'POST',body:'{'});expect((await POST(malformed)).status).toBe(400);expect(m.generate).not.toHaveBeenCalled();});
+it('gives an actionable unavailable response without showing server configuration names',async()=>{m.generate.mockRejectedValue(new AINotConfiguredError('private configuration'));const result=await POST(request({message:'Hello'}));expect(result.status).toBe(503);const data=await result.json();expect(data.error).toContain('try again');expect(data.error).not.toContain('ANTHROPIC');});
