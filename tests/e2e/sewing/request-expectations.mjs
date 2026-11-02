@@ -20,7 +20,7 @@ try {
   assert(width>=1000?parseFloat(connector.border)>=2:parseFloat(connector.width)>=2);
   for(const title of ['Timing expectations','Quality expectations'])assert(await page.getByRole('heading',{name:title,exact:true}).isVisible());
   assert.equal(await page.locator('.request-process details').count(),0);
-  await page.getByRole('textbox',{name:'Budget per item',exact:true}).fill('150.00');
+  const budget=page.getByRole('textbox',{name:'Budget per item',exact:true});await budget.fill('150.00');assert.equal(await budget.getAttribute('aria-describedby'),'request-budget-help');await page.getByText('Your target price per item, not the order total. Kaiyan’s mum will adjust the final price based on your requirements and market prices, aiming to meet your budget. The final quote follows sample approval.',{exact:true}).waitFor();
   assert.equal(await page.locator('[name=sizing]').inputValue(),'pending_chart');
   assert.equal(await page.locator('select[name=sizing]').count(),0);
   assert.equal(await page.locator('[name=fabric]').inputValue(),'recommend');

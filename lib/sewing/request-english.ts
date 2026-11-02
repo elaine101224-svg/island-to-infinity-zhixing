@@ -1,13 +1,13 @@
 import type {OrderTimelineData} from './timeline';
 export const englishWorkflow = [
- {id:'budget',title:'Request & budget',hint:'Discuss the product, quantity, design and budget'},
- {id:'sample',title:'Free sample',hint:'Target: one week; the actual date is agreed separately'},
- {id:'school',title:'Sample delivery & approval',hint:'Deliver the sample to school for customer approval'},
- {id:'quote',title:'Final quote',hint:'Provide a final quote after sample approval'},
- {id:'approval',title:'Quote approval',hint:'The customer explicitly approves the quote version'},
- {id:'bulk',title:'Bulk order & payment arrangement',hint:'Pay the agreed deposit or full amount and start bulk production'},
- {id:'production',title:'Production & printing',hint:'The sewing team makes the items; a partner handles printing'},
- {id:'delivery',title:'Delivery & final payment',hint:'Check the items and settle the balance; free remakes are available'},
+ {id:'budget',title:'Request & budget',hint:'Product, design & budget'},
+ {id:'sample',title:'Free sample',hint:'Aim: one week'},
+ {id:'school',title:'Sample approval',hint:'Delivered to school'},
+ {id:'quote',title:'Final quote',hint:'After sample approval'},
+ {id:'approval',title:'Quote approval',hint:'Confirm price & terms'},
+ {id:'bulk',title:'Bulk & payment',hint:'Agreed deposit or full payment'},
+ {id:'production',title:'Production & printing',hint:'Sewing team & print partner'},
+ {id:'delivery',title:'Delivery & final payment',hint:'Check items & settle balance'},
 ] as const;
 const details:Record<string,string>={
  '需求已记录；未明确的信息可继续补充':'Your request is recorded. You can add missing information.',
