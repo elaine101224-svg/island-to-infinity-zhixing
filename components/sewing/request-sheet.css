@@ -3,3 +3,5 @@
 @media(max-width:650px){.request-sheet caption{display:block;width:100%;box-sizing:border-box;white-space:normal;padding:12px 14px}.sewing-workspace{padding-inline:18px}}
 
 .sewing .request-desk .sw-error{border:1px solid #ac5740;border-radius:6px}
+
+.sewing .request-process h2{font:600 20px/1.5 Arial,'PingFang SC',sans-serif!important;letter-spacing:0!important;margin:22px 0 10px;color:#354b33}.request-expectations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border-top:1px solid #dcd4c7;padding-top:18px;margin-top:16px}.sewing .request-expectations h3{font:600 15px/1.5 Arial,'PingFang SC',sans-serif!important;letter-spacing:0!important;margin:0 0 8px}.request-expectations p{font-size:14px;line-height:1.7;margin:0;max-width:65ch}@media(max-width:650px){.request-expectations{grid-template-columns:1fr;gap:18px}}
