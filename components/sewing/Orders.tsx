@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, ErrorMessage, Notice, Pending, useSewing } from "./shared";
 import {
-  names,
+  productName,
   paymentNames,
   statuses,
   statusNames,
@@ -119,7 +119,7 @@ export default function Orders({
     }
   }
   async function copySummary(o: Order) {
-    const text = `定制需求编号：${o.id}\n产品：${names[o.data.product].zh}\n数量：${o.data.quantity}\n希望交期：${o.data.date}（待确认）\n姓名：${o.data.name}\n微信：${o.data.wechat}\n学校邮箱：${o.owner}\n团体：${o.data.group || "个人"}\n备注：${o.data.notes || "无"}\n提交仅为咨询，价格及交期需人工确认。`;
+    const text = `定制需求编号：${o.id}\n产品：${productName(o.data.product, 'zh')}\n数量：${o.data.quantity}\n希望交期：${o.data.date}（待确认）\n姓名：${o.data.name}\n微信：${o.data.wechat}\n学校邮箱：${o.owner}\n团体：${o.data.group || "个人"}\n备注：${o.data.notes || "无"}\n提交仅为咨询，价格及交期需人工确认。`;
     setCopy(text);
     try {
       await navigator.clipboard.writeText(text);
@@ -225,7 +225,7 @@ export default function Orders({
                 <article className="sw-card" key={o.id}>
                   <span className="sw-tag">{statusNames[o.status][lang]}</span>
                   <h2>
-                    {names[o.data.product][lang]} × {o.data.quantity}
+                    {productName(o.data.product, lang)} × {o.data.quantity}
                   </h2>
                   <p>
                     {o.data.name} · {o.data.group}
@@ -337,7 +337,7 @@ export default function Orders({
                 {paymentNames[order.payment][lang]}
               </span>
               <h2>
-                {names[order.data.product][lang]} × {order.data.quantity}
+                {productName(order.data.product, lang)} × {order.data.quantity}
               </h2>
               <small>
                 {order.id} · {date(order.created_at)}

@@ -37,7 +37,7 @@ export const contentSchema = z.object({
 export const requestSchema = z
   .object({
     kind: z.enum(["personal", "group"]),
-    product: z.enum(productTypes),
+    product: z.string().trim().min(1).max(300),
     quantity: z.number().int().min(1).max(100000),
     date: z
       .string()

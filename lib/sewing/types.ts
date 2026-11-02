@@ -8,6 +8,10 @@ export const names: Record<Garment, Text> = {
   tshirt: { zh: "T-shirt", en: "T-shirt" },
   jersey: { zh: "Jersey 球衣", en: "Jersey" },
 };
+/** Keep historical catalog labels while preserving freely described requests. */
+export function productName(product: string, lang: Lang): string {
+  return Object.hasOwn(names, product) ? names[product as Garment][lang] : product;
+}
 export const statuses = [
   "submitted",
   "communicating",
@@ -131,7 +135,7 @@ export const defaultContent: Content = {
 };
 export type RequestData = {
   kind: "personal" | "group";
-  product: Garment;
+  product: string;
   quantity: number;
   date: string;
   name: string;

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { allowedEmail, canRead, canManage } from "@/lib/sewing/server";
 import { contentSchema, imageMime, requestSchema } from "@/lib/sewing/schema";
-import { defaultContent, type Order } from "@/lib/sewing/types";
+import { defaultContent, productName, type Order } from "@/lib/sewing/types";
 describe("sewing validation and authorization", () => {
   it("uses exact, configured domains and is disabled by default", () => {
     vi.stubEnv("SEWING_SCHOOL_DOMAINS", "");
@@ -31,7 +31,10 @@ describe("sewing validation and authorization", () => {
       fileIds: [],
     };
     expect(requestSchema.safeParse(valid).success).toBe(true);
+    expect(requestSchema.parse({...valid, product: "  帆布托特包（刺绣姓名）  "}).product).toBe("帆布托特包（刺绣姓名）");
     for (const patch of [
+      { product: "   " },
+      { product: "袋".repeat(301) },
       { group: "" },
       { quantity: 0 },
       { date: "2026-02-30" },
@@ -39,6 +42,12 @@ describe("sewing validation and authorization", () => {
       expect(requestSchema.safeParse({ ...valid, ...patch }).success).toBe(
         false,
       );
+  });
+  it("renders free descriptions and historical products without inherited property lookups", () => {
+    expect(productName("hoodie", "zh")).toBe("套头连帽卫衣");
+    for (const product of ["帆布托特包（刺绣姓名）", "constructor", "__proto__"]) {
+      expect(productName(product, "zh")).toBe(product);
+    }
   });
   it("rejects active SVG and MIME spoofing; recognizes supported signatures", () => {
     expect(imageMime(Buffer.from('<svg onload="alert(1)">'))).toBeNull();
