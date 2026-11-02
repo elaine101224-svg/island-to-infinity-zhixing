@@ -9,7 +9,7 @@ cookie=(await api('/api/sewing-ops/login',{username:'test_maker',password:'Isola
 async function workspace(){return (await api('/api/sewing-ops/workspace')).v;}
 async function order(){return (await workspace()).orders.find(o=>o.id===id);}
 async function command(c){const o=await order();const r=await api('/api/sewing-ops/orders/'+id,{version:o.version,command:c});assert.equal(r.status,200,JSON.stringify(r.v));}
-assert.equal((await api('/api/sewing-ops/orders/'+id+'/adopt',{})).status,200);let o=await order();assert.equal(o.work.budgetCents,18000);assert.equal(o.work.files[0].id,fid);assert.equal(o.customerSupplements.length,1);
+assert.equal((await api('/api/sewing-ops/orders/'+id+'/adopt',{})).status,200);let o=await order();assert.equal(o.work.budgetCents,18000);assert.equal(o.work.preferences.fabric,'recommend');assert.equal(o.work.preferences.fabricDetails,'');assert.equal(o.work.files[0].id,fid);assert.equal(o.customerSupplements.length,1);
 let line={...o.work.spec.lines[0],sizes:[{size:'M',quantity:2}],fabric:'棉',color:'蓝',thickness:'无加绒',artwork:'测试图案',names:'无',packaging:'独立',delivery:'学校'};await command({type:'spec',lines:[line],notes:''});
 const quote={id:randomUUID(),lines:[{label:'hoodie',quantity:2,unitCents:10010}],delivery:'2027-01-01',notes:'最终报价可高于心理预算'};o=await order();assert.equal((await api('/api/sewing-ops/orders/'+id,{version:o.version,command:{type:'quote',quote}})).status,400);checks.push('未完成样衣时禁止提前填写最终报价');
 await command({type:'sampling',sample:{start:'2026-11-01',expected:null,completed:'2026-11-01',schoolDelivery:'2026-11-01',notes:'免费',fileIds:[fid]}});

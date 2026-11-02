@@ -23,6 +23,14 @@ try {
   await page.getByRole('textbox',{name:'Budget per item',exact:true}).fill('150.00');
   assert.equal(await page.locator('[name=sizing]').inputValue(),'pending_chart');
   assert.equal(await page.locator('select[name=sizing]').count(),0);
+  assert.equal(await page.locator('[name=fabric]').inputValue(),'recommend');
+  assert.equal(await page.locator('[name=fabricDetails]').count(),0);
+  await page.locator('[name=fabric]').selectOption('specified');
+  const fabric=page.getByRole('textbox',{name:'Your fabric choice *',exact:true});
+  assert.equal(await fabric.getAttribute('required'),'');
+  assert.equal(await fabric.evaluate(n=>n.checkValidity()),false);
+  await fabric.fill('100% cotton fleece, 300 gsm');
+  assert.equal(await fabric.evaluate(n=>n.checkValidity()),true);
   assert(!/[\u3400-\u9fff]/.test(await page.locator('.sewing-desk-content').innerText()));
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:fileURLToPath(new URL('../../../test-results/request-expectations-'+width+'.png',import.meta.url)),fullPage:true});

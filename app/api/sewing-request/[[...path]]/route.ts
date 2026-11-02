@@ -3,7 +3,7 @@ import {z} from 'zod';import {randomUUID} from 'node:crypto';
 import {db,hash,limit} from '@/lib/sewing/server';import {result} from '@/lib/sewing/operations-server';import {publicRequestSchema,imageMime} from '@/lib/sewing/schema';
 import {readPublicTimeline} from '@/lib/sewing/timeline-server';
 const headers={'Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
-const input=publicRequestSchema.safeExtend({budgetCents:z.number().int().min(0).max(100000000000).nullable(),unitBudgetCents:z.number().int().min(0).max(100000000000).nullable().optional(),sizing:z.enum(['specified','recommend','pending_chart']),fabric:z.enum(['specified','recommend']),requirements:z.string().max(5000)});
+const input=publicRequestSchema.safeExtend({budgetCents:z.number().int().min(0).max(100000000000).nullable(),unitBudgetCents:z.number().int().min(0).max(100000000000).nullable().optional(),sizing:z.enum(['specified','recommend','pending_chart']),fabric:z.enum(['specified','recommend']),fabricDetails:z.string().trim().max(3000).optional(),requirements:z.string().max(5000)}).refine(v=>v.fabric!=='specified'||v.fabricDetails===undefined||v.fabricDetails.length>0,{path:['fabricDetails'],message:'请填写面料要求'});
 const tokenSchema=z.string().regex(/^[a-zA-Z0-9_-]{43}$/);
 async function handle(req:NextRequest,ctx:{params:Promise<{path?:string[]}>}){try{
  const path=(await ctx.params).path??[],write=req.method==='POST';if(write&&(!req.headers.get('origin')||new URL(req.headers.get('origin')!).host!==req.headers.get('host')||req.headers.get('x-sewing-ops')!=='1'))return NextResponse.json({error:'请求未授权'},{status:403,headers});

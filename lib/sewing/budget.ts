@@ -8,3 +8,7 @@ export function budgetSummary(value:{budgetCents?:number|null;unitBudgetCents?:n
 export function sizingSummary(value?:'specified'|'recommend'|'pending_chart'):string {
  return value==='pending_chart'?'尺码：待统一尺码表发布后确认':value==='specified'?'尺码：客户自行指定':'尺码：请团队推荐';
 }
+
+export function fabricSummary(value?:{fabric?:'specified'|'recommend';fabricDetails?:string}):string {
+ return value?.fabric==='specified'?'面料：客户自行选择'+(value.fabricDetails?' · '+value.fabricDetails:'（要求待补充）'):'面料：由 Kaiyan 妈妈根据单件预算决定';
+}

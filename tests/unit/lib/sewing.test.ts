@@ -2,13 +2,15 @@ import { describe, it, expect, vi } from "vitest";
 import { allowedEmail, canRead, canManage } from "@/lib/sewing/server";
 import { contentSchema, imageMime, requestSchema } from "@/lib/sewing/schema";
 import { defaultContent, productName, type Order } from "@/lib/sewing/types";
-import {budgetSummary,sizingSummary} from '@/lib/sewing/budget';
+import {budgetSummary,sizingSummary,fabricSummary} from '@/lib/sewing/budget';
 describe("sewing validation and authorization", () => {
   it("distinguishes old total budgets from new per-item budgets", () => {
     expect(budgetSummary({unitBudgetCents:15000})).toBe("客户单件心理预算：¥150.00 / 件");
     expect(budgetSummary({budgetCents:15000})).toBe("客户整单心理预算（历史填写）：¥150.00");
     expect(budgetSummary({unitBudgetCents:0})).toContain("¥0.00 / 件");
     expect(sizingSummary("pending_chart")).toContain("统一尺码表");
+    expect(fabricSummary({fabric:"specified",fabricDetails:"100% cotton fleece"})).toContain("100% cotton fleece");
+    expect(fabricSummary({fabric:"recommend"})).toContain("Kaiyan 妈妈");
   });
   it("uses exact, configured domains and is disabled by default", () => {
     vi.stubEnv("SEWING_SCHOOL_DOMAINS", "");

@@ -23,3 +23,5 @@
  .sewing .request-workflow-line strong{min-height:0;margin:2px 0 5px}
  .sewing .request-workflow-line li:last-child{padding-bottom:0}
 }
+
+.sewing .request-sheet .request-fabric-details-label{display:block;margin:14px 0 6px;font-size:13px}
