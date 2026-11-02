@@ -5,11 +5,15 @@ export const englishWorkflow = [
  {id:'school',title:'Sample approval',hint:'Delivered to school'},
  {id:'quote',title:'Final quote',hint:'After sample approval'},
  {id:'approval',title:'Quote approval',hint:'Confirm price & terms'},
- {id:'bulk',title:'Bulk & payment',hint:'Agreed deposit or full payment'},
- {id:'production',title:'Production & printing',hint:'Sewing team & print partner'},
- {id:'delivery',title:'Delivery & final payment',hint:'Check items & settle balance'},
+ {id:'production',title:'Production & printing',hint:'After quote approval'},
+ {id:'bulk',title:'Payment',hint:'After production, as agreed'},
+ {id:'delivery',title:'Delivery & balance',hint:'Check items & settle balance'},
 ] as const;
 const details:Record<string,string>={
+ '约定付款节点已完成':'The agreed payment milestone is complete.',
+ '付款尚未进行':'Payment has not started.',
+ '制作完成，按本单约定付款':'Production is complete. Please pay as agreed for this order.',
+ '制作完成后，按本单约定付款':'Payment follows production, as agreed for this order.',
  '需求已记录；未明确的信息可继续补充':'Your request is recorded. You can add missing information.',
  '等待团队核对需求与预算':'Waiting for the team to review your request and budget.',
  '样衣已制作；实际完成日期待补充':'Sample made. The actual completion date still needs to be recorded.',

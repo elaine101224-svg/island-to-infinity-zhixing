@@ -8,7 +8,7 @@ try {
   await page.setViewportSize({width,height:900});
   await page.goto((process.env.SEWING_TEST_BASE||'http://localhost:3934')+'/sewing/request');
   await page.getByRole('heading',{name:'How your order progresses',exact:true}).waitFor();
-  assert.equal(await page.locator('.request-process li').count(),8);
+  assert.equal(await page.locator('.request-process li').count(),8);const steps=await page.locator('.request-workflow-line li strong').allTextContents();assert.deepEqual(steps.slice(-3),['Production & printing','Payment','Delivery & balance']);
   const dots=await page.locator('.request-workflow-dot').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y};}));
   assert.equal(dots.length,8);
   for(let i=1;i<dots.length;i++) {
