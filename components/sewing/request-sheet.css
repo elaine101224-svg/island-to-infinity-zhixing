@@ -5,3 +5,21 @@
 .sewing .request-desk .sw-error{border:1px solid #ac5740;border-radius:6px}
 
 .sewing .request-process h2{font:600 20px/1.5 Arial,'PingFang SC',sans-serif!important;letter-spacing:0!important;margin:22px 0 10px;color:#354b33}.request-expectations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;border-top:1px solid #dcd4c7;padding-top:18px;margin-top:16px}.sewing .request-expectations h3{font:600 15px/1.5 Arial,'PingFang SC',sans-serif!important;letter-spacing:0!important;margin:0 0 8px}.request-expectations p{font-size:14px;line-height:1.7;margin:0;max-width:65ch}@media(max-width:650px){.request-expectations{grid-template-columns:1fr;gap:18px}}
+
+.sewing .request-process .request-workflow-line{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));columns:auto;gap:0;list-style:none;padding:0;margin:24px 0 28px}
+.sewing .request-workflow-line li{position:relative;min-width:0;padding:0 10px;text-align:center}
+.sewing .request-workflow-line li::before{content:"";position:absolute;top:14px;left:0;right:0;border-top:2px solid #aebaa6}
+.sewing .request-workflow-line li:first-child::before{left:50%}
+.sewing .request-workflow-line li:last-child::before{right:50%}
+.sewing .request-workflow-line .request-workflow-dot{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:30px;height:30px;margin:0 auto 14px;border:2px solid #536650;border-radius:50%;background:#faf7f2;color:#354b33;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.sewing .request-workflow-line strong{font-size:13px;line-height:1.5;min-height:60px;margin-bottom:8px}
+.sewing .request-workflow-line li div>span{font-size:12px;line-height:1.65;color:#62594e}
+@media(max-width:999px){
+ .sewing .request-process .request-workflow-line{grid-template-columns:1fr;margin:22px 0}
+ .sewing .request-workflow-line li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:16px;text-align:left;padding:0 0 24px}
+ .sewing .request-workflow-line li::before,.sewing .request-workflow-line li:first-child::before{left:14px;right:auto;top:14px;bottom:-14px;width:2px;border:0;background:#aebaa6}
+ .sewing .request-workflow-line li:last-child::before{display:none}
+ .sewing .request-workflow-line .request-workflow-dot{margin:0}
+ .sewing .request-workflow-line strong{min-height:0;margin:2px 0 5px}
+ .sewing .request-workflow-line li:last-child{padding-bottom:0}
+}
