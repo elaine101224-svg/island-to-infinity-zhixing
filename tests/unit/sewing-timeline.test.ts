@@ -4,6 +4,16 @@ import {orderTimeline,publicOrderTimeline} from '@/lib/sewing/timeline';
 const id='4307e39d-bf65-4d1a-958a-b5d737672274';
 const base:ManagedOrder={id,version:1,created_at:'2026-11-01T12:00:00Z',work:null,data:{name:'示例卫衣',product:'hoodie',quantity:null,group:'示例House A',wechat:'',date:'',notes:'',caseRecord:{source:'客户提供的实际业务资料',progress:{budget:true,sample:true,paymentNotStarted:true}}}};
 describe('shared fixed sewing timeline',()=>{
+ it('keeps a delivered historical order out of sampling without inventing settlement',()=>{
+  const work=createWork({id,customer:{name:'Ohana',contact:'',organization:'Ohana',channel:'school'},product:'Ohana hoodie',quantity:70,expectedDate:'',template:'make'},'admin','2026-11-01T00:00:00Z');
+  work.business='delivered';
+  const timeline=orderTimeline({...base,work});
+  expect(timeline.current).toBe('交付与尾款');
+  expect(timeline.stages.find(s=>s.id==='delivery')?.detail).toContain('已交付');
+  expect(timeline.stages.find(s=>s.id==='bulk')?.state).not.toBe('done');
+  expect(timeline.stages.find(s=>s.id==='school')?.state).not.toBe('done');
+  expect(work.finance?.ledger).toEqual([]);
+ });
  it('shows reported sample completion without inventing dates, quantities, approvals or payment',()=>{const timeline=orderTimeline(base);expect(timeline.stages.filter(s=>s.state==='done'||s.state==='recorded').map(s=>s.id)).toEqual(['budget','sample']);expect(timeline.stages.find(s=>s.id==='sample')?.date).toBeNull();expect(timeline.current).toBe('样衣送校确认');expect(timeline.stages.find(s=>s.id==='bulk')?.detail).toContain('付款尚未进行');expect(base.data?.quantity).toBeNull();});
  it('records an existing production order without manufacturing historical confirmation rows',()=>{const order=structuredClone(base);order.data!.quantity=12;order.data!.caseRecord!.progress={budget:true,sample:true,preProductionComplete:true,production:true,paymentNotStarted:true};const t=orderTimeline(order);expect(t.current).toBe('生产及印花');expect(t.completed).toBe(5);expect(t.stages.find(s=>s.id==='approval')?.state).toBe('recorded');expect(t.stages.find(s=>s.id==='approval')?.date).toBeNull();expect(t.stages.find(s=>s.id==='bulk')?.state).toBe('pending');});
  it('places payment after completed production without assuming payment was received',()=>{

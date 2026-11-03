@@ -33,7 +33,7 @@ export function orderTimeline(order:ManagedOrder,confirmations:Confirmation[]=[]
  const recorded=new Set<StageId>(reported.preProductionComplete?['budget','sample','school','quote','approval']:[]);if(reported.sample&&!w?.sample?.completed)recorded.add('sample');
  if(recorded.has('school')&&!flags.school)details.school='历史流程已完成；送校日期及样衣确认凭证待补充';if(recorded.has('quote')&&!flags.quote)details.quote='历史流程已完成；最终报价单及金额待补充';if(recorded.has('approval')&&!flags.approval)details.approval='历史流程已完成；客户确认凭证待补充，不代建确认记录';
  if(reported.production&&w&&['delivered','archived'].includes(w.business))recorded.add('production');
- const currentId=reported.production&&!flags.production?'production':workflow.find(s=>!flags[s.id]&&!recorded.has(s.id))?.id;
+ const currentId=w?.business==='delivered'&&!flags.delivery?'delivery':reported.production&&!flags.production?'production':workflow.find(s=>!flags[s.id]&&!recorded.has(s.id))?.id;
  const current=workflow.find(s=>s.id===currentId)?.title??'已完成交付与结款';
  return {stages:workflow.map(s=>({...s,state:recorded.has(s.id)&&(s.id==='budget'?(!w||!!w.legacy):s.id==='sample'?!w?.sample?.completed:!flags[s.id])?'recorded':flags[s.id]?'done':s.id===currentId?'current':'pending',detail:details[s.id],date:reported.preProductionComplete&&recorded.has(s.id)?null:dates[s.id]})),current,completed:workflow.filter(s=>flags[s.id]||recorded.has(s.id)).length,total:workflow.length,updatedAt:w?.history.at(-1)?.at??order.created_at??null};
 }
