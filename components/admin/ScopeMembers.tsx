@@ -16,8 +16,8 @@ export default function ScopeMembers({document,revision,initialScope,onSaved}:{d
   setEditing(null);await onSaved();
  }catch(cause){setError((cause as Error).message);}finally{setBusy(false);}}
  async function create(event:React.FormEvent){event.preventDefault();setBusy(true);setError('');try{const id=crypto.randomUUID();const response=await adminFetch('/api/admin/member-tasks',{method:'POST',json:{revision,createScope:{id,title:newTitle,kind:newKind}}});const data=await response.json();if(!response.ok)throw Error(data.error);setCreating(false);setNewTitle('');await onSaved(id);}catch(cause){setError((cause as Error).message);}finally{setBusy(false);}}
- return <details className="console-panel" open={editing!==null||creating||undefined}>
-  <summary className="cursor-pointer min-h-14 px-5 py-4 text-sm font-semibold">Family & project members</summary>
+ return <section className="console-panel"  data-static-section="true">
+  <div className="cursor-pointer min-h-14 px-5 py-4 text-sm font-semibold" data-section-heading="true">Family & project members</div>
   <div className="px-5 pb-5 space-y-4">
    <p className="text-sm text-earth-mid">Add or remove people from each team. Existing task assignments and progress are kept; update task assignees separately when needed.</p>
    <button type="button" className="min-h-11 text-sm underline" disabled={busy||!!editing} onClick={()=>setCreating(value=>!value)}>Add family / project</button>
@@ -32,5 +32,5 @@ export default function ScopeMembers({document,revision,initialScope,onSaved}:{d
     <div className="flex gap-4"><button className="editor-button" type="submit">{busy?'Saving…':'Save members'}</button><button type="button" className="min-h-11 text-sm underline" onClick={()=>setEditing(null)}>Cancel</button></div>
    </fieldset></form>:<div className="divide-y divide-sand">{scopes.filter(scope=>!initialScope||scope.id===initialScope).map(scope=><div key={scope.id} className="flex items-center justify-between gap-4 py-3"><div><h2 className="text-sm font-semibold">{scope.title}</h2><p className="text-xs text-earth-mid mt-1">{scope.kind==='family'?'Family':'Project'} · {[...new Set([...scope.memberIds,...scope.coordinatorIds])].map(id=>document.people.find(person=>person.id===id)?.name??id).join(' · ')||'No members'}</p></div><button type="button" className="shrink-0 min-h-11 text-sm underline" aria-label={`Edit members of ${scope.title}`} onClick={()=>edit(scope.id)}>Edit members</button></div>)}{!scopes.length&&<p className="text-sm text-earth-mid">No families or projects linked yet.</p>}</div>}
   </div>
- </details>;
+ </section>;
 }

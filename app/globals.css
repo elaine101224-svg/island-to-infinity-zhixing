@@ -127,7 +127,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .admin-console { background: #F5F2EC; }
 .console-content { padding: 1.5rem 1.25rem 3rem; }
 .admin-navigation { display: flex; flex-direction: column; flex-shrink: 0; background: #3D2E24; color: #FAF7F2; }
-.admin-navigation :is(a,button,summary):focus-visible { outline-color: #F0E0C0; }
+.admin-navigation :is(a,button,[data-section-heading]):focus-visible { outline-color: #F0E0C0; }
 .console-nav-link { display: flex; align-items: center; gap: .75rem; min-height: 2.75rem; padding: .7rem .9rem; border-radius: .5rem; color: #E8E0D5; font-size: .875rem; transition: background-color .15s, color .15s; }
 .console-nav-link:hover { background: rgb(255 255 255 / .08); color: #FAF7F2; }
 .console-nav-link.is-active { background: #FAF7F2; color: #3D2E24; font-weight: 600; }
@@ -293,7 +293,13 @@ html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
 .member-team-task-title { font-size:.875rem; line-height:1.6; font-weight:650; overflow-wrap:anywhere; }
 .member-personal-task { padding:1rem; background:#FFFEFB; border:1px solid #E1D0A5; border-radius:.625rem; }
 @media(min-width:640px){.member-task-stack { padding:1.25rem; gap:1rem; }.member-task-row { padding:1.25rem; }}
-@media(max-width:639px){.member-task-layout { flex-direction:column; gap:.25rem; }.member-task-layout > details { width:100%; }.member-task-quick-action { align-self:flex-start; }.member-task-stack { padding:.75rem; }.member-task-row { padding:1rem; }}
+@media(max-width:639px){.member-task-layout { flex-direction:column; gap:.25rem; }.member-task-layout > [data-static-section] { width:100%; }.member-task-quick-action { align-self:flex-start; }.member-task-stack { padding:.75rem; }.member-task-row { padding:1rem; }}
 
 .member-role-phrases { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.25rem; }
 .member-role-phrases > span { padding:.3rem .55rem; border-radius:.375rem; background:var(--scope-tint); color:var(--scope-ink); font-size:.75rem; font-weight:550; line-height:1.5; }
+
+/* Content sections stay visible throughout the site. */
+[data-section-heading]{cursor:default!important;list-style:none;font-weight:500}
+[data-section-heading]::marker{content:''}
+[data-section-heading] .lucide-chevron-down,[data-section-heading] .lucide-chevron-right{display:none}
+[data-static-section]{min-width:0}
