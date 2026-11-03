@@ -35,11 +35,11 @@
 .sew-ops .merchant-decision-options label{display:flex;flex-direction:row;align-items:center;gap:8px;margin:0;padding:9px 18px;min-height:46px;background:#fffdf8;border:1px solid #c8beaf;border-radius:6px;cursor:pointer;font-size:14px}
 .sew-ops .merchant-decision-options label:has(:checked){background:#e8eddf;border-color:#536650;color:#354b33}
 .sew-ops .merchant-decision-options input{width:16px;height:16px;min-height:16px;margin:0;padding:0;accent-color:#536650}
-.merchant-request-footer form>fieldset>p{font-size:13px;color:#62594e;margin:10px 0 14px}
+.merchant-request-footer .ops-request-decision form>fieldset>p{font-size:13px;color:#62594e;margin:10px 0 14px}
 .sew-ops .merchant-request-footer .ops-primary{min-width:150px}.merchant-request-footer textarea{max-width:640px}
 .sew-ops .merchant-request .ops-decision-note{display:flex;align-items:flex-start;gap:8px;margin:0;padding:0;background:transparent;font-size:14px;color:#385134}
 .merchant-reference{display:flex;align-items:center;gap:3px;font-size:11px;color:#706556;margin-top:12px;font-variant-numeric:tabular-nums}
-@media(min-width:900px){.merchant-request-footer form>fieldset{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:20px}.sew-ops .merchant-request-footer .merchant-decision-options{grid-column:1;margin:0}.merchant-request-footer form>fieldset>p{grid-column:2;margin:0}.merchant-request-footer form>fieldset>.ops-primary{grid-column:3;grid-row:1}.merchant-request-footer form>fieldset>label{grid-column:2;margin:0}.merchant-request-footer form>fieldset>label:has([name=adoptQuantity]){grid-column:1/-1;margin-bottom:14px;grid-row:1}.merchant-request-footer form>fieldset:has([name=adoptQuantity])>.ops-primary{grid-row:auto}}
+@media(min-width:900px){.merchant-request-footer .ops-request-decision form>fieldset{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:20px}.sew-ops .merchant-request-footer .merchant-decision-options{grid-column:1;margin:0}.merchant-request-footer .ops-request-decision form>fieldset>p{grid-column:2;margin:0}.merchant-request-footer .ops-request-decision form>fieldset>.ops-primary{grid-column:3;grid-row:1}.merchant-request-footer .ops-request-decision form>fieldset>label{grid-column:2;margin:0}.merchant-request-footer .ops-request-decision form>fieldset>label:has([name=adoptQuantity]){grid-column:1/-1;margin-bottom:14px;grid-row:1}.merchant-request-footer .ops-request-decision form>fieldset:has([name=adoptQuantity])>.ops-primary{grid-row:auto}}
 @media(max-width:700px){.sew-ops.ops-simple{padding:20px 16px 40px}.ops-simple .ops-header h1{font-size:28px}.ops-simple .ops-user{align-items:flex-start}.ops-simple .ops-user .ops-actions{gap:6px}.ops-simple .ops-user button{padding:8px 10px;font-size:12px}.merchant-request-header{padding:20px 18px 16px;gap:12px}.sew-ops .merchant-request h2{font-size:22px}.merchant-request-layout{grid-template-columns:1fr;padding:0 18px 20px;gap:20px}.merchant-artwork{order:2}.merchant-brief{order:1}.merchant-key-facts{gap:10px}.merchant-key-facts dt{font-size:11px;gap:4px}.merchant-key-facts dt svg{width:14px}.merchant-key-facts dd{font-size:22px}.merchant-key-facts .merchant-date{font-size:14px;padding-top:6px}.merchant-request-footer{padding:18px}.merchant-no-files{min-height:110px}.merchant-request-footer .ops-primary{width:100%}.sew-ops .merchant-status{font-size:12px;padding:5px 8px}.merchant-request-header .merchant-customer{font-size:13px}}
 
 .sew-ops .merchant-product-original{font-size:12px;line-height:1.5;font-weight:400;color:#706556;margin:4px 0 0}
@@ -75,7 +75,7 @@
 .sew-ops .merchant-contact{margin:14px 0;padding-bottom:12px;border-bottom:1px solid #e4ded3}
 .merchant-details>div{padding:7px 0;grid-template-columns:64px minmax(0,1fr);gap:12px}
 .merchant-request-footer{padding:16px 24px}.merchant-reference{margin-top:8px}
-.sew-ops .merchant-request-footer form>fieldset>label:has([name=adoptQuantity]){max-width:220px}
+.sew-ops .merchant-request-footer .ops-request-decision form>fieldset>label:has([name=adoptQuantity]){max-width:220px}
 .sew-ops .merchant-request-footer .ops-request-decision h3{margin-bottom:8px}
 @media(max-width:700px){
  .sew-ops.ops-simple{padding:16px 14px 32px}

@@ -5,11 +5,14 @@ import {money,type ManagedOrder} from '@/lib/sewing/operations';
 import {merchantProductLabel} from '@/lib/sewing/merchant-labels';
 import {sizingSummary} from '@/lib/sewing/budget';
 import {RequestDecision} from './OrderEditor';
+import CustomerProgress from '../CustomerProgress';
+import ProgressUpdates from '../ProgressUpdates';
+import MerchantProgressEditor from './MerchantProgressEditor';
 import MerchantAttachment from './MerchantAttachment';
 
 export default function MerchantRequest({order:o,canDecide,onReload}:{order:ManagedOrder;canDecide:boolean;onReload:()=>Promise<unknown>}) {
  const d=o.data,w=o.work;
- const delivered=w?.business==='delivered';
+ const delivered=o.delivered||w?.business==='delivered';
  const historical=delivered&&!!d?.historicalPeriod;
  const status=delivered?'delivered':!w?'pending':w.business==='cancelled'?'declined':'accepted';
  const StatusIcon=status==='pending'?Clock3:(status==='accepted'||delivered)?Check:X;
@@ -37,6 +40,6 @@ export default function MerchantRequest({order:o,canDecide,onReload}:{order:Mana
     {!!o.customerSupplements?.length&&<section className="merchant-supplements"><h3>客户补充</h3>{o.customerSupplements.map(n=><p key={n.id}>{n.notes||'补充了附件'}</p>)}</section>}
    </div>
   </div>
-  <footer className="merchant-request-footer">{!w?canDecide?<RequestDecision order={o} onReload={onReload}/>:<p>等待妈妈决定是否接单。</p>:<p className="ops-decision-note"><StatusIcon size={18} aria-hidden="true"/>{status==='declined'?'不接单原因：'+(w.reason||'请在微信群沟通'):historical?'历史订单已交付。':delivered?'已交付。':'已接单，面料、样衣、价格和交期请在微信群沟通。'}</p>}{o.timeline&&status!=='declined'&&!delivered&&<p className="merchant-progress-current">当前进度：<strong>{o.timeline.current}</strong></p>}<span className="merchant-reference"><Hash size={12} aria-hidden="true"/>{o.id.slice(0,8)}</span></footer>
+  <footer className="merchant-request-footer">{w&&status!=='declined'&&<>{o.timeline&&<CustomerProgress timeline={o.timeline} delivered={delivered} lang="zh"/>}<ProgressUpdates updates={o.progressUpdates??[]} orderId={o.id} lang="zh"/>{canDecide&&!['cancelled','archived'].includes(w.business)&&<MerchantProgressEditor order={o} onReload={onReload}/>}</>}{!w?canDecide?<RequestDecision order={o} onReload={onReload}/>:<p>等待妈妈决定是否接单。</p>:<p className="ops-decision-note"><StatusIcon size={18} aria-hidden="true"/>{status==='declined'?'不接单原因：'+(w.reason||'请在微信群沟通'):historical?'历史订单已交付。':delivered?'已交付。':'已接单，面料、样衣、价格和交期请在微信群沟通。'}</p>}{o.timeline&&status!=='declined'&&!delivered&&<p className="merchant-progress-current">当前进度：<strong>{o.timeline.current}</strong></p>}<span className="merchant-reference"><Hash size={12} aria-hidden="true"/>{o.id.slice(0,8)}</span></footer>
  </article>;
 }

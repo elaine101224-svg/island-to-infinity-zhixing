@@ -10,6 +10,7 @@ export const englishWorkflow = [
  {id:'delivery',title:'Delivery & balance',hint:'Check items & settle balance'},
 ] as const;
 const details:Record<string,string>={
+ '团队已更新此阶段':'The team updated this stage.',
  '约定付款节点已完成':'The agreed payment milestone is complete.',
  '付款尚未进行':'Payment has not started.',
  '制作完成，按本单约定付款':'Production is complete. Please pay as agreed for this order.',

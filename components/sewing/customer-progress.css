@@ -1,0 +1,41 @@
+:is(.sewing,.sew-ops) .customer-progress{margin:24px 0 28px;padding:26px 28px 20px;background:#fffdf8;border:1px solid #dcd4c7;border-radius:14px;overflow:hidden}
+.customer-progress-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+:is(.sewing,.sew-ops) .customer-progress-heading h2{font:600 17px/1.4 Arial,'PingFang SC',sans-serif;margin:0;letter-spacing:0}
+.customer-progress-heading>span{font-size:12px;color:#706556}
+.customer-progress-status{display:flex;gap:16px;align-items:center;padding:26px 0 30px}
+.customer-progress-status-icon{display:flex;align-items:center;justify-content:center;width:58px;height:58px;flex-shrink:0;border-radius:12px;background:#f3e7d2;color:#805528}
+.customer-progress[data-delivered=true] .customer-progress-status-icon{background:#e8eddf;color:#385134}
+:is(.sewing,.sew-ops) .customer-progress-status h3{font:600 30px/1.25 Arial,'PingFang SC',sans-serif;color:#3d362d;letter-spacing:-.02em;margin:0 0 7px}
+:is(.sewing,.sew-ops) .customer-progress-status p{font-size:14px;color:#62594e;line-height:1.65;margin:0;max-width:65ch}
+.customer-progress-track{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));list-style:none;padding:0;margin:0 0 24px}
+.customer-progress-track>li{position:relative;text-align:center;padding:0 6px;min-width:0}
+.customer-progress-track>li::before{content:'';position:absolute;top:19px;left:0;right:0;border-top:1px solid #cbc5b8}
+.customer-progress-track>li:first-child::before{left:50%}.customer-progress-track>li:last-child::before{right:50%}
+.customer-progress-node{display:flex;position:relative;z-index:1;align-items:center;justify-content:center;width:40px;height:40px;margin:0 auto 12px;background:#fffdf8;border:1px solid #c9c1b4;border-radius:50%;color:#706556;font-size:12px;font-variant-numeric:tabular-nums}
+.customer-progress-track [data-state=done] .customer-progress-node{background:#536650;color:#fff;border-color:#536650}
+.customer-progress-track [data-state=recorded] .customer-progress-node{background:#e8eddf;color:#385134;border-color:#a8b69b}
+.customer-progress-track [data-state=current] .customer-progress-node{background:#f3e7d2;color:#805528;border:2px solid #aa7940}
+.customer-progress-track [data-state=unrecorded] .customer-progress-node{border-style:dashed}
+.customer-progress-step strong{display:block;font-size:12px;line-height:1.5;color:#3d362d;font-weight:600}
+.customer-progress-step>span,.customer-progress-step time{display:block;font-size:11px;line-height:1.5;color:#706556;margin-top:5px}
+.customer-progress-track [data-state=current] .customer-progress-step>span{color:#805528;font-weight:600}
+.customer-progress-track [data-state=done] .customer-progress-step>span{color:#385134}
+:is(.sewing,.sew-ops) .customer-progress-note{margin:0;padding-top:14px;border-top:1px solid #e4ded3;color:#706556;font-size:12px;line-height:1.7}
+@media(max-width:999px){
+ .customer-progress-track{grid-template-columns:1fr;margin-bottom:10px}
+ .customer-progress-track>li{display:flex;align-items:flex-start;text-align:left;gap:14px;padding:0 0 17px}
+ .customer-progress-track>li::before,.customer-progress-track>li:first-child::before{left:19px;right:auto;top:20px;bottom:-20px;border:0;border-left:1px solid #cbc5b8}
+ .customer-progress-track>li:last-child::before{display:none}
+ .customer-progress-node{margin:0;flex-shrink:0}
+ .customer-progress-step{padding-top:2px}.customer-progress-step strong{font-size:14px}.customer-progress-step>span{margin-top:2px;font-size:12px}
+ .customer-progress-status{padding-bottom:24px}
+}
+@media(max-width:650px){
+ :is(.sewing,.sew-ops) .customer-progress{padding:20px 18px 18px;margin:20px 0;border-radius:12px}
+ .customer-progress-heading>span{font-size:11px}:is(.sewing,.sew-ops) .customer-progress-heading h2{font-size:15px}
+ .customer-progress-status{gap:12px;padding-top:22px;align-items:flex-start}
+ .customer-progress-status-icon{width:46px;height:46px}.customer-progress-status-icon svg{width:24px}
+ :is(.sewing,.sew-ops) .customer-progress-status h3{font-size:25px}:is(.sewing,.sew-ops) .customer-progress-status p{font-size:13px}
+}
+
+.sew-ops .customer-progress{border:0;background:transparent;border-radius:0;padding:0;margin:4px 0 20px}.sew-ops .customer-progress-track{font-family:Arial,'PingFang SC',sans-serif}
