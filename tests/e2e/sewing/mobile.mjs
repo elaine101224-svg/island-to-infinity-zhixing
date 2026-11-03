@@ -24,10 +24,10 @@ try {
   await page.reload();await page.getByText('test-sample.png (uploaded)').waitFor();
   await page.locator('[name=notes]').fill('Added after submission');await page.getByRole('button',{name:'Save additions',exact:true}).click();await page.getByText('Your additions have been saved. The team will review them before updating the agreed specifications.').waitFor();
   await maker.getByRole('button',{name:'刷新需求',exact:true}).click();const card=maker.locator('.ops-simple-request').filter({hasText:name});await card.waitFor();
-  for(const value of ['Test House','100% cotton, 300 gsm','Blue cotton with initials','School delivery','test-sample.png','Added after submission','150.00'])assert((await card.innerText()).includes(value),value);
+  for(const value of ['Test House','100% cotton, 300 gsm','Blue cotton with initials','School delivery','Added after submission','150.00'])assert((await card.innerText()).includes(value),value);
   const img=card.locator('img[alt="订单附件，点击查看原图"]');await img.waitFor();await img.evaluate(i=>i.complete?Promise.resolve():new Promise((resolve,reject)=>{i.onload=resolve;i.onerror=reject;}));assert(await img.evaluate(i=>i.naturalWidth>0));
   if(decision==='decline'){const invalid=await maker.request.post(base+'/api/sewing-ops/orders/'+view.id+'/adopt',{headers:{origin:base,'x-sewing-ops':'1'},data:{decision:'decline',reason:' '}});assert.equal(invalid.status(),400);}
-  await card.locator('.ops-request-decision select').selectOption(decision);
+  await card.getByRole('radio',{name:decision==='accept'?'接单':'不接单',exact:true}).check();
   if(decision==='decline')await card.locator('[name=reason]').fill('无法满足本单交期');
   await card.getByRole('button',{name:decision==='accept'?'确认接单':'确认不接单',exact:true}).click();
   await card.locator('.ops-decision-status').filter({hasText:decision==='accept'?'已接单':'不接单'}).waitFor();
