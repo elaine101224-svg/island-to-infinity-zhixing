@@ -306,11 +306,11 @@
 .sw-steps p {
   font-size: 13px;
 }
-.sewing details {
+.sewing [data-static-section] {
   padding: 20px 0;
   border-bottom: 1px solid var(--sw-line);
 }
-.sewing summary {
+.sewing [data-section-heading] {
   cursor: pointer;
   font-size: 17px;
 }

@@ -224,10 +224,10 @@ export default function PublicContent({
           </ol>
           <Notice />
           {content.faq.map((f, i) => (
-            <details key={i}>
-              <summary>{f.question[lang]}</summary>
+            <section key={i} data-static-section="true">
+              <div data-section-heading="true">{f.question[lang]}</div>
               <p>{f.answer[lang]}</p>
-            </details>
+            </section>
           ))}
         </section>
       )}
